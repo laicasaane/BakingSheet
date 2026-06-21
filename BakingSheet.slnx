@@ -1,0 +1,13 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="BakingSheet.Converters.Csv/BakingSheet.Converters.Csv.csproj" />
+  <Project Path="BakingSheet.Converters.Excel/BakingSheet.Converters.Excel.csproj" />
+  <Project Path="BakingSheet.Converters.Google/BakingSheet.Converters.Google.csproj" />
+  <Project Path="BakingSheet.Converters.Json/BakingSheet.Converters.Json.csproj" />
+  <Project Path="BakingSheet.Tests/BakingSheet.Tests.csproj" />
+  <Project Path="BakingSheet/BakingSheet.csproj" />
+</Solution>
