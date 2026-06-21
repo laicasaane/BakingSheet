@@ -1,4 +1,5 @@
-﻿{
+{
+    "dotnet.defaultSolution": "BakingSheet.slnx",
     "files.exclude":
     {
         "**/bin":true,
