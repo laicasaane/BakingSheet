@@ -27,13 +27,13 @@ namespace Cathei.BakingSheet
             : base(timeZoneInfo, formatProvider)
         {
             _gsheetAddress = gsheetAddress;
-            _credential = GoogleCredential.
-                FromJson(credential).
+            _credential = CredentialFactory.
+                FromJson(credential, JsonCredentialParameters.ServiceAccountCredentialType).
                 CreateScoped(new[] { DriveService.Scope.DriveReadonly });
             _pages = new Dictionary<string, List<Page>>();
         }
 
-        public async Task<DateTime> FetchModifiedTime()
+        public async Task<DateTimeOffset> FetchModifiedTime()
         {
             using (var service = new DriveService(new BaseClientService.Initializer() {
                 HttpClientInitializer = _credential
@@ -44,7 +44,7 @@ namespace Cathei.BakingSheet
                 fileReq.Fields = "modifiedTime";
 
                 var file = await fileReq.ExecuteAsync();
-                return file.ModifiedTime ?? default;
+                return file.ModifiedTimeDateTimeOffset ?? DateTimeOffset.MinValue;
             }
         }
 
