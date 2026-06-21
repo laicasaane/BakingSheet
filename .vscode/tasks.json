@@ -85,7 +85,8 @@
             "command": "dotnet",
             "args": [
                 "publish", "-c", "Release",
-                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Core",
+                "-f", "netstandard2.0",
+                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Core/Prebuilt",
                 "BakingSheet" ],
             "problemMatcher": [ "$tsc" ],
         },
@@ -95,7 +96,8 @@
             "command": "dotnet",
             "args": [
                 "publish", "-c", "Release",
-                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Excel",
+                "-f", "netstandard2.0",
+                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Excel/Prebuilt",
                 "BakingSheet.Converters.Excel"
             ],
             "problemMatcher": [ "$tsc" ],
@@ -106,7 +108,8 @@
             "command": "dotnet",
             "args": [
                 "publish", "-c", "Release",
-                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Google",
+                "-f", "netstandard2.0",
+                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Google/Prebuilt",
                 "BakingSheet.Converters.Google"
             ],
             "problemMatcher": [ "$tsc" ],
@@ -117,7 +120,8 @@
             "command": "dotnet",
             "args": [
                 "publish", "-c", "Release",
-                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/CSV",
+                "-f", "netstandard2.0",
+                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/CSV/Prebuilt",
                 "BakingSheet.Converters.Csv"
             ],
             "problemMatcher": [ "$tsc" ],
@@ -128,7 +132,8 @@
             "command": "dotnet",
             "args": [
                 "publish", "-c", "Release",
-                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Json",
+                "-f", "netstandard2.0",
+                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Json/Prebuilt",
                 "BakingSheet.Converters.Json"
             ],
             "problemMatcher": [ "$tsc" ],
