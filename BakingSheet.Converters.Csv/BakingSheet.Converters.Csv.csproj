@@ -11,10 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NReco.Csv" Version="1.0.1" />
+    <PackageReference Include="NReco.Csv" Version="1.0.3" />
 
     <!-- Assemblies already referenced by BakingSheet -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.32" >
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9">
       <IncludeAssets>compile</IncludeAssets>
     </PackageReference>
   </ItemGroup>
