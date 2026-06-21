@@ -29,8 +29,14 @@ namespace Cathei.BakingSheet.Editor
 
         public static void BuildTestInternal(params string[] definingSymbol)
         {
+#if UNITY_6000_3_OR_NEWER
+            var currentGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+            var namedBuildTarget = UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(currentGroup);
+            PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, definingSymbol);
+#else
             var currentGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
             PlayerSettings.SetScriptingDefineSymbolsForGroup(currentGroup, definingSymbol);
+#endif
 
             BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {

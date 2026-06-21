@@ -1,5 +1,7 @@
 // BakingSheet, Maxwell Keonwoo Kang <code.athei@gmail.com>, 2022
 
+#if !UNITY_6000_3_OR_NEWER
+
 using System.Linq;
 using UnityEditor;
 using UnityEditor.PackageManager;
@@ -61,3 +63,5 @@ namespace Cathei.BakingSheet.Unity
         }
     }
 }
+
+#endif
