@@ -4,8 +4,8 @@
   "author": {
     "name": "Maxwell Keonwoo Kang"
   },
-  "version": "4.1.3",
-  "unity": "2019.4",
+  "version": "6.3.0-pre.1",
+  "unity": "6000.3",
   "description": "Easy datasheet management for C# and Unity.\nSupports Excel, Google Sheet, JSON and CSV format.",
   "license": "MIT",
   "documentationUrl": "https://github.com/cathei/BakingSheet",
