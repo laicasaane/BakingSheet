@@ -10,6 +10,6 @@
   "license": "MIT",
   "documentationUrl": "https://github.com/cathei/BakingSheet",
   "dependencies": {
-    "com.unity.nuget.newtonsoft-json": "3.0.2"
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
   }
 }
