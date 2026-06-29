@@ -1,6 +1,7 @@
 ﻿// BakingSheet, Maxwell Keonwoo Kang <code.athei@gmail.com>, 2022
 
 using System;
+using System.Runtime.InteropServices;
 using Cathei.BakingSheet.Unity;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace Cathei.BakingSheet
 
     public partial class Sheet<TKey, TValue>
     {
-        [Serializable]
+        [Serializable, StructLayout(LayoutKind.Auto)]
         public partial struct Reference : IUnitySheetReference
         {
             [SerializeField, UnitySheetReference] private SheetRowScriptableObject asset;
