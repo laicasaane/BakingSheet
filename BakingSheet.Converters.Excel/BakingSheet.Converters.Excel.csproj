@@ -5,7 +5,7 @@
     <PackageId>BakingSheet.Converters.Excel</PackageId>
     <Authors>Maxwell Keonwoo Kang</Authors>
     <PackageDescription>BakingSheet importer for Excel files</PackageDescription>
-    <RepositoryUrl>https://github.com/cathei/BakingSheet</RepositoryUrl>
+    <RepositoryUrl>https://github.com/laicasaane/BakingSheet</RepositoryUrl>
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>

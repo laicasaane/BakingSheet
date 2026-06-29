@@ -5,7 +5,7 @@
     <PackageId>BakingSheet.Converters.Csv</PackageId>
     <Authors>Maxwell Keonwoo Kang</Authors>
     <PackageDescription>BakingSheet converter for CSV files</PackageDescription>
-    <RepositoryUrl>https://github.com/cathei/BakingSheet</RepositoryUrl>
+    <RepositoryUrl>https://github.com/laicasaane/BakingSheet</RepositoryUrl>
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>

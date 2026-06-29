@@ -5,7 +5,7 @@
     <PackageId>BakingSheet.Converters.Google</PackageId>
     <Authors>Maxwell Keonwoo Kang</Authors>
     <PackageDescription>BakingSheet importer for Google Sheet</PackageDescription>
-    <RepositoryUrl>https://github.com/cathei/BakingSheet</RepositoryUrl>
+    <RepositoryUrl>https://github.com/laicasaane/BakingSheet</RepositoryUrl>
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>

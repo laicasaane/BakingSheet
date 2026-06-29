@@ -8,7 +8,7 @@
       "hash": "9f004b560570edab5305c6782be6e8f3f7576ad4"
     },
     "com.laicasaane.bakingsheet": {
-      "version": "file:com.cathei.bakingsheet",
+      "version": "file:com.laicasaane.bakingsheet",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
