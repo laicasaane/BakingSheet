@@ -22,7 +22,7 @@ namespace Cathei.BakingSheet
 
             SheetRowScriptableObject IUnitySheetReference.Asset
             {
-                get => asset;
+                readonly get => asset;
                 set => asset = value;
             }
 

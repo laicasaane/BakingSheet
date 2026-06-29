@@ -186,12 +186,12 @@ namespace Cathei.BakingSheet
             }
 
             public bool MoveNext() => ++_index < _sheet.Count;
-            public TValue Current => _sheet[_index];
+            public readonly TValue Current => _sheet[_index];
 
-            object IEnumerator.Current => Current;
+            readonly object IEnumerator.Current => Current;
             void IEnumerator.Reset() => _index = -1;
 
-            public void Dispose() { }
+            public readonly void Dispose() { }
         }
     }
 
