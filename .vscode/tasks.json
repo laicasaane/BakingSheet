@@ -22,7 +22,7 @@
             "command": "cp",
             "args": [
                 "-R", "BakingSheet/Src/*",
-                "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Core"
+                "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Core"
             ],
             "problemMatcher": [ "$tsc" ],
         },
@@ -32,7 +32,7 @@
             "command": "cp",
             "args": [
                 "BakingSheet.Converters.Excel/*.cs",
-                "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Excel"
+                "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel"
             ],
             "problemMatcher": [ "$tsc" ],
         },
@@ -42,7 +42,7 @@
             "command": "cp",
             "args": [
                 "BakingSheet.Converters.Google/*.cs",
-                "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Google"
+                "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google"
             ],
             "problemMatcher": [ "$tsc" ],
         },
@@ -52,7 +52,7 @@
             "command": "cp",
             "args": [
                 "BakingSheet.Converters.Csv/*.cs",
-                "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Csv"
+                "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Csv"
             ],
             "problemMatcher": [ "$tsc" ],
         },
@@ -62,7 +62,7 @@
             "command": "cp",
             "args": [
                 "BakingSheet.Converters.Json/*.cs",
-                "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Json"
+                "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Json"
             ],
             "problemMatcher": [ "$tsc" ],
         },
@@ -82,7 +82,7 @@
             "args": [
                 "publish", "-c", "Release",
                 "-f", "netstandard2.0",
-                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/CSV/Prebuilt",
+                "-o", "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/CSV/Prebuilt",
                 "BakingSheet.Converters.Csv"
             ],
             "problemMatcher": [ "$tsc" ],
@@ -91,7 +91,7 @@
             "label": "copy md",
             "type": "shell",
             "command": "cp",
-            "args": [ "*.md", "UnityProject/Packages/com.cathei.bakingsheet/" ],
+            "args": [ "*.md", "UnityProject/Packages/com.laicasaane.bakingsheet/" ],
             "problemMatcher": [ "$tsc" ],
         }
     ]

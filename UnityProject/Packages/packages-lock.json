@@ -1,6 +1,13 @@
 {
   "dependencies": {
-    "com.cathei.bakingsheet": {
+    "com.cathei.betterstreamingassets": {
+      "version": "https://github.com/cathei/BetterStreamingAssets-Package.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "9f004b560570edab5305c6782be6e8f3f7576ad4"
+    },
+    "com.laicasaane.bakingsheet": {
       "version": "file:com.cathei.bakingsheet",
       "depth": 0,
       "source": "embedded",
@@ -12,13 +19,6 @@
         "org.nuget.microsoft.extensions.logging.abstractions": "10.0.9",
         "com.unity.nuget.newtonsoft-json": "3.2.2"
       }
-    },
-    "com.cathei.betterstreamingassets": {
-      "version": "https://github.com/cathei/BetterStreamingAssets-Package.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "9f004b560570edab5305c6782be6e8f3f7576ad4"
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
