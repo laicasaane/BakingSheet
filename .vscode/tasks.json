@@ -69,50 +69,11 @@
         {
             "label": "unity: publish",
             "dependsOn": [
-                "unity: publish core",
-                "unity: publish excel",
-                "unity: publish google",
-                "unity: publish csv",
-                "unity: publish json"
+                "unity: publish csv"
             ],
             "dependsOrder": "sequence",
             "group": "build",
             "problemMatcher": [ "$tsc" ]
-        },
-        {
-            "label": "unity: publish core",
-            "type": "shell",
-            "command": "dotnet",
-            "args": [
-                "publish", "-c", "Release",
-                "-f", "netstandard2.0",
-                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Core/Prebuilt",
-                "BakingSheet" ],
-            "problemMatcher": [ "$tsc" ],
-        },
-        {
-            "label": "unity: publish excel",
-            "type": "shell",
-            "command": "dotnet",
-            "args": [
-                "publish", "-c", "Release",
-                "-f", "netstandard2.0",
-                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Excel/Prebuilt",
-                "BakingSheet.Converters.Excel"
-            ],
-            "problemMatcher": [ "$tsc" ],
-        },
-        {
-            "label": "unity: publish google",
-            "type": "shell",
-            "command": "dotnet",
-            "args": [
-                "publish", "-c", "Release",
-                "-f", "netstandard2.0",
-                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Google/Prebuilt",
-                "BakingSheet.Converters.Google"
-            ],
-            "problemMatcher": [ "$tsc" ],
         },
         {
             "label": "unity: publish csv",
@@ -127,19 +88,7 @@
             "problemMatcher": [ "$tsc" ],
         },
         {
-            "label": "unity: publish json",
-            "type": "shell",
-            "command": "dotnet",
-            "args": [
-                "publish", "-c", "Release",
-                "-f", "netstandard2.0",
-                "-o", "UnityProject/Packages/com.cathei.bakingsheet/Runtime/Converters/Json/Prebuilt",
-                "BakingSheet.Converters.Json"
-            ],
-            "problemMatcher": [ "$tsc" ],
-        },
-        {
-            "label": "copy readme",
+            "label": "copy md",
             "type": "shell",
             "command": "cp",
             "args": [ "*.md", "UnityProject/Packages/com.cathei.bakingsheet/" ],
