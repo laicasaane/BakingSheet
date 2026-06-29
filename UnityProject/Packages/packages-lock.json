@@ -5,6 +5,11 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
+        "org.nuget.exceldatareader": "3.9.0",
+        "org.nuget.exceldatareader.dataset": "3.9.0",
+        "org.nuget.google.apis.drive.v3": "1.74.0-4135",
+        "org.nuget.google.apis.sheets.v4": "1.75.0-4178",
+        "org.nuget.microsoft.extensions.logging.abstractions": "10.0.9",
         "com.unity.nuget.newtonsoft-json": "3.2.2"
       }
     },
@@ -123,6 +128,176 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
+    },
+    "org.nuget.exceldatareader": {
+      "version": "3.9.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.exceldatareader.dataset": {
+      "version": "3.9.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.exceldatareader": "3.9.0"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.google.apis": {
+      "version": "1.75.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.google.apis.core": "1.75.0"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.google.apis.auth": {
+      "version": "1.75.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.google.apis.core": "1.75.0",
+        "org.nuget.google.apis": "1.75.0",
+        "org.nuget.system.management": "7.0.2"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.google.apis.core": {
+      "version": "1.75.0",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.newtonsoft.json": "13.0.4"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.google.apis.drive.v3": {
+      "version": "1.74.0-4135",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.google.apis": "1.74.0",
+        "org.nuget.google.apis.auth": "1.74.0"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.google.apis.sheets.v4": {
+      "version": "1.75.0-4178",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.google.apis": "1.75.0",
+        "org.nuget.google.apis.auth": "1.75.0"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.microsoft.bcl.asyncinterfaces": {
+      "version": "10.0.9",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.system.threading.tasks.extensions": "4.6.3"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.microsoft.extensions.dependencyinjection.abstractions": {
+      "version": "10.0.9",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.microsoft.bcl.asyncinterfaces": "10.0.9",
+        "org.nuget.system.threading.tasks.extensions": "4.6.3"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.microsoft.extensions.logging.abstractions": {
+      "version": "10.0.9",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.microsoft.extensions.dependencyinjection.abstractions": "10.0.9",
+        "org.nuget.system.diagnostics.diagnosticsource": "10.0.9",
+        "org.nuget.system.buffers": "4.6.1",
+        "org.nuget.system.memory": "4.6.3"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.newtonsoft.json": {
+      "version": "13.0.4",
+      "depth": 3,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.system.buffers": {
+      "version": "4.6.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.system.codedom": {
+      "version": "7.0.0",
+      "depth": 3,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.system.diagnostics.diagnosticsource": {
+      "version": "10.0.9",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.system.memory": "4.6.3",
+        "org.nuget.system.runtime.compilerservices.unsafe": "6.1.2"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.system.management": {
+      "version": "7.0.2",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.system.codedom": "7.0.0"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.system.memory": {
+      "version": "4.6.3",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.system.buffers": "4.6.1",
+        "org.nuget.system.numerics.vectors": "4.6.1",
+        "org.nuget.system.runtime.compilerservices.unsafe": "6.1.2"
+      },
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.system.numerics.vectors": {
+      "version": "4.6.1",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.system.runtime.compilerservices.unsafe": {
+      "version": "6.1.2",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.system.threading.tasks.extensions": {
+      "version": "4.6.3",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {
+        "org.nuget.system.runtime.compilerservices.unsafe": "6.1.2"
+      },
+      "url": "https://package.openupm.com"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",

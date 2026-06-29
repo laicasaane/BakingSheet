@@ -41,6 +41,38 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
-  }
+    "com.unity.modules.xr": "1.0.0",
+    "org.nuget.microsoft.extensions.logging.abstractions": "10.0.9",
+    "org.nuget.exceldatareader": "3.9.0",
+    "org.nuget.exceldatareader.dataset": "3.9.0",
+    "org.nuget.google.apis.drive.v3": "1.74.0-4135",
+    "org.nuget.google.apis.sheets.v4": "1.75.0-4178"
+  },
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "org.nuget.exceldatareader",
+        "org.nuget.exceldatareader.dataset",
+        "org.nuget.google.apis",
+        "org.nuget.google.apis.auth",
+        "org.nuget.google.apis.core",
+        "org.nuget.google.apis.drive.v3",
+        "org.nuget.google.apis.sheets.v4",
+        "org.nuget.microsoft.bcl.asyncinterfaces",
+        "org.nuget.microsoft.extensions.dependencyinjection.abstractions",
+        "org.nuget.microsoft.extensions.logging.abstractions",
+        "org.nuget.newtonsoft.json",
+        "org.nuget.system.buffers",
+        "org.nuget.system.codedom",
+        "org.nuget.system.diagnostics.diagnosticsource",
+        "org.nuget.system.management",
+        "org.nuget.system.memory",
+        "org.nuget.system.numerics.vectors",
+        "org.nuget.system.runtime.compilerservices.unsafe",
+        "org.nuget.system.threading.tasks.extensions"
+      ]
+    }
+  ]
 }
