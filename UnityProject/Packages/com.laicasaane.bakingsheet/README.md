@@ -1,11 +1,10 @@
-[![Nuget](https://img.shields.io/nuget/v/BakingSheet)](https://www.nuget.org/packages?q=BakingSheet) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/cathei/BakingSheet)](https://github.com/cathei/BakingSheet/releases) [![openupm](https://img.shields.io/npm/v/com.cathei.bakingsheet?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.cathei.bakingsheet/) [![GitHub](https://img.shields.io/github/license/cathei/BakingSheet)](https://github.com/cathei/BakingSheet/blob/master/LICENSE) [![Discord](https://img.shields.io/discord/942240862354702376?color=%235865F2&label=discord&logo=discord&logoColor=%23FFFFFF)](https://discord.gg/wXjxjfrDQa)
-
 # BakingSheet 🍞
 Easy datasheet management for C# and Unity. Supports Excel, Google Sheet, JSON and CSV format. It has been used for several mobile games that released on Google Play and AppStore.
 
 ## Table of Contents
 * [Concept](#concept)
 * [Features](#features)
+* [About this fork](#about-this-fork)
 * [Install](#install)
     + [Need help?](#need-help-)
 * [Contribution](#contribution)
@@ -27,26 +26,8 @@ Easy datasheet management for C# and Unity. Supports Excel, Google Sheet, JSON a
     * [Optional Script Defining Symbols (Unity)](#optional-script-defining-symbols--unity-)
 
 ## Concept
-Throughout all stage of game development, you'll need to deal with various data. Characters, stats, stages, currencies and so on! If you're using Unity, scriptable object and inspector is not good enough for mass edition and lacks powerful features like functions or fill up. With BakingSheet your designers can use existing spreadsheet editor, while you, the programmer, can directly use C# object without messy parsing logics or code generations.
 
-Let's say your team is making a RPG game. Your game has 100 characters and 10 stats for each character. If your team use Unity's scriptable object, designers will have to spend lots of time adding and editing from Unity inspector. And after setup what if you need mass edit, like to double ATK stat of all characters? Will you go through all characters with Unity inspector, or make Editor script for every time mass edit is required? With BakingSheet, designers can work easily with spreadsheet functions and fill ups without programmer help!
-
-![Concept](.github/images/concept.png)
-
-BakingSheet's core concept is controlling datasheet schema from C# code, make things flexible while supporting multiple sources like Excel files or Google sheets. You can think it as datasheet version of [ORM](https://en.wikipedia.org/wiki/Object%E2%80%93relational_mapping). Also, you won't have to include source Excel files or parsing libraries for production builds. BakingSheet supports JSON serialization by default, you can ship your build with JSON or your custom format.
-
-BakingSheet's basic workflow is like this:
-1. Programmers make C# schema that represents Datasheet. (They can provide sample Excel files or Google Sheet with headers.)
-2. Designers fill up the Datasheet, using any powerful functions and features of spreadsheet.
-3. Edit-time script converts Datasheet to JSON (or any custom format) with your C# schema and validates data.
-4. Runtime script reads from JSON (or any custom format) with your C# schema.
-5. Your business logic directly uses C# instance of your schema.
-6. Profit!
-
-Don't trust me that it's better than using ScriptableObject? You might change your mind if you see how famous SuperCell ships their games with CSV, like [Clash Royale](https://github.com/smlbiobot/cr-csv/tree/master/assets/csv_logic) or [Brawl Stars](https://github.com/weeco/brawlstars-assets/tree/master/7.278.1/csv_logic). Though of course, their games aren't made with Unity, still a very good example to show how you can utilize spreadsheet!
-
-![Sample1](.github/images/sample_simple.jpg)
-![Sample2](.github/images/sample_complex.jpg)
+Read the original concept at [cathei/BakingSheet](https://github.com/cathei/BakingSheet/#concept).
 
 ## Features
 * Easy-to-use Datasheet management.
@@ -60,28 +41,42 @@ Don't trust me that it's better than using ScriptableObject? You might change yo
 * [Customizable data verification](docs/data-verification.md).
 * [Partial sheet import](https://github.com/cathei/BakingSheet/issues/22).
 
+## About this fork
+
+> [!IMPORTANT]
+> Please read this section before using this fork.
+
+* Compatible with Unity 6000.3+.
+* Package name changed to `com.laicasaane.bakingsheet` to avoid conflict with the upstream.
+* README has been rewritten, where necessary, to reflect the accountability of this fork.
+* Most prebuilt .dlls are removed and replaced with NuGet packages distributed via OpenUPM.
+* Changes made to this fork are intended to support the maintainer's specific use cases,
+  and may not be backward compatible with the [original BakingSheet](https://github.com/cathei/BakingSheet).
+* NuGet and `.unitypackage` installations are not supported.
+
 ## Install
-For C# projects or server, download with [NuGet](https://www.nuget.org/packages?q=BakingSheet).
 
 For Unity projects, add git package from Package Manager.
 ```
-https://github.com/cathei/BakingSheet.git?path=UnityProject/Packages/com.cathei.bakingsheet#v4.1.3
+https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.0-pre.1
 ```
 
-Or install it via [OpenUPM](https://openupm.com/packages/com.cathei.bakingsheet/).
+Or install it via [OpenUPM](https://openupm.com/packages/com.laicasaane.bakingsheet/).
 ```
-openupm add com.cathei.bakingsheet
+openupm add com.laicasaane.bakingsheet
 ```
-
-Sample `.unitypackage` is available in [releases](https://github.com/cathei/BakingSheet/releases). (Main package should be installed first.)
 
 If you are planning to use StreamingAssets folder on Android, install [BetterStreamingAssets](docs/streaming-assets.md) as well.
 
 ### Need help?
-Before you start, we want to mention that if you have problem or need help, you can always ask directly on [Discord Channel](https://discord.gg/wXjxjfrDQa)!
+
+Please create an [issue](https://github.com/laicasaane/BakingSheet/issues).
+
+> [!IMPORTANT]
+> Keep in mind that I'm not the original author of BakingSheet, so I might not be able to answer all questions.
 
 ## Contribution
-We appreciate any contribution. Please create [issue](https://github.com/cathei/BakingSheet/issues) for bugs or feature requests. Any contribution to feature, test case, or documentation through [pull requests](https://github.com/cathei/BakingSheet/pulls) are welcome! Any blog posts, articles, shares about this project will be greatful!
+Any contribution is appreciated. Please create [issue](https://github.com/laicasaane/BakingSheet/issues) for bugs or feature requests. Any contribution to feature, test case, or documentation through [pull requests](https://github.com/laicasaane/BakingSheet/pulls) are welcome! Any blog posts, articles, shares about this project will be greatful!
 
 ## First Step
 BakingSheet manages datasheet schema as C# code. `Sheet` class represents a table and `SheetRow` class represents a record. Below is example content of file `Consumables` page in `MySheets.xlsx`. Also, any column starts with `$` will be considered as comment and ignored.
@@ -145,7 +140,7 @@ You can add as many sheets you want as properties of your `SheetContainer`. This
 * Custom `struct` and `class` as [nested column](#using-nested-type-column)
 * Custom type converted with [ValueConverter](docs/value-converter.md)
 
-> **Note**  
+> **Note**
 > When using `JsonConverter`, `enum` is serialized as `string` by default so you won't have issue when reordering them.
 
 ## Converters
@@ -223,10 +218,10 @@ await sheetContainer.Bake(jsonConverter);
 
 You can extend `JsonSheetConverter` to customize serialization process. For example encrypting data or prettifying JSON.
 
-> **Note**  
+> **Note**
 > For AOT platforms (iOS, Android), read about [AOT Code Stripping](#about-aot-code-stripping-unity).
 
-> **Note**  
+> **Note**
 > If you are using `StreamingAssets` on Android, also see [Reading From StreamingAssets](docs/streaming-assets.md).
 
 ## Accessing Row
@@ -447,7 +442,7 @@ public class HeroSheet : Sheet<HeroSheet.Row>
 ```
 `SheetRowArray<TElem>` implements `IEnumerable<TElem>`, indexer `this[int]` and `Count` property.
 
-> **Note**  
+> **Note**
 > It is worth mention you can use `VerticalList<T>` to cover the case you want to vertically extend your `List<T>` without pairing them as `Elem`. Though we recommend to split the sheet in that case if possible.
 
 ## Using Cross-Sheet Reference
@@ -504,7 +499,7 @@ Any type can be used value can be also used as `Id`. This is possible as passing
 
 | Id             | Value                                 |
 |----------------|---------------------------------------|
-| ServerAddress  | https://github.com/cathei/BakingSheet |
+| ServerAddress  | https://github.com/laicasaane/BakingSheet |
 | InitialGold    | 1000                                  |
 | CriticalChance | 0.1                                   |
 </details>
@@ -570,7 +565,7 @@ public class ConstantSheet : Sheet<GameConstant, ConstantSheet.Row>
 }
 ```
 
-> **Note**  
+> **Note**
 > Properties without setter are not serialized. Alternatively you can use `[NonSerialized]` attribute.
 
 ## Using AssetPostProcessor to Automate Converting
