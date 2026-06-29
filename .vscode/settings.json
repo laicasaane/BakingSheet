@@ -2,8 +2,16 @@
     "dotnet.defaultSolution": "BakingSheet.slnx",
     "files.exclude":
     {
-        "**/bin":true,
-        "**/obj":true,
-        "UnityProject/":true
+        "**/bin": true,
+        "**/obj": true,
+        "**/Build": true,
+        "UnityProject/Library": true,
+        "UnityProject/Temp": true,
+        "UnityProject/Logs": true,
+        "UnityProject/MemoryCaptures": true,
+        "UnityProject/*.sln": true,
+        "UnityProject/*.sln.*": true,
+        "UnityProject/*.slnx": true,
+        "UnityProject/*.csproj": true,
     }
 }
