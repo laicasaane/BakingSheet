@@ -78,7 +78,7 @@ namespace Cathei.BakingSheet.Internal
             _context = context;
 
             var resolver = context.Container.ContractResolver;
-            var rowType = GetGenericArguments(sheetType, typeof(Sheet<,>))[1];
+            var rowType = GetGenericArguments(sheetType, typeof(ISheet<,>))[1];
 
             Root = new PropertyNodeObject(null, null, rowType, RootGetter, null, null, resolver, 0);
 
