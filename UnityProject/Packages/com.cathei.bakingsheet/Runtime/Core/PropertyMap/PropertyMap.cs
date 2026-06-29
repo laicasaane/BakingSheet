@@ -1,10 +1,8 @@
 ﻿// BakingSheet, Maxwell Keonwoo Kang <code.athei@gmail.com>, 2022
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 using Microsoft.Extensions.Logging;
 
 namespace Cathei.BakingSheet.Internal
@@ -43,7 +41,7 @@ namespace Cathei.BakingSheet.Internal
             yield return path.Substring(idx);
         }
 
-        internal static Type[] GetGenericArgument(Type type, Type baseType)
+        internal static Type[] GetGenericArguments(Type type, Type baseType)
         {
             if (baseType.IsInterface)
             {
@@ -80,7 +78,7 @@ namespace Cathei.BakingSheet.Internal
             _context = context;
 
             var resolver = context.Container.ContractResolver;
-            var rowType = GetGenericArgument(sheetType, typeof(Sheet<,>))[1];
+            var rowType = GetGenericArguments(sheetType, typeof(Sheet<,>))[1];
 
             Root = new PropertyNodeObject(null, null, rowType, RootGetter, null, null, resolver, 0);
 

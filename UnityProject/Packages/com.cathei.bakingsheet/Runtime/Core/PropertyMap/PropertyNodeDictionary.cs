@@ -26,7 +26,7 @@ namespace Cathei.BakingSheet.Internal
             ISheetContractResolver resolver, int depth)
             : base(parent, fullPath, valueType, getter, setter, propertyInfo)
         {
-            var arguments = PropertyMap.GetGenericArgument(ValueType, typeof(IDictionary<,>));
+            var arguments = PropertyMap.GetGenericArguments(ValueType, typeof(IDictionary<,>));
             var keyType = arguments[0];
             var elementType = arguments[1];
 
