@@ -9,7 +9,7 @@ namespace Cathei.BakingSheet.Editor
 {
     public static class PackageGenerationTools
     {
-        const string PackagePath = "Packages/com.cathei.bakingsheet";
+        const string PackagePath = "Packages/com.laicasaane.bakingsheet";
         const string SamplePath = "Assets/Samples";
         const string BsaPath = "Packages/com.cathei.betterstreamingassets";
 

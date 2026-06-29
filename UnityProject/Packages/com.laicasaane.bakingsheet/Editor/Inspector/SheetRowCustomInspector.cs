@@ -19,7 +19,7 @@ namespace Cathei.BakingSheet.Editor
         {
             serializedRow = serializedObject.FindProperty("serializedRow");
             unityReferences = serializedObject.FindProperty("references");
-            styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.cathei.bakingsheet/Editor/StyleSheet.uss");
+            styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.laicasaane.bakingsheet/Editor/StyleSheet.uss");
         }
 
         public override VisualElement CreateInspectorGUI()

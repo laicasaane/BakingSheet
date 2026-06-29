@@ -18,7 +18,7 @@ namespace Cathei.BakingSheet.Unity
             PackageName = packageName;
         }
 
-        private const string BakingSheetPackagePath = "com.cathei.bakingsheet";
+        private const string BakingSheetPackagePath = "com.laicasaane.bakingsheet";
         private const string CsvSubDirectory = "/Runtime/Converters/Csv";
         private const string GoogleSubDirectory = "/Runtime/Converters/Google";
 
