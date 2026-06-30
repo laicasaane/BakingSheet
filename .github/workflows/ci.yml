@@ -43,6 +43,60 @@ jobs:
       - name: Verify Unity UPM CLI
         run: upm --help
 
+      - name: Copy CHANGELOG, LICENSE, README into package
+        run: |
+          if [ -f CHANGELOG.md ]; then
+            cp CHANGELOG.md "$PACKAGE_PATH/CHANGELOG.md"
+          fi
+          if [ -f LICENSE.md ]; then
+            cp LICENSE.md "$PACKAGE_PATH/LICENSE.md"
+          fi
+          if [ -f LICENSE.Original.md ]; then
+            cp LICENSE.Original.md "$PACKAGE_PATH/LICENSE.Original.md"
+          fi
+          if [ -f README.md ]; then
+            cp README.md "$PACKAGE_PATH/README.md"
+          fi
+
+      - name: Extract release notes
+        shell: bash
+        run: |
+          notes_file="$RUNNER_TEMP/release-notes.md"
+
+          # Always create the file expected by the release action.
+          : > "$notes_file"
+
+          if [ ! -f CHANGELOG.md ]; then
+            echo "::warning::CHANGELOG.md was not found; release notes will be empty."
+            exit 0
+          fi
+
+          if ! awk -v version="$PACKAGE_VERSION" '
+            {
+              line = $0
+              sub(/\r$/, "", line)
+            }
+            line == "## " version {
+              found = 1
+              next
+            }
+            found && line ~ /^## / {
+              exit
+            }
+            found {
+              print line
+            }
+            END {
+              if (!found) {
+                exit 1
+              }
+            }
+          ' CHANGELOG.md > "$notes_file"
+          then
+            : > "$notes_file"
+            echo "::warning::No CHANGELOG.md section found for $PACKAGE_VERSION; release notes will be empty."
+          fi
+
       - name: Sign package
         run: |
           mkdir -p "$DIST_DIR"
@@ -66,33 +120,11 @@ jobs:
           printf 'Archive: %s\n' "$(basename "$archive")"
           tar -xOzf "$archive" package/package.json | jq '{name, version}'
 
-      - name: Generate release data
-        id: release_data
-        run: |
-          HEADLINE=$(sed -n '9s/^## //p' "$PACKAGE_PATH/CHANGELOG.md")
-          RELEASE_NAME="$HEADLINE"
-
-          BODY=$(
-            awk '
-              NR >= 10 {
-                if ($0 ~ /^## \[/) exit
-                print
-              }
-            ' "$PACKAGE_PATH/CHANGELOG.md"
-          )
-
-          {
-            echo "name=$RELEASE_NAME"
-            echo "body<<EOF"
-            echo "$RELEASE_NOTE"
-            echo ""
-            echo "$BODY"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
+          body_path: ${{ runner.temp }}/release-notes.md
+          prerelease: ${{ contains(env.PACKAGE_VERSION, '-') }}
           files: |
             /tmp/signed-upm-dist/*.tgz
             /tmp/signed-upm-dist/*.tar.gz
