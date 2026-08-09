@@ -4,11 +4,11 @@
   "author": {
     "name": "Maxwell Keonwoo Kang"
   },
-  "version": "6.3.0-pre.1",
+  "version": "6.3.0-pre.2",
   "unity": "6000.3",
   "description": "Easy datasheet management for C# and Unity.\nSupports Excel, Google Sheet, JSON and CSV format.",
   "license": "MIT",
-  "documentationUrl": "https://github.com/cathei/BakingSheet",
+  "documentationUrl": "https://github.com/laicasaane/BakingSheet",
   "dependencies": {
     "org.nuget.exceldatareader": "3.9.0",
     "org.nuget.exceldatareader.dataset": "3.9.0",
