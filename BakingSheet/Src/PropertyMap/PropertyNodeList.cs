@@ -138,7 +138,7 @@ namespace Cathei.BakingSheet.Internal
 
         private PropertyNode GenerateChildren(ISheetContractResolver resolver, int depth)
         {
-            var elementType = PropertyMap.GetGenericArgument(ValueType, typeof(IList<>))[0];
+            var elementType = PropertyMap.GetGenericArguments(ValueType, typeof(IList<>))[0];
 
             var childPath = _isVertical ? FullPath : AppendIndex(depth);
 

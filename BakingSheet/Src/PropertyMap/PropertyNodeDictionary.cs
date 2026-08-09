@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Cathei.BakingSheet.Internal
@@ -26,7 +25,7 @@ namespace Cathei.BakingSheet.Internal
             ISheetContractResolver resolver, int depth)
             : base(parent, fullPath, valueType, getter, setter, propertyInfo)
         {
-            var arguments = PropertyMap.GetGenericArgument(ValueType, typeof(IDictionary<,>));
+            var arguments = PropertyMap.GetGenericArguments(ValueType, typeof(IDictionary<,>));
             var keyType = arguments[0];
             var elementType = arguments[1];
 

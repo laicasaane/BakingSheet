@@ -41,11 +41,11 @@ namespace Cathei.BakingSheet
 
             object ISheetReference.Id
             {
-                get => Id;
+                readonly get => Id;
                 set => Id = (TKey)value;
             }
 
-            public Type IdType => typeof(TKey);
+            public readonly Type IdType => typeof(TKey);
 
             ISheetRow ISheetReference.Ref => Ref;
 
@@ -83,9 +83,9 @@ namespace Cathei.BakingSheet
                 return origin.Id;
             }
 
-            public override bool Equals(object obj)
+            public readonly override bool Equals(object obj)
             {
-                if (!(obj is Reference other))
+                if (obj is not Reference other)
                     return false;
 
                 if (Id == null)
@@ -94,12 +94,12 @@ namespace Cathei.BakingSheet
                 return Id.Equals(other.Id);
             }
 
-            public override int GetHashCode()
+            public readonly override int GetHashCode()
             {
                 return Id == null ? 0 : Id.GetHashCode();
             }
 
-            public override string ToString()
+            public readonly override string ToString()
             {
                 return Id == null ? "(null)" : Id.ToString();
             }
