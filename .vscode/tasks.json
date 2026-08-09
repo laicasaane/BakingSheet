@@ -24,6 +24,12 @@
                 "-R", "BakingSheet/Src/*",
                 "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Core"
             ],
+            "windows": {
+                "args": [
+                    "-Recurse", "-Force", "BakingSheet/Src/*",
+                    "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Core"
+                ]
+            },
             "problemMatcher": [ "$tsc" ],
         },
         {
