@@ -45,6 +45,7 @@ MonoBehaviour:
     - org.nuget.microsoft.extensions.dependencyinjection.abstractions
     - org.nuget.microsoft.extensions.logging.abstractions
     - org.nuget.newtonsoft.json
+    - org.nuget.nreco.csv
     - org.nuget.system.buffers
     - org.nuget.system.codedom
     - org.nuget.system.diagnostics.diagnosticsource

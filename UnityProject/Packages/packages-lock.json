@@ -14,9 +14,10 @@
       "dependencies": {
         "org.nuget.exceldatareader": "3.9.0",
         "org.nuget.exceldatareader.dataset": "3.9.0",
-        "org.nuget.google.apis.drive.v3": "1.74.0-4135",
+        "org.nuget.google.apis.drive.v3": "1.75.0-4218",
         "org.nuget.google.apis.sheets.v4": "1.75.0-4178",
-        "org.nuget.microsoft.extensions.logging.abstractions": "10.0.9",
+        "org.nuget.nreco.csv": "1.0.3",
+        "org.nuget.microsoft.extensions.logging.abstractions": "10.0.10",
         "com.unity.nuget.newtonsoft-json": "3.2.2"
       }
     },
@@ -184,12 +185,12 @@
       "url": "https://package.openupm.com"
     },
     "org.nuget.google.apis.drive.v3": {
-      "version": "1.74.0-4135",
-      "depth": 0,
+      "version": "1.75.0-4218",
+      "depth": 1,
       "source": "registry",
       "dependencies": {
-        "org.nuget.google.apis": "1.74.0",
-        "org.nuget.google.apis.auth": "1.74.0"
+        "org.nuget.google.apis": "1.75.0",
+        "org.nuget.google.apis.auth": "1.75.0"
       },
       "url": "https://package.openupm.com"
     },
@@ -204,8 +205,8 @@
       "url": "https://package.openupm.com"
     },
     "org.nuget.microsoft.bcl.asyncinterfaces": {
-      "version": "10.0.9",
-      "depth": 2,
+      "version": "10.0.10",
+      "depth": 3,
       "source": "registry",
       "dependencies": {
         "org.nuget.system.threading.tasks.extensions": "4.6.3"
@@ -213,22 +214,22 @@
       "url": "https://package.openupm.com"
     },
     "org.nuget.microsoft.extensions.dependencyinjection.abstractions": {
-      "version": "10.0.9",
-      "depth": 1,
+      "version": "10.0.10",
+      "depth": 2,
       "source": "registry",
       "dependencies": {
-        "org.nuget.microsoft.bcl.asyncinterfaces": "10.0.9",
+        "org.nuget.microsoft.bcl.asyncinterfaces": "10.0.10",
         "org.nuget.system.threading.tasks.extensions": "4.6.3"
       },
       "url": "https://package.openupm.com"
     },
     "org.nuget.microsoft.extensions.logging.abstractions": {
-      "version": "10.0.9",
-      "depth": 0,
+      "version": "10.0.10",
+      "depth": 1,
       "source": "registry",
       "dependencies": {
-        "org.nuget.microsoft.extensions.dependencyinjection.abstractions": "10.0.9",
-        "org.nuget.system.diagnostics.diagnosticsource": "10.0.9",
+        "org.nuget.microsoft.extensions.dependencyinjection.abstractions": "10.0.10",
+        "org.nuget.system.diagnostics.diagnosticsource": "10.0.10",
         "org.nuget.system.buffers": "4.6.1",
         "org.nuget.system.memory": "4.6.3"
       },
@@ -237,6 +238,13 @@
     "org.nuget.newtonsoft.json": {
       "version": "13.0.4",
       "depth": 3,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
+    "org.nuget.nreco.csv": {
+      "version": "1.0.3",
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://package.openupm.com"
@@ -256,8 +264,8 @@
       "url": "https://package.openupm.com"
     },
     "org.nuget.system.diagnostics.diagnosticsource": {
-      "version": "10.0.9",
-      "depth": 1,
+      "version": "10.0.10",
+      "depth": 2,
       "source": "registry",
       "dependencies": {
         "org.nuget.system.memory": "4.6.3",
