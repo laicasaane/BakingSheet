@@ -4,14 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## **6.3.0-pre.2**
+## 6.3.0-pre.2
 
 - Upgrade to Unity 6000.3.20f1
 - Allow using Excel Converter in runtime
 - Replace NReco.Csv.dll with OpenUPM distribution
 - Update CI to copy `CHANGELOG.md` and `README.md` into package
 
-## **6.3.0-pre.1**
+## 6.3.0-pre.1
 
 - Added an OpenUPM release workflow with Unity Cloud package signing.
 - Added the Laicasaane fork license and retained the original BakingSheet license in the Unity package.
