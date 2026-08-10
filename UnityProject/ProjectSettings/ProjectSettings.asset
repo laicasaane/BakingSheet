@@ -745,7 +745,7 @@ PlayerSettings:
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
     1: 
-    Standalone: BAKINGSHEET_RUNTIME_GOOGLECONVERTER
+    Standalone: BAKINGSHEET_RUNTIME_CSVCONVERTER;BAKINGSHEET_RUNTIME_EXCELCONVERTER;BAKINGSHEET_RUNTIME_GOOGLECONVERTER
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
