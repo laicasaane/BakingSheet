@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8061955451997957443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: WORLDROOT_AWAKENING
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Worldroot Awakening","RewardBundles":[{"Gold":2000,"Verdant
+    Renown":400,"Ancient Seed":3},{"Gold":1100,"Living Heartwood":4,"Ancient Seed":1},{"Gold":700,"Bloom
+    of Ages":1,"Verdant Crest":1},{"Gold":550,"Worldroot Sap":3,"Chronicle Token":3}],"Id":"WORLDROOT_AWAKENING"}'
+  references: []
+--- !u!114 &-4283739726970260589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: MOON_QUEENS_TRIAL
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Moon Queen''s Trial","RewardBundles":[{"Gold":1700,"Astral
+    Renown":350,"Lunar Seal":3},{"Gold":950,"Comet Dust":4,"Lunar Seal":1},{"Gold":600,"Mirrorheart":1,"Silver
+    Crest":1},{"Gold":500,"Umbral Silk":3,"Chronicle Token":3}],"Id":"MOON_QUEENS_TRIAL"}'
+  references: []
+--- !u!114 &-116849560992669129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: GATE_OF_CINDERS
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Gate of Cinders","RewardBundles":[{"Gold":1200,"Dawnguard
+    Renown":250,"Cinder Sigil":3},{"Gold":700,"Sunsteel Ingot":4,"Cinder Sigil":1},{"Gold":450,"Phoenix
+    Feather":1,"Flawless Crest":1},{"Gold":350,"Emberglass":3,"Chronicle Token":2}],"Id":"GATE_OF_CINDERS"}'
+  references: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c9f16a815c438f9dbeaa7d721117d9, type: 3}
+  m_Name: EncounterRewards
+  m_EditorClassIdentifier: BakingSheet::Cathei.BakingSheet.Unity.SheetScriptableObject
+  rows:
+  - {fileID: -116849560992669129}
+  - {fileID: 5074101203912358651}
+  - {fileID: -4283739726970260589}
+  - {fileID: -8061955451997957443}
+  typeInfo: Cathei.BakingSheet.AdvancedExamples.EncounterRewardSheet+Row
+--- !u!114 &5074101203912358651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: ORACLE_OF_THE_DEEP
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Oracle of the Deep","RewardBundles":[{"Gold":1450,"Tidebound
+    Renown":300,"Abyssal Pearl":3},{"Gold":850,"Coral Plate":4,"Abyssal Pearl":1},{"Gold":500,"Leviathan
+    Scale":1,"Depthwalker Crest":1},{"Gold":400,"Moonwater Vial":3,"Chronicle Token":2}],"Id":"ORACLE_OF_THE_DEEP"}'
+  references: []

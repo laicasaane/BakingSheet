@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8774171647403552018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: ASTRAL_COLLEGIUM
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Astral Collegium","Region":"Moonlit Citadel","RenownThresholds":{"Neutral":0,"Friendly":1000,"Honored":3600,"Revered":8250,"Exalted":16000},"Id":"ASTRAL_COLLEGIUM"}'
+  references: []
+--- !u!114 &-8171002853258039985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: DAWNGUARD_CONCORD
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Dawnguard Concord","Region":"Sunspire Marches","RenownThresholds":{"Neutral":0,"Friendly":900,"Honored":3200,"Revered":7600,"Exalted":14500},"Id":"DAWNGUARD_CONCORD"}'
+  references: []
+--- !u!114 &-6676788250621649602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: TIDEBOUND_CLANS
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Tidebound Clans","Region":"Shattered Coast","RenownThresholds":{"Neutral":0,"Friendly":950,"Honored":3400,"Revered":7900,"Exalted":15100},"Id":"TIDEBOUND_CLANS"}'
+  references: []
+--- !u!114 &-2204715824138338837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: IRONVEIL_SYNDICATE
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Ironveil Syndicate","Region":"Gloamport","RenownThresholds":{"Neutral":0,"Friendly":1250,"Honored":4100,"Revered":9000,"Exalted":17250},"Id":"IRONVEIL_SYNDICATE"}'
+  references: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c9f16a815c438f9dbeaa7d721117d9, type: 3}
+  m_Name: FactionProgressions
+  m_EditorClassIdentifier: BakingSheet::Cathei.BakingSheet.Unity.SheetScriptableObject
+  rows:
+  - {fileID: -8171002853258039985}
+  - {fileID: 8956950515690366374}
+  - {fileID: -2204715824138338837}
+  - {fileID: -8774171647403552018}
+  - {fileID: -6676788250621649602}
+  typeInfo: Cathei.BakingSheet.AdvancedExamples.FactionProgressionSheet+Row
+--- !u!114 &8956950515690366374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: VERDANT_CIRCLE
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Verdant Circle","Region":"Elderwood Basin","RenownThresholds":{"Neutral":0,"Friendly":1100,"Honored":3800,"Revered":8400,"Exalted":15800},"Id":"VERDANT_CIRCLE"}'
+  references: []

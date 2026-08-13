@@ -11,10 +11,14 @@ namespace Cathei.BakingSheet.Examples
 {
     public class ExcelPostprocessor : AssetPostprocessor
     {
+        private const string ExcelDirectory = "Assets/Samples/002 - Import From Excel/Excel";
+
         static async void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            // automatically run postprocessor if any excel file is imported
-            string excelAsset = importedAssets.FirstOrDefault(x => x.EndsWith(".xlsx"));
+            // automatically run postprocessor if an excel file for this sample is imported
+            string excelAsset = importedAssets.FirstOrDefault(x =>
+                x.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(Path.GetDirectoryName(x)?.Replace('\\', '/'), ExcelDirectory, StringComparison.Ordinal));
 
             if (excelAsset != null)
             {

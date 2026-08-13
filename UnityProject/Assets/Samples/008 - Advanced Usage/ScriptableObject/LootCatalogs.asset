@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c9f16a815c438f9dbeaa7d721117d9, type: 3}
+  m_Name: LootCatalogs
+  m_EditorClassIdentifier: BakingSheet::Cathei.BakingSheet.Unity.SheetScriptableObject
+  rows:
+  - {fileID: 5843449026375090239}
+  - {fileID: 4409646956066266653}
+  - {fileID: 7485381413918497653}
+  - {fileID: 7819282917872588220}
+  typeInfo: Cathei.BakingSheet.AdvancedExamples.LootCatalogSheet+Row
+--- !u!114 &4409646956066266653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: DRAGON_HOARD
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Vault of the Elder Drake","WeightedEntries":{"Weapons":{"Wyrmfang
+    Greatsword":40,"Cinderclaw Daggers":35,"Drakesong Scepter":25},"Armor":{"Scaleguard
+    Hauberk":45,"Emberwing Cloak":30,"Horned Warhelm":25},"Relics":{"Heartscale Talisman":50,"Ashen
+    Crown Fragment":30,"Dragon''s Memory":20},"Materials":{"Pristine Dragon Scale":40,"Smoldering
+    Marrow":35,"Ancient Flame Sac":25}},"Id":"DRAGON_HOARD"}'
+  references: []
+--- !u!114 &5843449026375090239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: ANCIENT_VAULT
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Ancient Vault Cache","WeightedEntries":{"Weapons":{"Sunsteel
+    Saber":45,"Moonsilver Longbow":35,"Runebound Warstaff":20},"Armor":{"Dawnguard
+    Cuirass":40,"Veilrunner Mantle":35,"Astral Circlet":25},"Relics":{"Chronicle
+    of Embers":50,"Saint Aria''s Signet":30,"Shard of First Light":20},"Materials":{"Sunsteel
+    Ingot":40,"Moonsilver Thread":35,"Runic Lacquer":25}},"Id":"ANCIENT_VAULT"}'
+  references: []
+--- !u!114 &7485381413918497653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: VOID_TEMPLE
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Reliquary of the Silent Stars","WeightedEntries":{"Weapons":{"Voidglass
+    Rapier":40,"Eclipse Repeater":35,"Starless Grimoire":25},"Armor":{"Nightweave
+    Vestments":45,"Eventide Pauldrons":30,"Mask of Quiet Orbits":25},"Relics":{"Collapsed
+    Constellation":45,"Astral Compass":35,"Whispering Singularity":20},"Materials":{"Voidglass
+    Shard":45,"Comet Dust":30,"Umbral Silk":25}},"Id":"VOID_TEMPLE"}'
+  references: []
+--- !u!114 &7819282917872588220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: WORLDROOT_CACHE
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Worldroot''s Living Treasury","WeightedEntries":{"Weapons":{"Thornwake
+    Spear":40,"Briarheart Bow":35,"Verdant Oracle Staff":25},"Armor":{"Barkscale
+    Bulwark":45,"Mossweave Robe":30,"Crown of New Leaves":25},"Relics":{"Seed of
+    the First Grove":45,"Worldroot Memory":35,"Bloom of Endless Spring":20},"Materials":{"Living
+    Heartwood":45,"Ancient Sap":30,"Moonlit Pollen":25}},"Id":"WORLDROOT_CACHE"}'
+  references: []

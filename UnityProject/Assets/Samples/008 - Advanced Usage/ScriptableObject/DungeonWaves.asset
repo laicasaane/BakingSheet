@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6849902185976996390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: MOONLIT_CITADEL
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Moonlit Citadel","RecommendedPower":540,"Stages":[[["Moonfang
+    Scout","Lunar Acolyte","Starling Familiar"],["Gloam Archer","Mirror Knight","Nightbloom
+    Dryad"]],[["Astral Seer","Comet Elemental","Voidglass Sentinel"],["Queen Selene","Umbral
+    Doppelganger","Starlight Warden"]]],"Id":"MOONLIT_CITADEL"}'
+  references: []
+--- !u!114 &-4912360840097601434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: SUNKEN_RELIQUARY
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Sunken Reliquary","RecommendedPower":180,"Stages":[[["Mireling
+    Skirmisher","Mireling Spearwarden","Swamp Wisp"],["Drowned Sentinel","Leech Swarm","Tidecaller
+    Adept"]],[["Barnacled Guardian","Coral Adept","Depth Stalker"],["High Curator
+    Nhalos","Animated Reliquary","Tidebound Shade"]]],"Id":"SUNKEN_RELIQUARY"}'
+  references: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c9f16a815c438f9dbeaa7d721117d9, type: 3}
+  m_Name: DungeonWaves
+  m_EditorClassIdentifier: BakingSheet::Cathei.BakingSheet.Unity.SheetScriptableObject
+  rows:
+  - {fileID: -4912360840097601434}
+  - {fileID: 7604463610109331946}
+  - {fileID: -6849902185976996390}
+  typeInfo: Cathei.BakingSheet.AdvancedExamples.DungeonWaveSheet+Row
+--- !u!114 &7604463610109331946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: EMBERVAULT_FOUNDRY
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Embervault Foundry","RecommendedPower":360,"Stages":[[["Ash
+    Imp","Forgehand Bruiser","Coal Hound"],["Magma Slime","Ironbound Overseer","Flame
+    Turret"]],[["Cinder Knight","Ashweaver","Lava Wyrmling"],["Forgemaster Kael","Crucible
+    Golem","Ember Drake"]]],"Id":"EMBERVAULT_FOUNDRY"}'
+  references: []

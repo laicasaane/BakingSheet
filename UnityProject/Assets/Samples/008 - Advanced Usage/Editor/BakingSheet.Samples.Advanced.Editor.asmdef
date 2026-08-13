@@ -1,0 +1,21 @@
+{
+    "name": "BakingSheet.Samples.Advanced.Editor",
+    "rootNamespace": "",
+    "references": [
+        "BakingSheet",
+        "BakingSheet.Excel",
+        "BakingSheet.ScriptableObject",
+        "BakingSheet.Samples.Advanced"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

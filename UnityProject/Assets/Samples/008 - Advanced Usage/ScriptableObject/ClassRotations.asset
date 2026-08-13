@@ -1,0 +1,116 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6823273248182706872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: NIGHTREAVER_SHADE
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Nightreaver Shade","Rotations":{"Boss Opener":["Veilstep","Marked
+    for Dusk","Umbral Fang","Eclipse Flurry","Midnight Verdict"],"Sustained Assault":["Umbral
+    Fang","Eclipse Flurry","Shadow Reprise","Veilstep","Midnight Verdict"],"Crowd
+    Control":["Gloam Bomb","Nightglass Fan","Eclipse Flurry","Veilstep","Shadow Reprise"],"Emergency
+    Defense":["Smoke Between Worlds","Veilstep","Siphoning Cut","Shadow Reprise","Gloam
+    Bomb"]},"Id":"NIGHTREAVER_SHADE"}'
+  references: []
+--- !u!114 &-683149756934805089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: SPELLWEAVER_ARCANIST
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Spellweaver Arcanist","Rotations":{"Boss Opener":["Ley
+    Anchor","Astral Lance","Prismatic Echo","Comet Script","Event Horizon"],"Sustained
+    Assault":["Astral Lance","Prismatic Echo","Mana Weave","Comet Script","Event
+    Horizon"],"Crowd Control":["Gravity Well","Forked Constellation","Prismatic Echo","Comet
+    Script","Nova Seal"],"Emergency Defense":["Mirror Ward","Phase Step","Mana Weave","Starlight
+    Renewal","Gravity Well"]},"Id":"SPELLWEAVER_ARCANIST"}'
+  references: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c9f16a815c438f9dbeaa7d721117d9, type: 3}
+  m_Name: ClassRotations
+  m_EditorClassIdentifier: BakingSheet::Cathei.BakingSheet.Unity.SheetScriptableObject
+  rows:
+  - {fileID: 1637919643383201208}
+  - {fileID: -683149756934805089}
+  - {fileID: 3368465993245738882}
+  - {fileID: -6823273248182706872}
+  - {fileID: 5845380056642082741}
+  typeInfo: Cathei.BakingSheet.AdvancedExamples.ClassRotationSheet+Row
+--- !u!114 &1637919643383201208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: DAWNBLADE_VANGUARD
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Dawnblade Vanguard","Rotations":{"Boss Opener":["Radiant
+    Challenge","Sunstep","Solar Brand","Judgment Arc","Dawnfall"],"Sustained Assault":["Solar
+    Brand","Twin Horizon","Judgment Arc","Sunstep","Dawnfall"],"Crowd Control":["Beacon
+    Sweep","Blazing Circuit","Radiant Challenge","Dawnfall","Twin Horizon"],"Emergency
+    Defense":["Aegis of Noon","Radiant Challenge","Sunstep","Second Sunrise","Judgment
+    Arc"]},"Id":"DAWNBLADE_VANGUARD"}'
+  references: []
+--- !u!114 &3368465993245738882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: THORNWARDEN_SENTINEL
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Thornwarden Sentinel","Rotations":{"Boss Opener":["Rootbound
+    Challenge","Briar Hook","Ironbark Stance","Thornwake","Ancient Oak"],"Sustained
+    Assault":["Briar Hook","Thornwake","Verdant Pulse","Rootbound Challenge","Ancient
+    Oak"],"Crowd Control":["Entangling Grove","Briar Cyclone","Thornwake","Verdant
+    Pulse","Rootbound Challenge"],"Emergency Defense":["Ironbark Stance","Living
+    Rampart","Verdant Pulse","Renewing Sap","Entangling Grove"]},"Id":"THORNWARDEN_SENTINEL"}'
+  references: []
+--- !u!114 &5845380056642082741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: TIDECALLER_ORACLE
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Tidecaller Oracle","Rotations":{"Boss Opener":["Brine
+    Omen","Riptide Sigil","Crushing Current","Leviathan''s Call","Deluge"],"Sustained
+    Assault":["Crushing Current","Riptide Sigil","Foamspiral","Brine Omen","Deluge"],"Crowd
+    Control":["Maelstrom","Undertow Chains","Foamspiral","Crushing Current","Leviathan''s
+    Call"],"Emergency Defense":["Pearl Ward","Tidal Step","Restoring Rain","Calm
+    Waters","Undertow Chains"]},"Id":"TIDECALLER_ORACLE"}'
+  references: []

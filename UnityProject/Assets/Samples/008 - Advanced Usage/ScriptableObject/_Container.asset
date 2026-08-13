@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29787264c6ed443a8ecab996afc0f169, type: 3}
+  m_Name: _Container
+  m_EditorClassIdentifier: BakingSheet::Cathei.BakingSheet.Unity.SheetContainerScriptableObject
+  sheets:
+  - {fileID: 11400000, guid: de069e706a1d07b47a8fb30cfb171307, type: 2}
+  - {fileID: 11400000, guid: 7a70f4c76fc05324685cb1415b4cfa74, type: 2}
+  - {fileID: 11400000, guid: 44e5fdedcf1d72440a21e00b0845b19f, type: 2}
+  - {fileID: 11400000, guid: 28e3b9353ad8a3e4988feda05f2e90da, type: 2}
+  - {fileID: 11400000, guid: 6ebb58bb9e6d14440b07a0c184932321, type: 2}
+  - {fileID: 11400000, guid: 09f2a8a1ed2e83546ab7e28cb5788a71, type: 2}
+  - {fileID: 11400000, guid: a121e2b9e1ce9004e905d5fd9dfa8a19, type: 2}

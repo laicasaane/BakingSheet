@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c9f16a815c438f9dbeaa7d721117d9, type: 3}
+  m_Name: RaidBlueprints
+  m_EditorClassIdentifier: BakingSheet::Cathei.BakingSheet.Unity.SheetScriptableObject
+  rows:
+  - {fileID: 3653458988369664585}
+  - {fileID: 6941430190993356931}
+  typeInfo: Cathei.BakingSheet.AdvancedExamples.RaidBlueprintSheet+Row
+--- !u!114 &3653458988369664585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: SIEGE_ASHEN_CROWN
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Siege of the Ashen Crown","MinimumPower":980,"Acts":[[[[{"Name":"Ashen
+    Legionnaire","Role":"Frontline","RewardPools":[{"Gold":205,"Ashen Crest":2},{"Ashen
+    Legionnaire Trophy":1,"Crownfire Ember":1}]},{"Name":"Cinder Archer","Role":"Artillery","RewardPools":[{"Gold":230,"Ashen
+    Crest":3},{"Cinder Archer Trophy":1,"Crownfire Ember":1}]}],[{"Name":"Iron Ballista","Role":"Construct","RewardPools":[{"Gold":255,"Ashen
+    Crest":1},{"Iron Ballista Trophy":1,"Crownfire Ember":1}]},{"Name":"Ember Saboteur","Role":"Skirmisher","RewardPools":[{"Gold":280,"Ashen
+    Crest":2},{"Ember Saboteur Trophy":1,"Crownfire Ember":2}]}]],[[{"Name":"Pyre
+    Knight","Role":"Elite","RewardPools":[{"Gold":305,"Ashen Crest":3},{"Pyre Knight
+    Trophy":1,"Crownfire Ember":1}]},{"Name":"Ashen Confessor","Role":"Support","RewardPools":[{"Gold":330,"Ashen
+    Crest":1},{"Ashen Confessor Trophy":1,"Crownfire Ember":1}]}],[{"Name":"Crown
+    Warden","Role":"Guardian","RewardPools":[{"Gold":355,"Ashen Crest":2},{"Crown
+    Warden Trophy":1,"Crownfire Ember":1}]},{"Name":"Flamebound Duelist","Role":"Assassin","RewardPools":[{"Gold":380,"Ashen
+    Crest":3},{"Flamebound Duelist Trophy":1,"Crownfire Ember":2}]}]]],[[[{"Name":"Standard
+    Bearer","Role":"Support","RewardPools":[{"Gold":405,"Ashen Crest":1},{"Standard
+    Bearer Trophy":1,"Crownfire Ember":1}]},{"Name":"Cinder Champion","Role":"Elite","RewardPools":[{"Gold":430,"Ashen
+    Crest":2},{"Cinder Champion Trophy":1,"Crownfire Ember":1}]}],[{"Name":"Living
+    Portrait","Role":"Caster","RewardPools":[{"Gold":455,"Ashen Crest":3},{"Living
+    Portrait Trophy":1,"Crownfire Ember":1}]},{"Name":"Crown Magus","Role":"Caster","RewardPools":[{"Gold":480,"Ashen
+    Crest":1},{"Crown Magus Trophy":1,"Crownfire Ember":2}]}]],[[{"Name":"Ashen Justicar","Role":"Guardian","RewardPools":[{"Gold":505,"Ashen
+    Crest":2},{"Ashen Justicar Trophy":1,"Crownfire Ember":1}]},{"Name":"Phoenix
+    Sentinel","Role":"Mythic","RewardPools":[{"Gold":530,"Ashen Crest":3},{"Phoenix
+    Sentinel Trophy":1,"Crownfire Ember":1}]}],[{"Name":"King Vaelor","Role":"Raid
+    Boss","RewardPools":[{"Gold":555,"Ashen Crest":1},{"King Vaelor Trophy":1,"Crownfire
+    Ember":1}]},{"Name":"Crownfire Avatar","Role":"Mythic","RewardPools":[{"Gold":580,"Ashen
+    Crest":2},{"Crownfire Avatar Trophy":1,"Crownfire Ember":2}]}]]]],"Id":"SIEGE_ASHEN_CROWN"}'
+  references: []
+--- !u!114 &6941430190993356931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0cef8d0045424afb8f94c1e6798e096, type: 3}
+  m_Name: HEART_OF_THE_WORLDROOT
+  m_EditorClassIdentifier: BakingSheet.ScriptableObject::Cathei.BakingSheet.Unity.JsonSheetRowScriptableObject
+  serializedRow: '{"DisplayName":"Heart of the Worldroot","MinimumPower":1120,"Acts":[[[[{"Name":"Thornbound
+    Ravager","Role":"Frontline","RewardPools":[{"Gold":205,"Worldroot Sap":2},{"Thornbound
+    Ravager Trophy":1,"Ancient Seed":1}]},{"Name":"Sporewing Harrier","Role":"Artillery","RewardPools":[{"Gold":230,"Worldroot
+    Sap":3},{"Sporewing Harrier Trophy":1,"Ancient Seed":1}]}],[{"Name":"Blight Treant","Role":"Guardian","RewardPools":[{"Gold":255,"Worldroot
+    Sap":1},{"Blight Treant Trophy":1,"Ancient Seed":1}]},{"Name":"Rotbloom Witch","Role":"Caster","RewardPools":[{"Gold":280,"Worldroot
+    Sap":2},{"Rotbloom Witch Trophy":1,"Ancient Seed":2}]}]],[[{"Name":"Husk Stalker","Role":"Assassin","RewardPools":[{"Gold":305,"Worldroot
+    Sap":3},{"Husk Stalker Trophy":1,"Ancient Seed":1}]},{"Name":"Fungal Colossus","Role":"Elite","RewardPools":[{"Gold":330,"Worldroot
+    Sap":1},{"Fungal Colossus Trophy":1,"Ancient Seed":1}]}],[{"Name":"Mourning Dryad","Role":"Support","RewardPools":[{"Gold":355,"Worldroot
+    Sap":2},{"Mourning Dryad Trophy":1,"Ancient Seed":1}]},{"Name":"Amber Maw","Role":"Skirmisher","RewardPools":[{"Gold":380,"Worldroot
+    Sap":3},{"Amber Maw Trophy":1,"Ancient Seed":2}]}]]],[[[{"Name":"Cinderroot Echo","Role":"Caster","RewardPools":[{"Gold":405,"Worldroot
+    Sap":1},{"Cinderroot Echo Trophy":1,"Ancient Seed":1}]},{"Name":"Charred Ancestor","Role":"Elite","RewardPools":[{"Gold":430,"Worldroot
+    Sap":2},{"Charred Ancestor Trophy":1,"Ancient Seed":1}]}],[{"Name":"Rimebark
+    Guardian","Role":"Guardian","RewardPools":[{"Gold":455,"Worldroot Sap":3},{"Rimebark
+    Guardian Trophy":1,"Ancient Seed":1}]},{"Name":"Winterseed Oracle","Role":"Support","RewardPools":[{"Gold":480,"Worldroot
+    Sap":1},{"Winterseed Oracle Trophy":1,"Ancient Seed":2}]}]],[[{"Name":"Verdant
+    Colossus","Role":"Guardian","RewardPools":[{"Gold":505,"Worldroot Sap":2},{"Verdant
+    Colossus Trophy":1,"Ancient Seed":1}]},{"Name":"Primordial Stag","Role":"Mythic","RewardPools":[{"Gold":530,"Worldroot
+    Sap":3},{"Primordial Stag Trophy":1,"Ancient Seed":1}]}],[{"Name":"The Blighted
+    Gardener","Role":"Raid Boss","RewardPools":[{"Gold":555,"Worldroot Sap":1},{"The
+    Blighted Gardener Trophy":1,"Ancient Seed":1}]},{"Name":"Worldroot Incarnate","Role":"Mythic","RewardPools":[{"Gold":580,"Worldroot
+    Sap":2},{"Worldroot Incarnate Trophy":1,"Ancient Seed":2}]}]]]],"Id":"HEART_OF_THE_WORLDROOT"}'
+  references: []
