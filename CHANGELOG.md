@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 6.3.1-pre.1
+
+- Added `VerticalDictionary<TKey, TValue>` for vertically arranged key-value data.
+- Added raw-sheet import and export support for `VerticalDictionary<TKey, TValue>`.
+- Added JSON import and export support for `VerticalDictionary<TKey, TValue>`.
+- Added recursive nesting between vertical lists and vertical dictionaries.
+- Added explicit markers for selecting nested vertical collection instances.
+- Added `HeaderMode` with hybrid, split, and flat header layouts.
+- Added property-level transposition with `[Transpose]` for CSV, Excel, and Google Sheet import/export.
+- Added documentation for nested vertical collections.
+- Added an advanced Unity sample for multi-level vertical collection layouts.
+- Added the Unity Pipeline package to the development project.
+- **Breaking Change**: `RawSheetConverter.SplitHeader` changed to `RawSheetConverter.HeaderMode`.
+    - Use `HeaderMode.Flat` for the previous `false` behavior or `HeaderMode.Split` for the previous `true` behavior.
+- **Breaking Change**: The protected `RawSheetConverter` constructor was changed by removing its `splitHeader` argument.
+    - Set `HeaderMode` after construction instead.
+- **Breaking Change**: The public `CsvSheetConverter` constructor was changed by removing its `splitHeader` argument.
+    - Set `HeaderMode` after construction instead.
+- **Breaking Change**: The default header layout was changed to `HeaderMode.Hybrid`.
+    - Set `HeaderMode.Flat` to retain the previous default layout.
+- Changed property mapping to traverse nested collection values consistently.
+- Changed cross-sheet reference resolution to traverse nested collection values consistently.
+- Changed value verification to traverse nested collection values consistently.
+- Changed library projects to use C# 9.
+- Fixed the Unity development project scripting symbol for the runtime CSV converter.
+- Fixed the Unity development project scripting symbol for the runtime Excel converter.
+
 ## 6.3.0-pre.2
 
 - Upgrade to Unity 6000.3.20f1
