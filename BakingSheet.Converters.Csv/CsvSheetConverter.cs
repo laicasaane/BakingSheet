@@ -29,8 +29,8 @@ namespace Cathei.BakingSheet
             }
         }
 
-        public CsvSheetConverter(string loadPath, TimeZoneInfo timeZoneInfo = null, string extension = "csv", IFileSystem fileSystem = null, bool splitHeader = false, IFormatProvider formatProvider = null)
-            : base(timeZoneInfo, formatProvider, splitHeader)
+        public CsvSheetConverter(string loadPath, TimeZoneInfo timeZoneInfo = null, string extension = "csv", IFileSystem fileSystem = null, IFormatProvider formatProvider = null)
+            : base(timeZoneInfo, formatProvider)
         {
             _loadPath = loadPath;
             _extension = extension;
@@ -85,6 +85,19 @@ namespace Cathei.BakingSheet
             if (_pages.TryGetValue(sheetName, out var pages))
                 return pages;
             return Enumerable.Empty<IRawSheetImporterPage>();
+        }
+
+        protected override int GetColumnCount(IRawSheetImporterPage page, int row, int headerColumnCount)
+        {
+            if (!(page is Page csvPage))
+                return headerColumnCount;
+
+            var table = csvPage.Table;
+
+            if (table == null || row < 0 || row >= table.Count)
+                return headerColumnCount;
+
+            return table[row]?.Count ?? headerColumnCount;
         }
 
         protected override IRawSheetExporterPage CreatePage(string sheetName)
