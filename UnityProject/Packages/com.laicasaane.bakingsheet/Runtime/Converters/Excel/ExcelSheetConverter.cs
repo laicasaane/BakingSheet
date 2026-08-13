@@ -39,6 +39,7 @@ namespace Cathei.BakingSheet
             private IFormatProvider _formatProvider;
 
             public string SubName { get; }
+            public DataTable Table => _table;
 
             public Page(DataTable table, string subName, IFormatProvider formatProvider)
             {
@@ -110,6 +111,19 @@ namespace Cathei.BakingSheet
             if (_pages.TryGetValue(sheetName, out var page))
                 return page;
             return Enumerable.Empty<IRawSheetImporterPage>();
+        }
+
+        protected override int GetColumnCount(IRawSheetImporterPage page, int row, int headerColumnCount)
+        {
+            if (!(page is Page excelPage))
+                return headerColumnCount;
+
+            var table = excelPage.Table;
+
+            if (table == null || row < 0 || row >= table.Rows.Count)
+                return headerColumnCount;
+
+            return table.Columns?.Count ?? headerColumnCount;
         }
     }
 }

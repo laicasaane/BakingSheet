@@ -1,9 +1,5 @@
 ﻿// BakingSheet, Maxwell Keonwoo Kang <code.athei@gmail.com>, 2022
 
-using System;
-using System.Collections.Generic;
-using Cathei.BakingSheet.Internal;
-
 namespace Cathei.BakingSheet.Raw
 {
     /// <summary>
@@ -12,5 +8,20 @@ namespace Cathei.BakingSheet.Raw
     public interface IRawSheetExporterPage
     {
         void SetCell(int col, int row, string data);
+    }
+
+    internal sealed class TransposedRawSheetExporterPage : IRawSheetExporterPage
+    {
+        private readonly IRawSheetExporterPage _target;
+
+        public TransposedRawSheetExporterPage(IRawSheetExporterPage target)
+        {
+            _target = target;
+        }
+
+        public void SetCell(int col, int row, string data)
+        {
+            _target.SetCell(row, col, data);
+        }
     }
 }

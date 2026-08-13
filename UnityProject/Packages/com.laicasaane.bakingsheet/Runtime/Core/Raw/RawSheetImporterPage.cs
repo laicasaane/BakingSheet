@@ -1,11 +1,5 @@
 ﻿// BakingSheet, Maxwell Keonwoo Kang <code.athei@gmail.com>, 2022
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Cathei.BakingSheet.Internal;
-using Microsoft.Extensions.Logging;
-
 namespace Cathei.BakingSheet.Raw
 {
     /// <summary>
@@ -23,6 +17,36 @@ namespace Cathei.BakingSheet.Raw
         /// Returns null if cell does not exist or out of bounds.
         /// </summary>
         string GetCell(int col, int row);
+    }
+
+    internal sealed class TransposedRawSheetImporterPage : IRawSheetImporterPage
+    {
+        private readonly IRawSheetImporterPage _source;
+
+        public string SubName => _source.SubName;
+        public int LogicalColumnCount { get; }
+
+        public TransposedRawSheetImporterPage(IRawSheetImporterPage source)
+        {
+            _source = source;
+
+            int physicalRow = 0;
+            while (!source.IsEmptyRow(physicalRow))
+                physicalRow++;
+
+            LogicalColumnCount = physicalRow;
+        }
+
+        public string GetCell(int col, int row)
+        {
+            return _source.GetCell(row, col);
+        }
+
+        public void GetSourceCoordinates(int col, int row, out int sourceColumn, out int sourceRow)
+        {
+            sourceColumn = row;
+            sourceRow = col;
+        }
     }
 
     public static class RawSheetImporterPageExtensions

@@ -91,6 +91,7 @@ namespace Cathei.BakingSheet
             private readonly GridData _grid;
 
             public string SubName { get; }
+            public GridData Grid => _grid;
 
             public Page(GSheet gSheet, string subName)
             {
@@ -114,6 +115,15 @@ namespace Cathei.BakingSheet
             if (_pages.TryGetValue(sheetName, out var pages))
                 return pages;
             return Enumerable.Empty<IRawSheetImporterPage>();
+        }
+
+        protected override int GetColumnCount(IRawSheetImporterPage page, int row, int headerColumnCount)
+        {
+            if (!(page is Page googlePage) || googlePage.Grid?.RowData == null ||
+                row < 0 || row >= googlePage.Grid.RowData.Count)
+                return headerColumnCount;
+
+            return googlePage.Grid.RowData[row]?.Values?.Count ?? headerColumnCount;
         }
     }
 }

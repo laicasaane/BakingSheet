@@ -1,7 +1,6 @@
 ﻿// BakingSheet, Maxwell Keonwoo Kang <code.athei@gmail.com>, 2022
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -25,7 +24,9 @@ namespace Cathei.BakingSheet.Internal
         public PropertyInfo PropertyInfo { get; }
 
         protected virtual bool IsLeaf => false;
+        internal bool IsLeafNode => IsLeaf;
         public virtual bool IsVertical => false;
+        public virtual bool IsIgnored => false;
         public abstract PropertyNode GetChild(string subpath);
         public virtual bool HasSubpath(string subpath) => false;
 
@@ -68,7 +69,12 @@ namespace Cathei.BakingSheet.Internal
             return Parent?.GetVerticalCount(row, indexer) ?? 1;
         }
 
-        public bool TryGetValue(ISheetRow row, int vindex, IEnumerator<object> indexer, out object value)
+        internal virtual int GetLocalVerticalIndex(int vindex)
+        {
+            return Parent?.GetLocalVerticalIndex(vindex) ?? vindex;
+        }
+
+        public virtual bool TryGetValue(ISheetRow row, int vindex, IEnumerator<object> indexer, out object value)
         {
             object obj = row;
 
@@ -85,18 +91,18 @@ namespace Cathei.BakingSheet.Internal
             return Getter(this, obj, index, out value);
         }
 
-        public object GetValue(ISheetRow row, int vindex, IEnumerator<object> indexer)
+        public virtual object GetValue(ISheetRow row, int vindex, IEnumerator<object> indexer)
         {
             TryGetValue(row, vindex, indexer, out var value);
             return value;
         }
 
-        public void SetValue(ISheetRow row, int vindex, IEnumerator<object> indexer, object value)
+        public virtual void SetValue(ISheetRow row, int vindex, IEnumerator<object> indexer, object value)
         {
             ModifyValue(row, vindex, indexer, _ => value);
         }
 
-        public void ModifyValue(ISheetRow row, int vindex, IEnumerator<object> indexer, ModifyDelegate modifier)
+        public virtual void ModifyValue(ISheetRow row, int vindex, IEnumerator<object> indexer, ModifyDelegate modifier)
         {
             if (Parent == null)
             {
@@ -129,31 +135,15 @@ namespace Cathei.BakingSheet.Internal
             });
         }
 
+        internal virtual void CollectUnsupportedProperties(List<PropertyNodeIgnored> nodes) { }
+
         public static PropertyNode Create(
             PropertyNode parent, string fullPath, Type type,
             GetterDelegate getter, SetterDelegate setter, PropertyInfo propertyInfo,
             ISheetContractResolver resolver, int depth)
         {
-            if (typeof(IVerticalList).IsAssignableFrom(type))
-            {
-                return new PropertyNodeList(parent, fullPath, type,
-                    getter, setter, propertyInfo, resolver, depth, true);
-            }
-
-            if (typeof(IList).IsAssignableFrom(type))
-            {
-                return new PropertyNodeList(parent, fullPath, type,
-                    getter, setter, propertyInfo, resolver, depth, false);
-            }
-
-            if (typeof(IDictionary).IsAssignableFrom(type))
-            {
-                return new PropertyNodeDictionary(parent, fullPath, type,
-                    getter, setter, propertyInfo, resolver, depth);
-            }
-
-            return new PropertyNodeObject(parent, fullPath, type,
-                    getter, setter, propertyInfo, resolver, depth);
+            return PropertyNodeFactory.Create(parent, fullPath, type,
+                getter, setter, propertyInfo, resolver, depth);
         }
     }
 }

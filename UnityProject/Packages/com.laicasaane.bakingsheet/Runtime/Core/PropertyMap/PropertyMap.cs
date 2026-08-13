@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Cathei.BakingSheet.Raw;
 using Microsoft.Extensions.Logging;
 
 namespace Cathei.BakingSheet.Internal
@@ -17,7 +18,8 @@ namespace Cathei.BakingSheet.Internal
 
         private readonly SheetConvertingContext _context;
 
-        private readonly List<object> _indexes = new List<object>();
+        private readonly List<object> _indexes = new();
+        private readonly List<PropertyNodeIgnored> _unsupportedProperties = new();
 
         private HashSet<string> _warned = null;
 
@@ -95,6 +97,21 @@ namespace Cathei.BakingSheet.Internal
 
                 _maxDepth = Math.Max(_maxDepth, Arr.CalculateDepth());
             }
+
+            Root.CollectUnsupportedProperties(_unsupportedProperties);
+
+            if (Arr != null)
+                Arr.CollectUnsupportedProperties(_unsupportedProperties);
+        }
+
+        internal void ReportUnsupportedProperties(SheetConvertingContext context)
+        {
+            foreach (var node in _unsupportedProperties)
+            {
+                context.Logger.LogError(
+                    "Property \"{PropertyPath}\" has unsupported vertical collection type \"{PropertyType}\".",
+                    node.FullPath, node.ValueType);
+            }
         }
 
         /// <summary>
@@ -107,14 +124,54 @@ namespace Cathei.BakingSheet.Internal
         /// <param name="formatter">Format provider to convert value to object.</param>
         public void SetValue(ISheetRow row, int vindex, string path, string value, ISheetFormatter formatter)
         {
+            if (!TryResolveBinding(path, formatter, out var binding))
+                return;
+
+            int verticalListCount = 0;
+
+            foreach (var owner in binding.VerticalOwners)
+            {
+                if (owner is PropertyNodeVerticalDictionary)
+                {
+                    _context.Logger.LogError("Nested vertical list is not supported");
+                    return;
+                }
+
+                if (owner is PropertyNodeList)
+                    verticalListCount++;
+            }
+
+            if (verticalListCount > 1)
+            {
+                _context.Logger.LogError("Nested vertical list is not supported");
+                return;
+            }
+
+            if (verticalListCount == 0 && vindex != 0)
+            {
+                _context.Logger.LogError("There is multiple value for a non-vertical column");
+                return;
+            }
+
+            if (!TryConvertValue(binding, value, formatter, out var converted))
+                return;
+
+            binding.Node.SetValue(row, vindex, binding.Indexes.GetEnumerator(), converted);
+        }
+
+        internal bool TryResolveBinding(string path, ISheetFormatter formatter, out PropertyColumnBinding binding)
+        {
+            return TryResolveBinding(path, formatter, true, out binding);
+        }
+
+        internal bool TryResolveBinding(string path, ISheetFormatter formatter,
+            bool reportInvalid, out PropertyColumnBinding binding)
+        {
             PropertyNode node = null;
-
             var resolver = _context.Container.ContractResolver;
-            var context = new SheetValueConvertingContext(formatter, resolver);
-
-            _indexes.Clear();
-
-            bool isVertical = false;
+            var valueContext = new SheetValueConvertingContext(formatter, resolver);
+            var indexes = new List<object>();
+            var horizontalIndexes = new Dictionary<PropertyNode, object>();
 
             foreach (var subpath in ParseFlattenPath(path))
             {
@@ -127,63 +184,175 @@ namespace Cathei.BakingSheet.Internal
                     else if (Arr != null && Arr.ColumnNode.HasSubpath(subpath))
                     {
                         node = Arr.ColumnNode;
-                        isVertical = true;
                     }
                     else
                     {
-                        _warned = _warned ?? new HashSet<string>();
-
-                        if (!_warned.Contains(path))
-                        {
-                            _context.Logger.LogError("Column name is invalid");
-                            _warned.Add(path);
-                        }
-                        return;
+                        if (reportInvalid)
+                            ReportInvalidColumn(path);
+                        binding = default;
+                        return false;
                     }
                 }
 
                 if (node.IndexType != null)
                 {
-                    object index = context.StringToValue(node.IndexType, subpath);
-                    _indexes.Add(index);
+                    object index = valueContext.StringToValue(node.IndexType, subpath);
+                    indexes.Add(index);
+                    horizontalIndexes[node] = index;
                 }
 
                 node = node.GetChild(subpath);
 
-                Debug.Assert(node != null);
-
-                if (node.IsVertical)
+                if (node == null)
                 {
-                    if (isVertical)
-                    {
-                        _context.Logger.LogError("Nested vertical list is not supported");
-                        return;
-                    }
+                    if (reportInvalid)
+                        ReportInvalidColumn(path);
+                    binding = default;
+                    return false;
+                }
 
-                    isVertical = true;
+                if (node.IsIgnored)
+                {
+                    binding = default;
+                    return false;
                 }
 
                 node = node.ColumnNode;
             }
 
-            if (!isVertical && vindex != 0)
+            Debug.Assert(node != null);
+            binding = CreateBinding(node, indexes, path, horizontalIndexes);
+            return true;
+        }
+
+        internal bool TryResolveBinding(RawSheetHeaderPath path, ISheetFormatter formatter,
+            out PropertyColumnBinding binding, out int invalidComponent, out bool ignored)
+        {
+            var resolver = _context.Container.ContractResolver;
+            var valueContext = new SheetValueConvertingContext(formatter, resolver);
+            var indexes = new List<object>();
+            var horizontalIndexes = new Dictionary<PropertyNode, object>();
+            PropertyNode cursor = null;
+            bool anonymousDictionaryRequired = false;
+            ignored = false;
+
+            for (int i = 0; i < path.Components.Count; ++i)
             {
-                _context.Logger.LogError("There is multiple value for a non-vertical column");
-                return;
+                var component = path.Components[i];
+
+                if (cursor == null)
+                {
+                    if (component.Kind != RawSheetHeaderComponentKind.Named)
+                    {
+                        binding = default;
+                        invalidComponent = i;
+                        return false;
+                    }
+
+                    if (Root.HasSubpath(component.Text))
+                    {
+                        cursor = Root;
+                    }
+                    else if (Arr != null && Arr.ColumnNode.HasSubpath(component.Text))
+                    {
+                        cursor = Arr.Child;
+                    }
+                    else
+                    {
+                        binding = default;
+                        invalidComponent = i;
+                        return false;
+                    }
+                }
+
+                if (component.Kind == RawSheetHeaderComponentKind.AnonymousList)
+                {
+                    if (anonymousDictionaryRequired ||
+                        !(cursor is PropertyNodeList list) || !list.IsVerticalList)
+                    {
+                        binding = default;
+                        invalidComponent = i;
+                        return false;
+                    }
+
+                    cursor = list.Child;
+                    anonymousDictionaryRequired = cursor is PropertyNodeVerticalDictionary;
+                    continue;
+                }
+
+                if (component.Kind == RawSheetHeaderComponentKind.AnonymousDictionary)
+                {
+                    if (!anonymousDictionaryRequired ||
+                        !(cursor is PropertyNodeVerticalDictionary))
+                    {
+                        binding = default;
+                        invalidComponent = i;
+                        return false;
+                    }
+
+                    anonymousDictionaryRequired = false;
+                    continue;
+                }
+
+                if (anonymousDictionaryRequired ||
+                    !TryResolveNamedComponent(cursor, component.Text, valueContext,
+                        indexes, horizontalIndexes, out var child) ||
+                    child == null)
+                {
+                    binding = default;
+                    invalidComponent = i;
+                    return false;
+                }
+
+                if (child.IsIgnored)
+                {
+                    binding = default;
+                    invalidComponent = -1;
+                    ignored = true;
+                    return true;
+                }
+
+                if (child is PropertyNodeList verticalList && verticalList.IsVerticalList)
+                {
+                    cursor = verticalList.Child;
+                    anonymousDictionaryRequired = cursor is PropertyNodeVerticalDictionary;
+                }
+                else
+                {
+                    cursor = child;
+                    anonymousDictionaryRequired = false;
+                }
             }
 
-            Debug.Assert(node != null);
+            if (anonymousDictionaryRequired || cursor == null || !cursor.IsLeafNode)
+            {
+                binding = default;
+                invalidComponent = Math.Max(0, path.Components.Count - 1);
+                return false;
+            }
 
-            var converter = node.ValueConverter;
+            string semanticPath = RawSheetHeader.FormatFlat(path.Components);
+            binding = CreateBinding(cursor, indexes, semanticPath, horizontalIndexes);
+            invalidComponent = -1;
+            return true;
+        }
+
+        internal bool TryConvertValue(PropertyColumnBinding binding, string value,
+            ISheetFormatter formatter, out object converted)
+        {
+            var converter = binding.Node.ValueConverter;
 
             if (converter == null)
             {
-                _context.Logger.LogError("No converter registered for type {NodeType}", node.ValueType);
-                return;
+                _context.Logger.LogError("No converter registered for type {NodeType}", binding.Node.ValueType);
+                converted = null;
+                return false;
             }
 
-            node.SetValue(row, vindex, _indexes.GetEnumerator(),
-                converter.StringToValue(node.ValueType, value, context));
+            var resolver = _context.Container.ContractResolver;
+            var valueContext = new SheetValueConvertingContext(formatter, resolver);
+            converted = converter.StringToValue(binding.Node.ValueType, value, valueContext);
+            return true;
         }
 
         /// <summary>
@@ -218,6 +387,281 @@ namespace Cathei.BakingSheet.Internal
                 foreach (var node in Arr.TraverseChildren(_indexes))
                     yield return (node, _indexes);
             }
+        }
+
+        internal VerticalCollectionLayout CreateLayout(IReadOnlyList<PropertyColumnBinding> bindings)
+        {
+            return new VerticalCollectionLayout(bindings);
+        }
+
+        internal IReadOnlyList<PropertyColumnBinding> GetCurrentBindings()
+        {
+            var bindings = new List<PropertyColumnBinding>();
+
+            foreach (var pair in TraverseLeaf())
+            {
+                var indexes = new List<object>(pair.Item2);
+                string path = FormatPath(pair.Item1.FullPath, indexes);
+                bindings.Add(CreateBinding(pair.Item1, indexes, path, null));
+            }
+
+            return bindings;
+        }
+
+        internal IEnumerable<PropertyMapValue> TraverseValues(ISheetRow row)
+        {
+            foreach (var binding in GetCurrentBindings())
+            {
+                if (binding.IsAnyDictionaryKey())
+                    continue;
+
+                foreach (var value in TraverseValues(row, binding, 0, new PropertyValueAddress()))
+                    yield return value;
+            }
+        }
+
+        internal IEnumerable<PropertyMapExportRow> TraverseExportRows(
+            ISheetRow row, VerticalCollectionLayout layout)
+        {
+            return VerticalCollectionExporter.Traverse(row, layout);
+        }
+
+        private IEnumerable<PropertyMapValue> TraverseValues(ISheetRow row, PropertyColumnBinding binding,
+            int ownerIndex, PropertyValueAddress address)
+        {
+            if (ownerIndex >= binding.VerticalOwners.Count)
+            {
+                yield return new PropertyMapValue(row, binding, address.Clone());
+                yield break;
+            }
+
+            var owner = binding.VerticalOwners[ownerIndex];
+
+            if (!PropertyValueAccessor.TryGetNodeValue(row, binding, owner, address, out var collection))
+            {
+                foreach (var value in TraverseValues(row, binding, ownerIndex + 1, address))
+                    yield return value;
+
+                yield break;
+            }
+
+            if (owner is PropertyNodeList && collection is System.Collections.IList list)
+            {
+                if (list.Count == 0)
+                {
+                    foreach (var value in TraverseValues(row, binding, ownerIndex + 1, address))
+                        yield return value;
+
+                    yield break;
+                }
+
+                for (int i = 0; i < list.Count; ++i)
+                {
+                    address.SetListIndex(list, i);
+
+                    foreach (var value in TraverseValues(row, binding, ownerIndex + 1, address))
+                        yield return value;
+                }
+
+                address.RemoveList(list);
+                yield break;
+            }
+
+            if (owner is PropertyNodeVerticalDictionary && collection is System.Collections.IDictionary dictionary)
+            {
+                if (dictionary.Count == 0)
+                {
+                    foreach (var value in TraverseValues(row, binding, ownerIndex + 1, address))
+                        yield return value;
+
+                    yield break;
+                }
+
+                foreach (System.Collections.DictionaryEntry entry in dictionary)
+                {
+                    address.SetDictionaryKey(dictionary, entry.Key);
+
+                    foreach (var value in TraverseValues(row, binding, ownerIndex + 1, address))
+                        yield return value;
+                }
+
+                address.RemoveDictionary(dictionary);
+            }
+        }
+
+        private PropertyColumnBinding CreateBinding(PropertyNode node, IReadOnlyList<object> indexes,
+            string path, IReadOnlyDictionary<PropertyNode, object> knownHorizontalIndexes)
+        {
+            var nodes = new List<PropertyNode>();
+
+            for (var current = node; current != null; current = current.Parent)
+                nodes.Add(current);
+
+            nodes.Reverse();
+
+            var verticalOwners = new List<PropertyNode>();
+            var horizontalIndexes = new Dictionary<PropertyNode, object>();
+
+            if (knownHorizontalIndexes != null)
+            {
+                foreach (var pair in knownHorizontalIndexes)
+                    horizontalIndexes.Add(pair.Key, pair.Value);
+            }
+
+            int indexPosition = 0;
+
+            foreach (var current in nodes)
+            {
+                if (current is PropertyNodeVerticalDictionary ||
+                    current is PropertyNodeList verticalList && verticalList.IsVerticalList)
+                {
+                    verticalOwners.Add(current);
+                    continue;
+                }
+
+                if (knownHorizontalIndexes == null && current.IndexType != null && indexPosition < indexes.Count)
+                    horizontalIndexes[current] = indexes[indexPosition++];
+            }
+
+            var headerComponents = CreateHeaderComponents(nodes, path);
+
+            return new PropertyColumnBinding(node, new List<object>(indexes), path,
+                nodes, horizontalIndexes, verticalOwners, headerComponents);
+        }
+
+        private static bool TryResolveNamedComponent(PropertyNode node, string text,
+            SheetValueConvertingContext valueContext, List<object> indexes,
+            Dictionary<PropertyNode, object> horizontalIndexes, out PropertyNode child)
+        {
+            child = null;
+
+            if (node is PropertyNodeObject objectNode)
+            {
+                if (!objectNode.HasSubpath(text))
+                    return false;
+
+                child = objectNode.GetChild(text);
+                return true;
+            }
+
+            if (node is PropertyNodeVerticalDictionary verticalDictionary)
+            {
+                child = verticalDictionary.GetChild(text);
+                return child != null;
+            }
+
+            if (node is PropertyNodeList list)
+            {
+                if (list.IsVerticalList)
+                    return false;
+
+                return TryResolveHorizontalComponent(
+                    list, text, valueContext, indexes, horizontalIndexes, out child);
+            }
+
+            if (node is PropertyNodeDictionary dictionary)
+            {
+                return TryResolveHorizontalComponent(
+                    dictionary, text, valueContext, indexes, horizontalIndexes, out child);
+            }
+
+            return false;
+        }
+
+        private static bool TryResolveHorizontalComponent(PropertyNode node, string text,
+            SheetValueConvertingContext valueContext, List<object> indexes,
+            Dictionary<PropertyNode, object> horizontalIndexes, out PropertyNode child)
+        {
+            try
+            {
+                object index = valueContext.StringToValue(node.IndexType, text);
+                indexes.Add(index);
+                horizontalIndexes[node] = index;
+                child = node.GetChild(text);
+                return child != null;
+            }
+            catch
+            {
+                child = null;
+                return false;
+            }
+        }
+
+        private static IReadOnlyList<RawSheetHeaderComponent> CreateHeaderComponents(
+            IReadOnlyList<PropertyNode> nodes, string path)
+        {
+            var pathParts = new List<string>();
+
+            foreach (string part in ParseFlattenPath(path))
+            {
+                if (part == "{}" || part == "[]" ||
+                    part.Length >= 3 && part[0] == '[' && part[part.Length - 1] == ']')
+                {
+                    continue;
+                }
+
+                pathParts.Add(part);
+            }
+            var components = new List<RawSheetHeaderComponent>();
+            int pathPosition = 0;
+
+            for (int i = 1; i < nodes.Count; ++i)
+            {
+                var parent = nodes[i - 1];
+                var current = nodes[i];
+
+                if (parent is PropertyNodeList parentList && parentList.IsVerticalList)
+                {
+                    if (current is PropertyNodeList currentList && currentList.IsVerticalList)
+                    {
+                        components.Add(new RawSheetHeaderComponent(
+                            RawSheetHeaderComponentKind.AnonymousList,
+                            null, -1, -1, current));
+                    }
+                    else if (current is PropertyNodeVerticalDictionary)
+                    {
+                        components.Add(new RawSheetHeaderComponent(
+                            RawSheetHeaderComponentKind.AnonymousDictionary,
+                            null, -1, -1, current));
+                    }
+
+                    continue;
+                }
+
+                if (parent is PropertyNodeObject ||
+                    parent is PropertyNodeVerticalDictionary ||
+                    parent is PropertyNodeDictionary ||
+                    parent is PropertyNodeList)
+                {
+                    string text = pathPosition < pathParts.Count
+                        ? pathParts[pathPosition++]
+                        : current.PropertyInfo?.Name;
+
+                    components.Add(new RawSheetHeaderComponent(
+                        RawSheetHeaderComponentKind.Named,
+                        text, -1, -1, current));
+                }
+            }
+
+            return components;
+        }
+
+        internal void ReportInvalidColumn(string path)
+        {
+            _warned = _warned ?? new HashSet<string>();
+
+            if (_warned.Add(path))
+                _context.Logger.LogError("Column name is invalid");
+        }
+
+        private static string FormatPath(string path, IReadOnlyList<object> indexes)
+        {
+            var arguments = new object[indexes.Count];
+
+            for (int i = 0; i < indexes.Count; ++i)
+                arguments[i] = indexes[i];
+
+            return string.Format(path, arguments);
         }
     }
 }
