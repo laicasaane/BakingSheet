@@ -50,10 +50,11 @@ namespace Cathei.BakingSheet.Tests
 
             var result = await _container.Bake(_converter);
 
-            _logger.VerifyNoError();
-
             Assert.True(result);
             Assert.Empty(_container.Tests);
+            _logger.VerifyLog(LogLevel.Error,
+                "Invalid sheet header at cell \"B1\".",
+                new[] { "Tests" });
         }
 
         [Fact]
@@ -102,6 +103,32 @@ namespace Cathei.BakingSheet.Tests
             _logger.VerifyLog(LogLevel.Error,
                 "Already has row with id \"Alpha\"",
                 new [] { "Types", "Alpha" });
+        }
+
+        [Fact]
+        public async Task RawCommentsIgnoreLeadingWhitespaceAndDataCellCommentsRemainPositional()
+        {
+            _fileSystem.SetTestData(
+                Path.Combine("testdata", "Types.csv"),
+                "Id,IntColumn, \t$ Header Comment,FloatColumn, \t$$ Header Comment\n" +
+                " \t$ Skip,999,ignored,999,ignored\n" +
+                " \t$$ Skip,999,ignored,999,ignored\n" +
+                "Alpha, \t$$ Ignore,ignored,2.5,ignored\n");
+            _fileSystem.SetTestData(
+                Path.Combine("testdata", "Tests.csv"),
+                "Id,Content\n" +
+                "Kept,$value\n");
+
+            var result = await _container.Bake(_converter);
+
+            _logger.VerifyNoError();
+
+            Assert.True(result);
+            Assert.Single(_container.Types);
+            Assert.Equal(0, _container.Types[TestEnum.Alpha].IntColumn);
+            Assert.Equal(2.5f, _container.Types[TestEnum.Alpha].FloatColumn);
+            Assert.Single(_container.Tests);
+            Assert.Equal("$value", _container.Tests["Kept"].Content);
         }
 
         [Fact]

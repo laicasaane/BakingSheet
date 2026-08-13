@@ -20,7 +20,10 @@ namespace Cathei.BakingSheet.Tests
             _fileSystem = new TestFileSystem();
             _logger = new TestLogger();
             _container = new TestSheetContainer(_logger);
-            _converter = new CsvSheetConverter("testdata", TimeZoneInfo.Utc, fileSystem: _fileSystem);
+            _converter = new CsvSheetConverter("testdata", TimeZoneInfo.Utc, fileSystem: _fileSystem)
+            {
+                HeaderMode = Raw.HeaderMode.Flat,
+            };
         }
 
         [Fact]
@@ -212,7 +215,7 @@ namespace Cathei.BakingSheet.Tests
         [Fact]
         public async Task TestExportDictSplitCsv()
         {
-            _converter.SplitHeader = true;
+            _converter.HeaderMode = Raw.HeaderMode.Split;
 
             _container.Dict = new TestDictSheet();
 
