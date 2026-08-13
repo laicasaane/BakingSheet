@@ -143,6 +143,21 @@ namespace Cathei.BakingSheet.Tests
         }
 
         [Fact]
+        public async Task TestImportVerticalDictionaryJson()
+        {
+            _fileSystem.SetTestData(
+                Path.Combine("testdata", "VerticalDictionaryJson.json"),
+                "[{\"Values\":{\"A\":1,\"B\":2},\"Id\":\"Row\"}]");
+
+            var result = await _container.Bake(_converter);
+
+            _logger.VerifyNoError();
+            Assert.True(result);
+            Assert.Equal(1, _container.VerticalDictionaryJson["Row"].Values["A"]);
+            Assert.Equal(2, _container.VerticalDictionaryJson["Row"].Values["B"]);
+        }
+
+        [Fact]
         public async Task TestImportTypesJson()
         {
             _fileSystem.SetTestData(Path.Combine("testdata", "Types.json"), "[{\"IntColumn\":123,\"FloatColumn\":5.13,\"DecimalColumn\":10.03,\"DateTimeColumn\":\"2020-10-03T00:00:00\",\"TimeSpanColumn\":\"02:00:00\",\"EnumColumn\":\"Charlie\",\"Id\":\"Alpha\"},{\"IntColumn\":-999,\"FloatColumn\":-12.13,\"DecimalColumn\":-0.002,\"DateTimeColumn\":\"1994-05-13T00:00:00\",\"TimeSpanColumn\":\"00:00:15\",\"EnumColumn\":null,\"Id\":\"Bravo\"}]");

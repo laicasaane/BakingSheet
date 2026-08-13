@@ -173,6 +173,32 @@ namespace Cathei.BakingSheet.Tests
         }
 
         [Fact]
+        public async Task TestExportVerticalDictionaryJson()
+        {
+            _container.VerticalDictionaryJson = new TestVerticalDictionaryJsonSheet
+            {
+                new TestVerticalDictionaryJsonSheet.Row
+                {
+                    Id = "Row",
+                    Values = new VerticalDictionary<string, int>
+                    {
+                        ["A"] = 1,
+                        ["B"] = 2,
+                    },
+                },
+            };
+
+            _container.PostLoad();
+            var result = await _container.Store(_converter);
+
+            _logger.VerifyNoError();
+            Assert.True(result);
+            _fileSystem.VerifyTestData(
+                Path.Combine("testdata", "VerticalDictionaryJson.json"),
+                "[{\"Values\":{\"A\":1,\"B\":2},\"Id\":\"Row\"}]");
+        }
+
+        [Fact]
         public async Task TestExportTypesJson()
         {
             _container.Types = new TestTypeSheet()
