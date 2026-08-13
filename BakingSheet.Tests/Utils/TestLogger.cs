@@ -58,6 +58,11 @@ namespace Cathei.BakingSheet.Tests
             );
         }
 
+        public void VerifyLogCount(LogLevel logLevel, string message, int count)
+        {
+            Assert.Equal(count, entries.Count(entry => entry.level == logLevel && entry.message == message));
+        }
+
         public void VerifyNoError()
         {
             Assert.DoesNotContain(entries, entry =>
