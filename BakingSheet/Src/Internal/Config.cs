@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Cathei.BakingSheet.Internal
@@ -10,11 +9,25 @@ namespace Cathei.BakingSheet.Internal
     public static class Config
     {
         public const string Comment = "$";
+        internal const string DataCellComment = "$$";
         public const string IndexDelimiter = ":";
         public const string SheetNameDelimiter = ".";
 
         // TODO: in .net standard 2.1 this is not needed
         public static readonly string[] IndexDelimiterArray = { IndexDelimiter };
+
+        internal static bool StartsWithComment(string value, string comment)
+        {
+            if (string.IsNullOrEmpty(value))
+                return false;
+
+            int startIndex = 0;
+
+            while (startIndex < value.Length && char.IsWhiteSpace(value[startIndex]))
+                startIndex++;
+
+            return value.IndexOf(comment, startIndex, StringComparison.Ordinal) == startIndex;
+        }
 
         /// <summary>
         /// Split SheetName.SubName format.

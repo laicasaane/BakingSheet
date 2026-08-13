@@ -2,26 +2,51 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Cathei.BakingSheet.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Cathei.BakingSheet.Raw
 {
+    public enum HeaderMode
+    {
+        Hybrid = 0,
+        Split = 1,
+        Flat = 2,
+    }
+
     /// <summary>
     /// Generic sheet converter for cell-based Spreadsheet sources.
     /// </summary>
     public abstract class RawSheetConverter : RawSheetImporter, ISheetConverter
     {
-        public bool SplitHeader { get; set; }
+        private HeaderMode _headerMode;
+
+        public HeaderMode HeaderMode
+        {
+            get => _headerMode;
+            set
+            {
+                switch (value)
+                {
+                    case HeaderMode.Hybrid:
+                    case HeaderMode.Split:
+                    case HeaderMode.Flat:
+                        _headerMode = value;
+                        return;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(value));
+                }
+            }
+        }
 
         protected abstract Task<bool> SaveData();
         protected abstract IRawSheetExporterPage CreatePage(string sheetName);
 
-        protected RawSheetConverter(TimeZoneInfo timeZoneInfo, IFormatProvider formatProvider, bool splitHeader = false)
+        protected RawSheetConverter(TimeZoneInfo timeZoneInfo, IFormatProvider formatProvider)
             : base(timeZoneInfo, formatProvider)
         {
-            SplitHeader = splitHeader;
         }
 
         public async Task<bool> Export(SheetConvertingContext context)
@@ -35,7 +60,11 @@ namespace Cathei.BakingSheet.Raw
                         continue;
 
                     var page = CreatePage(sheet.Name);
-                    ExportPage(page, context, sheet);
+                    ExportPage(
+                        pair.Value.GetCustomAttribute<TransposeAttribute>() == null
+                            ? page
+                            : new TransposedRawSheetExporterPage(page),
+                        context, sheet);
                 }
             }
 
@@ -56,85 +85,90 @@ namespace Cathei.BakingSheet.Raw
             var propertyMap = sheet.GetPropertyMap(context);
             var resolver = context.Container.ContractResolver;
 
+            propertyMap.ReportUnsupportedProperties(context);
+
             propertyMap.UpdateIndex(sheet);
 
-            var leafs = propertyMap.TraverseLeaf();
-
-            int pageColumn = 0;
+            var bindings = propertyMap.GetCurrentBindings();
+            var layout = propertyMap.CreateLayout(bindings);
 
             var valueContext = new SheetValueConvertingContext(this, resolver);
+            var previousHeaderValues = new List<string>();
+            int headerRowCount = 0;
 
-            List<string> headerRows = new List<string>();
-            object[] arguments = new object[propertyMap.MaxDepth];
-
-            foreach (var (node, indexes) in leafs)
+            for (int pageColumn = 0; pageColumn < bindings.Count; ++pageColumn)
             {
-                int i = 0;
+                var binding = bindings[pageColumn];
+                IReadOnlyList<string> rows;
 
-                foreach (var index in indexes)
+                switch (HeaderMode)
                 {
-                    var arg = valueContext.ValueToString(index.GetType(), index);
-                    arguments[i++] = arg;
+                    case HeaderMode.Hybrid:
+                        rows = RawSheetHeader.FormatHybrid(binding.HeaderComponents);
+                        break;
+                    case HeaderMode.Split:
+                        rows = RawSheetHeader.FormatSplit(binding.HeaderComponents);
+                        break;
+                    case HeaderMode.Flat:
+                        rows = new[] { RawSheetHeader.FormatFlat(binding.HeaderComponents) };
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(HeaderMode));
                 }
 
-                var columnName = string.Format(node.FullPath, arguments);
+                headerRowCount = Math.Max(headerRowCount, rows.Count);
 
-                if (SplitHeader)
+                for (int row = 0; row < rows.Count; ++row)
                 {
-                    int tempRow = 0;
+                    while (previousHeaderValues.Count <= row)
+                        previousHeaderValues.Add(null);
 
-                    foreach (var path in columnName.Split(Config.IndexDelimiterArray, StringSplitOptions.None))
-                    {
-                        while (headerRows.Count <= tempRow)
-                            headerRows.Add(null);
+                    if (previousHeaderValues[row] == rows[row])
+                        continue;
 
-                        if (headerRows[tempRow] != path)
-                        {
-                            headerRows[tempRow] = path;
-                            page.SetCell(pageColumn, tempRow, path);
-                        }
-
-                        tempRow++;
-                    }
+                    previousHeaderValues[row] = rows[row];
+                    page.SetCell(pageColumn, row, rows[row]);
                 }
-                else
-                {
-                    page.SetCell(pageColumn, 0, columnName);
-                }
-
-                pageColumn++;
             }
 
-            int pageRow = SplitHeader ? headerRows.Count : 1;
+            int pageRow = headerRowCount;
 
             foreach (ISheetRow sheetRow in sheet)
             {
-                int maxVerticalCount = 1;
-
-                pageColumn = 0;
-
-                foreach (var (node, indexes) in leafs)
+                foreach (var exportRow in propertyMap.TraverseExportRows(sheetRow, layout))
                 {
-                    int verticalCount = node.GetVerticalCount(sheetRow, indexes.GetEnumerator());
-
-                    for (int vindex = 0; vindex < verticalCount; ++vindex)
+                    if (exportRow.IsMarker)
                     {
-                        var value = node.GetValue(sheetRow, vindex, indexes.GetEnumerator());
+                        for (int column = 0; column < bindings.Count; ++column)
+                            page.SetCell(column, pageRow, null);
 
-                        string valueString = null;
-                        if (value != null)
-                            valueString = node.ValueConverter.ValueToString(node.ValueType, value, valueContext);
-
-                        page.SetCell(pageColumn, pageRow + vindex, valueString);
+                        page.SetCell(
+                            exportRow.MarkerColumn,
+                            pageRow,
+                            $"<#{exportRow.MarkerPath}#>");
+                        pageRow++;
+                        continue;
                     }
 
-                    if (maxVerticalCount < verticalCount)
-                        maxVerticalCount = verticalCount;
+                    int pageColumn = 0;
 
-                    pageColumn++;
+                    foreach (var binding in bindings)
+                    {
+                        if (exportRow.TryGetValue(pageColumn, out var value))
+                        {
+                            string valueString = value == null
+                                ? null
+                                : binding.Node.ValueConverter.ValueToString(
+                                    binding.Node.ValueType, value, valueContext);
+
+                            page.SetCell(pageColumn, pageRow, valueString);
+                        }
+
+                        pageColumn++;
+                    }
+
+                    pageRow++;
                 }
-
-                pageRow += maxVerticalCount;
             }
         }
     }
