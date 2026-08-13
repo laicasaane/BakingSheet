@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using Cathei.BakingSheet.Internal;
 using Microsoft.Extensions.Logging;
 
@@ -68,39 +67,30 @@ namespace Cathei.BakingSheet
 
                 propertyMap.UpdateIndex(this);
 
-                foreach (var (node, indexes) in propertyMap.TraverseLeaf())
+                foreach (var row in Items)
                 {
-                    if (!typeof(ISheetReference).IsAssignableFrom(node.ValueType))
-                        continue;
-
-                    var referenceRowType = node.ValueType.GenericTypeArguments[1];
-
-                    if (!rowTypeToSheet.TryGetValue(referenceRowType, out var sheet))
+                    foreach (var value in propertyMap.TraverseValues(row))
                     {
-                        context.Logger.LogError("Failed to find sheet for {ReferenceType} reference", referenceRowType);
-                        continue;
-                    }
+                        if (!typeof(ISheetReference).IsAssignableFrom(value.ValueType))
+                            continue;
 
-                    foreach (var row in Items)
-                    {
-                        string fullPath = string.Format(node.FullPath, indexes.ToArray());
-                        int verticalCount = node.GetVerticalCount(row, indexes.GetEnumerator());
+                        var referenceRowType = value.ValueType.GenericTypeArguments[1];
+
+                        if (!rowTypeToSheet.TryGetValue(referenceRowType, out var sheet))
+                        {
+                            context.Logger.LogError(
+                                "Failed to find sheet for {ReferenceType} reference", referenceRowType);
+                            continue;
+                        }
 
                         using (context.Logger.BeginScope(row.Id))
-                        using (context.Logger.BeginScope(fullPath))
+                        using (context.Logger.BeginScope(value.Path))
                         {
-                            for (int vindex = 0; vindex < verticalCount; ++vindex)
-                            {
-                                // only proceed when path is valid
-                                if (!node.TryGetValue(row, vindex, indexes.GetEnumerator(), out var obj))
-                                    continue;
+                            if (!value.IsPresent || !(value.Value is ISheetReference refer))
+                                continue;
 
-                                if (obj is ISheetReference refer)
-                                {
-                                    refer.Map(context, sheet);
-                                    node.SetValue(row, vindex, indexes.GetEnumerator(), obj);
-                                }
-                            }
+                            refer.Map(context, sheet);
+                            value.SetValue(value.Value);
                         }
                     }
                 }
@@ -132,30 +122,22 @@ namespace Cathei.BakingSheet
 
                 propertyMap.UpdateIndex(this);
 
-                foreach (var (node, indexes) in propertyMap.TraverseLeaf())
+                foreach (var row in Items)
                 {
-                    foreach (var verifier in context.Verifiers)
+                    foreach (var value in propertyMap.TraverseValues(row))
                     {
-                        if (!verifier.CanVerify(node.PropertyInfo, node.ValueType))
-                            continue;
-
-                        foreach (var row in Items)
+                        foreach (var verifier in context.Verifiers)
                         {
-                            string fullPath = string.Format(node.FullPath, indexes.ToArray());
+                            if (!verifier.CanVerify(value.PropertyInfo, value.ValueType))
+                                continue;
 
                             using (context.Logger.BeginScope(row.Id))
-                            using (context.Logger.BeginScope(fullPath))
+                            using (context.Logger.BeginScope(value.Path))
                             {
-                                int verticalCount = node.GetVerticalCount(row, indexes.GetEnumerator());
+                                var err = verifier.Verify(value.PropertyInfo, value.Value);
 
-                                for (int vindex = 0; vindex < verticalCount; ++vindex)
-                                {
-                                    var obj = node.GetValue(row, vindex, indexes.GetEnumerator());
-                                    var err = verifier.Verify(node.PropertyInfo, obj);
-
-                                    if (err != null)
-                                        context.Logger.LogError("Verification: {Error}", err);
-                                }
+                                if (err != null)
+                                    context.Logger.LogError("Verification: {Error}", err);
                             }
                         }
                     }

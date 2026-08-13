@@ -17,6 +17,8 @@ namespace Cathei.BakingSheet.Internal
     {
         private readonly PropertyNode _child;
 
+        internal PropertyNode Child => _child;
+
         public override Type IndexType { get; }
         private HashSet<object> PossibleKeys { get; set; }
 
@@ -76,6 +78,11 @@ namespace Cathei.BakingSheet.Internal
             indexes.RemoveAt(current);
         }
 
+        internal override void CollectUnsupportedProperties(List<PropertyNodeIgnored> nodes)
+        {
+            _child.CollectUnsupportedProperties(nodes);
+        }
+
         private static bool ValueGetter(PropertyNode child, object obj, object key, out object value)
         {
             Debug.Assert(key != null);
@@ -101,7 +108,8 @@ namespace Cathei.BakingSheet.Internal
         private PropertyNode GenerateChildren(Type elementType, ISheetContractResolver resolver, int depth)
         {
             var childPath = AppendIndex(depth);
-            return Create(this, childPath, elementType, ValueGetter, ValueSetter, PropertyInfo, resolver, depth + 1);
+            return PropertyNodeFactory.Create(this, childPath, elementType,
+                ValueGetter, ValueSetter, PropertyInfo, resolver, depth + 1);
         }
     }
 }

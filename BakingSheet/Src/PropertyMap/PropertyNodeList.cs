@@ -14,6 +14,9 @@ namespace Cathei.BakingSheet.Internal
 
         private readonly bool _isVertical;
 
+        internal PropertyNode Child => _child;
+        internal bool IsVerticalList => _isVertical;
+
         public override Type IndexType => typeof(int);
         public override bool IsVertical => _isVertical;
         public override PropertyNode ColumnNode => _isVertical ? _child.ColumnNode : this;
@@ -49,7 +52,7 @@ namespace Cathei.BakingSheet.Internal
             if (_isVertical)
             {
                 // convert 0-base to 1-base
-                return vindex + 1;
+                return GetLocalVerticalIndex(vindex) + 1;
             }
 
             return base.GetChildIndex(vindex, indexer);
@@ -98,6 +101,11 @@ namespace Cathei.BakingSheet.Internal
             indexes.RemoveAt(current);
         }
 
+        internal override void CollectUnsupportedProperties(List<PropertyNodeIgnored> nodes)
+        {
+            _child.CollectUnsupportedProperties(nodes);
+        }
+
         private static bool ValueGetter(PropertyNode child, object obj, object key, out object value)
         {
             if (obj is IList list)
@@ -142,7 +150,7 @@ namespace Cathei.BakingSheet.Internal
 
             var childPath = _isVertical ? FullPath : AppendIndex(depth);
 
-            return Create(this, childPath, elementType, ValueGetter, ValueSetter,
+            return PropertyNodeFactory.Create(this, childPath, elementType, ValueGetter, ValueSetter,
                 PropertyInfo, resolver, _isVertical ? depth : depth + 1);
         }
     }

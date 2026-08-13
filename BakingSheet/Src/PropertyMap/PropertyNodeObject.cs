@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Cathei.BakingSheet.Internal
@@ -49,6 +48,15 @@ namespace Cathei.BakingSheet.Internal
                 if (elem != null)
                     child.UpdateIndex(elem);
             }
+        }
+
+        internal override void CollectUnsupportedProperties(List<PropertyNodeIgnored> nodes)
+        {
+            if (_children == null)
+                return;
+
+            foreach (var child in _children.Values)
+                child.CollectUnsupportedProperties(nodes);
         }
 
         public override int CalculateDepth()
@@ -122,8 +130,8 @@ namespace Cathei.BakingSheet.Internal
                     continue;
 
                 var childPath = AppendPath(propertyInfo.Name);
-                var child = PropertyNode.Create(this, childPath, propertyInfo.PropertyType,
-                    ValueGetter, ValueSetter, propertyInfo, resolver, depth);
+                var child = PropertyNodeFactory.CreateProperty(this, childPath, propertyInfo,
+                    ValueGetter, ValueSetter, resolver, depth);
 
                 _children.Add(propertyInfo.Name, child);
             }
