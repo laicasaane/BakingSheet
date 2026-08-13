@@ -14,6 +14,7 @@ Easy datasheet management for C# and Unity. Supports Excel, Google Sheet, JSON a
     * [Converters](#converters)
     * [Save and Load Converted Datasheet](#save-and-load-converted-datasheet)
     * [Accessing Row](#accessing-row)
+    * [Using Sheet Transposition](#using-sheet-transposition)
     * [Using List Column](#using-list-column)
     * [Using Dictionary Column](#using-dictionary-column)
     * [Using Vertical Dictionary](#using-vertical-dictionary)
@@ -271,6 +272,47 @@ foreach (var row in sheetContainer.Consumables)
 foreach (var consumableId in sheetContainer.Consumables.Where(row => row.Price > 5000).Select(row => row.Id))
     logger.LogInformation(consumableId);
 ```
+
+## Using Sheet Transposition
+Sheet transposition is useful when a small set of records, such as game configuration presets, is easier to edit as
+columns while its fields extend down rows.
+
+![Sample Transposition](.github/images/sample_transposition.png)
+
+<details>
+<summary>Markdown version</summary>
+
+| Id                    | STORY | NIGHTMARE |
+|-----------------------|-------|-----------|
+| DisplayName           | Story | Nightmare |
+| EnemyHealthMultiplier | 0.65  | 1.75      |
+| FriendlyFire          | FALSE | TRUE      |
+</details>
+
+```csharp
+public class DifficultyPresetSheet : Sheet<DifficultyPresetSheet.Row>
+{
+    public class Row : SheetRow
+    {
+        public string DisplayName { get; private set; }
+        public float EnemyHealthMultiplier { get; private set; }
+        public bool FriendlyFire { get; private set; }
+    }
+}
+
+public class SheetContainer : SheetContainerBase
+{
+    public SheetContainer(Microsoft.Extensions.Logging.ILogger logger) : base(logger) {}
+
+    [Transpose]
+    public DifficultyPresetSheet DifficultyPresets { get; private set; }
+}
+```
+
+Apply `[Transpose]` to an individual sheet property to swap its physical rows and columns during raw conversion.
+
+> [!NOTE]
+> Transposition is only supported by Excel, Google Sheet, and CSV converters.
 
 ## Using List Column
 List columns are used for simple array.
