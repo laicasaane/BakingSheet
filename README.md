@@ -16,6 +16,8 @@ Easy datasheet management for C# and Unity. Supports Excel, Google Sheet, JSON a
     * [Accessing Row](#accessing-row)
     * [Using List Column](#using-list-column)
     * [Using Dictionary Column](#using-dictionary-column)
+    * [Using Vertical Dictionary](#using-vertical-dictionary)
+    * [Using Nested Vertical List](#using-nested-vertical-list)
     * [Using Nested Type Column](#using-nested-type-column)
     * [Using Row Array](#using-row-array)
     * [Using Cross-Sheet Reference](#using-cross-sheet-reference)
@@ -79,7 +81,7 @@ Please create an [issue](https://github.com/laicasaane/BakingSheet/issues).
 Any contribution is appreciated. Please create [issue](https://github.com/laicasaane/BakingSheet/issues) for bugs or feature requests. Any contribution to feature, test case, or documentation through [pull requests](https://github.com/laicasaane/BakingSheet/pulls) are welcome! Any blog posts, articles, shares about this project will be greatful!
 
 ## First Step
-BakingSheet manages datasheet schema as C# code. `Sheet` class represents a table and `SheetRow` class represents a record. Below is example content of file `Consumables` page in `MySheets.xlsx`. Also, any column starts with `$` will be considered as comment and ignored.
+BakingSheet manages datasheet schema as C# code. `Sheet` class represents a table and `SheetRow` class represents a record. Below is example content of file `Consumables` page in `MySheets.xlsx`. In raw headers and `Id` cells, `$` at the first non-whitespace position ignores the complete physical column or row.
 
 ![Plain Sample](.github/images/sample_plain.png)
 
@@ -94,6 +96,18 @@ BakingSheet manages datasheet schema as C# code. `Sheet` class represents a tabl
 | POTION_001 | Health Potion     | 30    | Heal 20 Hp |
 | POTION_002 | Mana Potion       | 50    | Heal 20 Mp |
 </details>
+
+Raw imports also treat `$$` at the first non-whitespace position of an ordinary data cell as empty without shifting
+its row or column. A single `$` in an ordinary data cell remains value content.
+
+```text
+Header or Id:  "  $ note" / "  $$ note" -> ignore the physical column / row
+Data cell:     "  $$ note"               -> empty at the same coordinate
+Data cell:     "$value"                   -> literal value
+```
+
+Data-cell `$$` comments are import-only. They are not stored or preserved on export; export writes the resulting
+model value.
 
 Code below is corresponding BakingSheet class.
 ```csharp
@@ -156,6 +170,18 @@ BakingSheet supports four basic converters. They're included in Unity package as
 | [BakingSheet.Converters.Csv](https://www.nuget.org/packages/BakingSheet.Converters.Csv/)       | Comma-Separated Values (CSV) | O               | O               |
 | [BakingSheet.Converters.Json](https://www.nuget.org/packages/BakingSheet.Converters.Json/)     | JSON                         | O               | O               |
 | [ScriptableObject Converter](docs/scriptable-object.md) (Unity only)                           | ScriptableObject             | O               | O (Read-only)   |
+
+### Raw Converter Options
+
+Raw converters expose settings for exported header layout and imported page-ending behavior.
+
+`HeaderMode` controls how CSV export arranges structured raw headers. `HeaderMode.Hybrid` is the default and combines
+each named path component with its following anonymous components. `HeaderMode.Split` writes every path component on
+its own physical header row, while `HeaderMode.Flat` writes complete colon-delimited paths on one row. This setting
+affects export only; import accepts any valid equivalent header geometry.
+
+`EmptyRowAllowance` controls how many consecutive empty or whitespace-only physical rows may occur before the page
+ends and defaults to `0`.
 
 Below code shows how to convert `.xlsx` files from `Excel/Files/Path` directory.
 ```csharp
@@ -290,6 +316,8 @@ Use it as simple as just including a column has type implmenting `IList<T>`. Sin
 
 Also you can pick between flat-header style(`Monsters:1`) and split-header style(`Monsters`, `1`) as the example shows. There is no problem to mix-and-match or nest them.
 
+Use `VerticalList<T>` when list items should extend down rows. See [Using Nested Vertical List](#using-nested-vertical-list) for nested vertical collections.
+
 ## Using Dictionary Column
 Dictionary columns are used when key-based access of value is needed.
 
@@ -335,6 +363,88 @@ public class NpcSheet : Sheet<NpcSheet.Row>
 }
 ```
 Use it as simple as just including a column has type implmenting `IDictionary<TKey, TValue>`.
+
+## Using Vertical Dictionary
+Vertical dictionary columns are used when key-based entries should extend down rows.
+
+![Vertical Dictionary Sample](.github/images/sample_vertical_dict.png)
+
+<details>
+<summary>Flat header</summary>
+
+| Id       | Rewards:Key | Rewards:Value |
+|----------|-------------|---------------|
+| QUEST001 | Gold        | 100           |
+|          | Gem         | 5             |
+| QUEST002 | Gold        | 120           |
+|          | Key         | 1             |
+|          | Gem         | 6             |
+</details>
+
+<details>
+<summary>Split header</summary>
+
+| Id       | Rewards |       |
+|----------|---------|-------|
+|          | Key     | Value |
+| QUEST001 | Gold    | 100   |
+|          | Gem     | 5     |
+| QUEST002 | Gold    | 120   |
+|          | Key     | 1     |
+|          | Gem     | 6     |
+</details>
+
+```csharp
+public class RewardSheet : Sheet<RewardSheet.Row>
+{
+    public class Row : SheetRow
+    {
+        public VerticalDictionary<string, int> Rewards { get; private set; }
+    }
+}
+```
+
+Use it as simple as just including a column of type `VerticalDictionary<TKey, TValue>`. Each entry uses `Key` and
+`Value` property. `Value` can contain nested vertical collections through objects, lists, and dictionaries.
+
+> [!IMPORTANT]
+> Every entry requires a non-empty `Key`.
+> `Key` cannot contain vertical collections nor cross-sheet references.
+
+Blank collections become empty collections, while blank scalar or composite values keep
+their default value. Duplicate keys preserve the first entry. Export order is unspecified.
+
+See [Nested Collections](docs/nested-collections.md) for multi-level dictionaries and mixed vertical collections.
+
+## Using Nested Vertical List
+When a vertical list contains other vertical lists, their data can span several rows under the same `Id`.
+Anonymous collection levels are declared in raw headers and every instance begins with an explicit marker.
+
+```text
+Header: Stages:[2]:RewardPools:[1]:Item
+Marker: <#Stages:[2]:RewardPools:[1]#>
+```
+
+- `[n]` is the number of consecutive anonymous vertical-list components after a named property.
+- Marker index range is `1..n`, so that
+    - `<#Stages:[1]#>` begins the first anonymous level.
+    - `<#Stages:[2]#>` begins the second.
+- `{}` declares and selects an anonymous vertical-dictionary instance.
+- Dictionary keys create entries inside the selected instance.
+
+Markers may include a human note after `$$`:
+
+```text
+<#Stages:[1]#> $$ Act A
+```
+
+Notes are ignored on import and omitted on export. This marker-note form does not use the ordinary data-cell `$$`
+rule. A marker row contains exactly one marker and otherwise blank cells.
+
+Invalid markers or missing ancestor markers discard the active logical row; import resumes at the next nonblank `Id`.
+
+See [Nested Collections](docs/nested-collections.md) for exact Flat, Hybrid, and Split geometry, dictionary restrictions,
+marker whitespace and comment rules, recovery behavior, and equivalent CSV examples.
 
 ## Using Nested Type Column
 Nested type columns are used for complex structure.
