@@ -18,58 +18,112 @@
         },
         {
             "label": "unity: copy core",
-            "type": "shell",
-            "command": "cp",
+            "type": "process",
+            "command": "bash",
             "args": [
-                "-R", "BakingSheet/Src/*",
-                "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Core"
+                "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.sh",
+                "--source", "${workspaceFolder}/BakingSheet/Src",
+                "--destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Core",
+                "--recurse"
             ],
             "windows": {
+                "command": "powershell",
                 "args": [
-                    "-Recurse", "-Force", "BakingSheet/Src/*",
-                    "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Core"
+                    "-NoProfile", "-ExecutionPolicy", "Bypass",
+                    "-File", "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.ps1",
+                    "-Source", "${workspaceFolder}/BakingSheet/Src",
+                    "-Destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Core",
+                    "-Recurse"
                 ]
             },
             "problemMatcher": [ "$tsc" ],
         },
         {
             "label": "unity: copy excel",
-            "type": "shell",
-            "command": "cp",
+            "type": "process",
+            "command": "bash",
             "args": [
-                "BakingSheet.Converters.Excel/*.cs",
-                "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel"
+                "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.sh",
+                "--source", "${workspaceFolder}/BakingSheet.Converters.Excel",
+                "--destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel",
+                "--include", "*.cs"
             ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-NoProfile", "-ExecutionPolicy", "Bypass",
+                    "-File", "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.ps1",
+                    "-Source", "${workspaceFolder}/BakingSheet.Converters.Excel",
+                    "-Destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel",
+                    "-Include", "*.cs"
+                ]
+            },
             "problemMatcher": [ "$tsc" ],
         },
         {
             "label": "unity: copy google",
-            "type": "shell",
-            "command": "cp",
+            "type": "process",
+            "command": "bash",
             "args": [
-                "BakingSheet.Converters.Google/*.cs",
-                "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google"
+                "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.sh",
+                "--source", "${workspaceFolder}/BakingSheet.Converters.Google",
+                "--destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google",
+                "--include", "*.cs"
             ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-NoProfile", "-ExecutionPolicy", "Bypass",
+                    "-File", "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.ps1",
+                    "-Source", "${workspaceFolder}/BakingSheet.Converters.Google",
+                    "-Destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google",
+                    "-Include", "*.cs"
+                ]
+            },
             "problemMatcher": [ "$tsc" ],
         },
         {
             "label": "unity: copy csv",
-            "type": "shell",
-            "command": "cp",
+            "type": "process",
+            "command": "bash",
             "args": [
-                "BakingSheet.Converters.Csv/*.cs",
-                "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Csv"
+                "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.sh",
+                "--source", "${workspaceFolder}/BakingSheet.Converters.Csv",
+                "--destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Csv",
+                "--include", "*.cs"
             ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-NoProfile", "-ExecutionPolicy", "Bypass",
+                    "-File", "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.ps1",
+                    "-Source", "${workspaceFolder}/BakingSheet.Converters.Csv",
+                    "-Destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Csv",
+                    "-Include", "*.cs"
+                ]
+            },
             "problemMatcher": [ "$tsc" ],
         },
         {
             "label": "unity: copy json",
-            "type": "shell",
-            "command": "cp",
+            "type": "process",
+            "command": "bash",
             "args": [
-                "BakingSheet.Converters.Json/*.cs",
-                "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Json"
+                "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.sh",
+                "--source", "${workspaceFolder}/BakingSheet.Converters.Json",
+                "--destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Json",
+                "--include", "*.cs"
             ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-NoProfile", "-ExecutionPolicy", "Bypass",
+                    "-File", "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.ps1",
+                    "-Source", "${workspaceFolder}/BakingSheet.Converters.Json",
+                    "-Destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Json",
+                    "-Include", "*.cs"
+                ]
+            },
             "problemMatcher": [ "$tsc" ],
         },
         {
@@ -95,9 +149,24 @@
         },
         {
             "label": "copy md",
-            "type": "shell",
-            "command": "cp",
-            "args": [ "*.md", "UnityProject/Packages/com.laicasaane.bakingsheet/" ],
+            "type": "process",
+            "command": "bash",
+            "args": [
+                "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.sh",
+                "--source", "${workspaceFolder}",
+                "--destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet",
+                "--include", "CHANGELOG.md|LICENSE.md|LICENSE.Original.md|README.md|Third Party Notices.md"
+            ],
+            "windows": {
+                "command": "powershell",
+                "args": [
+                    "-NoProfile", "-ExecutionPolicy", "Bypass",
+                    "-File", "${workspaceFolder}/.vscode/scripts/Sync-UnityFiles.ps1",
+                    "-Source", "${workspaceFolder}",
+                    "-Destination", "${workspaceFolder}/UnityProject/Packages/com.laicasaane.bakingsheet",
+                    "-Include", "CHANGELOG.md|LICENSE.md|LICENSE.Original.md|README.md|Third Party Notices.md"
+                ]
+            },
             "problemMatcher": [ "$tsc" ],
         }
     ]
