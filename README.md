@@ -61,7 +61,7 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 
 For Unity projects, add git package from Package Manager.
 ```
-https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.1-pre.1
+https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.1-pre.2
 ```
 
 Or install it via [OpenUPM](https://openupm.com/packages/com.laicasaane.bakingsheet/).

@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 6.3.1-pre.2
+
+- Added the public `SheetTokens` vocabulary for sheet headers, paths, collection markers, comments, and sheet names.
+- Added a protected raw-sheet hook for selecting imported and exported sheets.
+- Added protected raw-sheet hooks for mapping import and export sheet names.
+- Added protected raw-sheet hooks for mapping semantic member names in headers and collection markers.
+- Changed repository copy commands and VS Code tasks to use shared PowerShell and Bash synchronization helpers.
+- Fixed Unity package synchronization leaving stale source and `.meta` files in the package mirror.
+- **Breaking Change**: Removed the public `Cathei.BakingSheet.Internal.Config` type. Use `Cathei.BakingSheet.SheetTokens` instead.
+- Removed the obsolete `Makefile` in favor of `copy.sh`.
+
 ## 6.3.1-pre.1
 
 - Added `VerticalDictionary<TKey, TValue>` for vertically arranged key-value data.
