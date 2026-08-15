@@ -1,6 +1,34 @@
-cp -R -force BakingSheet/Src/* UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Core
-cp BakingSheet.Converters.Excel/*.cs UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel
-cp BakingSheet.Converters.Google/*.cs UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google
-cp BakingSheet.Converters.Csv/*.cs UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Csv
-cp BakingSheet.Converters.Json/*.cs UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Json
-cp *.md UnityProject/Packages/com.laicasaane.bakingsheet/
+$ErrorActionPreference = "Stop"
+
+$syncScript = Join-Path $PSScriptRoot ".vscode/scripts/Sync-UnityFiles.ps1"
+$packageRoot = Join-Path $PSScriptRoot "UnityProject/Packages/com.laicasaane.bakingsheet"
+
+& $syncScript `
+    -Source (Join-Path $PSScriptRoot "BakingSheet/Src") `
+    -Destination (Join-Path $packageRoot "Runtime/Core") `
+    -Recurse
+
+& $syncScript `
+    -Source (Join-Path $PSScriptRoot "BakingSheet.Converters.Excel") `
+    -Destination (Join-Path $packageRoot "Runtime/Converters/Excel") `
+    -Include "*.cs"
+
+& $syncScript `
+    -Source (Join-Path $PSScriptRoot "BakingSheet.Converters.Google") `
+    -Destination (Join-Path $packageRoot "Runtime/Converters/Google") `
+    -Include "*.cs"
+
+& $syncScript `
+    -Source (Join-Path $PSScriptRoot "BakingSheet.Converters.Csv") `
+    -Destination (Join-Path $packageRoot "Runtime/Converters/Csv") `
+    -Include "*.cs"
+
+& $syncScript `
+    -Source (Join-Path $PSScriptRoot "BakingSheet.Converters.Json") `
+    -Destination (Join-Path $packageRoot "Runtime/Converters/Json") `
+    -Include "*.cs"
+
+& $syncScript `
+    -Source $PSScriptRoot `
+    -Destination $packageRoot `
+    -Include "CHANGELOG.md|LICENSE.md|LICENSE.Original.md|README.md|Third Party Notices.md"
