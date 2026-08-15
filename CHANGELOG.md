@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 6.3.1-pre.3
+
+- Changed the `Microsoft.Extensions.Logging.Abstractions` dependency to 10.0.11.
+- Fixed Unity assembly definitions missing explicit references to their precompiled dependencies.
+
 ## 6.3.1-pre.2
 
 - Added the public `SheetTokens` vocabulary for sheet headers, paths, collection markers, comments, and sheet names.
