@@ -87,10 +87,10 @@ namespace Cathei.BakingSheet
                         var table = dataset.Tables[i];
                         var tableName = table.TableName;
 
-                        if (tableName.StartsWith(Config.Comment))
+                        if (tableName.StartsWith(SheetTokens.Comment.Primary))
                             continue;
 
-                        var (sheetName, subName) = Config.ParseSheetName(tableName);
+                        var (sheetName, subName) = SheetTokens.ParseSheetName(tableName);
 
                         if (!_pages.TryGetValue(sheetName, out var sheetList))
                         {

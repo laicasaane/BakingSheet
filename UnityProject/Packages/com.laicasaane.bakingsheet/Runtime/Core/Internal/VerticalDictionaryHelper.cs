@@ -57,7 +57,7 @@ namespace Cathei.BakingSheet.Internal
                     return IsSupportedValue(elementType, resolver, visiting);
                 }
 
-                foreach (PropertyInfo property in Config.GetEligibleProperties(type))
+                foreach (PropertyInfo property in SheetTokens.GetEligibleProperties(type))
                 {
                     if (resolver.GetValueConverter(property) != null)
                         continue;
@@ -105,7 +105,7 @@ namespace Cathei.BakingSheet.Internal
                     return IsNonVertical(elementType, resolver, allowReference, visiting);
                 }
 
-                foreach (PropertyInfo property in Config.GetEligibleProperties(type))
+                foreach (PropertyInfo property in SheetTokens.GetEligibleProperties(type))
                 {
                     if (resolver.GetValueConverter(property) != null)
                         continue;
@@ -152,7 +152,7 @@ namespace Cathei.BakingSheet.Internal
                     return ContainsVerticalCollection(elementType, resolver, visiting);
                 }
 
-                foreach (PropertyInfo property in Config.GetEligibleProperties(type))
+                foreach (PropertyInfo property in SheetTokens.GetEligibleProperties(type))
                 {
                     if (resolver.GetValueConverter(property) == null &&
                         ContainsVerticalCollection(property.PropertyType, resolver, visiting))
@@ -207,7 +207,7 @@ namespace Cathei.BakingSheet.Internal
                     return HasExportableLeaf(elementType, resolver, visiting);
                 }
 
-                foreach (PropertyInfo property in Config.GetEligibleProperties(type))
+                foreach (PropertyInfo property in SheetTokens.GetEligibleProperties(type))
                 {
                     if (resolver.GetValueConverter(property) != null ||
                         HasExportableLeaf(property.PropertyType, resolver, visiting))

@@ -25,7 +25,7 @@ namespace Cathei.BakingSheet
 
         public static void ErrorHandler(ILogger logError, ErrorEventArgs err)
         {
-            if (err.ErrorContext.Member?.ToString() == nameof(ISheetRow.Id) &&
+            if (err.ErrorContext.Member?.ToString() == SheetTokens.Header.Id &&
                 err.ErrorContext.OriginalObject is ISheetRow &&
                 !(err.CurrentObject is ISheet))
             {

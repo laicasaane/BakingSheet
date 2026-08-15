@@ -111,7 +111,7 @@ namespace Cathei.BakingSheet.Internal
                 var node = Nodes[i];
 
                 if (i > 0 && Nodes[i - 1] is PropertyNodeList list && list.IsVerticalList)
-                    result = AppendSegment(result, "[]");
+                    result = AppendSegment(result, SheetTokens.List.Selector.Anonymous);
 
                 string current = FormatPath(node.FullPath);
                 string parent = i == 0 ? null : FormatPath(Nodes[i - 1].FullPath);
@@ -121,9 +121,9 @@ namespace Cathei.BakingSheet.Internal
                     string suffix = current;
 
                     if (!string.IsNullOrEmpty(parent) &&
-                        current.StartsWith(parent + Config.IndexDelimiter, StringComparison.Ordinal))
+                        current.StartsWith(parent + SheetTokens.Separator.Path, StringComparison.Ordinal))
                     {
-                        suffix = current.Substring(parent.Length + 1);
+                        suffix = current.Substring(parent.Length + SheetTokens.Separator.Path.Length);
                     }
 
                     if (string.IsNullOrEmpty(result))
@@ -161,7 +161,7 @@ namespace Cathei.BakingSheet.Internal
 
         private static string AppendPath(string path, string suffix)
         {
-            return $"{path}{Config.IndexDelimiter}{suffix}";
+            return $"{path}{SheetTokens.Separator.Path}{suffix}";
         }
     }
 

@@ -26,18 +26,18 @@ namespace Cathei.BakingSheet.Internal
             KeyType = arguments[0];
             ElementType = arguments[1];
 
-            Key = PropertyNodeFactory.Create(this, AppendPath("Key"), KeyType,
+            Key = PropertyNodeFactory.Create(this, AppendPath(SheetTokens.Dictionary.Header.Key), KeyType,
                 null, null, propertyInfo, resolver, depth);
-            Value = PropertyNodeFactory.Create(this, AppendPath("Value"), ElementType,
+            Value = PropertyNodeFactory.Create(this, AppendPath(SheetTokens.Dictionary.Header.Value), ElementType,
                 null, null, propertyInfo, resolver, depth);
         }
 
         public override PropertyNode GetChild(string subpath)
         {
-            if (subpath == "Key")
+            if (subpath == SheetTokens.Dictionary.Header.Key)
                 return Key;
 
-            if (subpath == "Value")
+            if (subpath == SheetTokens.Dictionary.Header.Value)
                 return Value;
 
             return null;
@@ -45,7 +45,8 @@ namespace Cathei.BakingSheet.Internal
 
         public override bool HasSubpath(string subpath)
         {
-            return subpath == "Key" || subpath == "Value";
+            return subpath == SheetTokens.Dictionary.Header.Key ||
+                   subpath == SheetTokens.Dictionary.Header.Value;
         }
 
         public override void UpdateIndex(object obj)
@@ -90,7 +91,7 @@ namespace Cathei.BakingSheet.Internal
 
         private string AppendPath(string subpath)
         {
-            return $"{FullPath}{Config.IndexDelimiter}{subpath}";
+            return $"{FullPath}{SheetTokens.Separator.Path}{subpath}";
         }
     }
 }
