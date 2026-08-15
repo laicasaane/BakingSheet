@@ -184,6 +184,50 @@ affects export only; import accepts any valid equivalent header geometry.
 `EmptyRowAllowance` controls how many consecutive empty or whitespace-only physical rows may occur before the page
 ends and defaults to `0`.
 
+Custom raw converters can select sheet properties and map external sheet and member names without replacing the raw
+page parser:
+
+```csharp
+public sealed class GameCsvConverter : CsvSheetConverter
+{
+    public GameCsvConverter(string path) : base(path) { }
+
+    protected override bool ShouldProcessSheet(
+        SheetConvertingContext context, PropertyInfo sheetProperty)
+    {
+        return sheetProperty.Name != "EditorNotes";
+    }
+
+    protected override string GetImportSheetName(PropertyInfo sheetProperty)
+    {
+        return sheetProperty.Name == "Items" ? "game_items" : sheetProperty.Name;
+    }
+
+    protected override string GetExportSheetName(PropertyInfo sheetProperty, ISheet sheet)
+    {
+        return sheet.Name == "Items" ? "game_items" : sheet.Name;
+    }
+
+    protected override string ToPropertyName(
+        PropertyInfo sheetProperty, ISheet sheet, string externalName)
+    {
+        return externalName == "display_name" ? "DisplayName" : externalName;
+    }
+
+    protected override string ToExternalName(
+        PropertyInfo sheetProperty, ISheet sheet, string propertyName)
+    {
+        return propertyName == "DisplayName" ? "display_name" : propertyName;
+    }
+}
+```
+
+`ToPropertyName` defines import aliases. `ToExternalName` defines the canonical names written during export. Both
+hooks receive semantic object-member names only. Horizontal list indexes, horizontal dictionary keys, `[]`, `[n]`,
+`{}`, comments, and values are preserved. Vertical dictionaries pass the canonical names `Key` and `Value` to these
+hooks. Sheet names must be non-empty. Mapped member names must be one non-empty path part without whitespace or
+`:`, `[`, `]`, `{`, or `}`.
+
 Below code shows how to convert `.xlsx` files from `Excel/Files/Path` directory.
 ```csharp
 // any ILogger will work, there is built-in UnityLogger
