@@ -29,7 +29,7 @@ namespace Cathei.BakingSheet
         {
             if (_sheetProperties == null)
             {
-                _sheetProperties = Config.GetEligibleProperties(GetType())
+                _sheetProperties = SheetTokens.GetEligibleProperties(GetType())
                     .Where(p => typeof(ISheet).IsAssignableFrom(p.PropertyType))
                     .ToDictionary(x => x.Name);
             }

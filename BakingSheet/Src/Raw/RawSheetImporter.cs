@@ -26,6 +26,23 @@ namespace Cathei.BakingSheet.Raw
         protected abstract Task<bool> LoadData();
         protected abstract IEnumerable<IRawSheetImporterPage> GetPages(string sheetName);
 
+        protected virtual bool ShouldProcessSheet(
+            SheetConvertingContext context, PropertyInfo sheetProperty)
+        {
+            return true;
+        }
+
+        protected virtual string GetImportSheetName(PropertyInfo sheetProperty)
+        {
+            return sheetProperty.Name;
+        }
+
+        protected virtual string ToPropertyName(
+            PropertyInfo sheetProperty, ISheet sheet, string externalName)
+        {
+            return externalName;
+        }
+
         protected virtual int GetColumnCount(
             IRawSheetImporterPage page, int row, int headerColumnCount)
         {
@@ -77,8 +94,16 @@ namespace Cathei.BakingSheet.Raw
             {
                 using (context.Logger.BeginScope(pair.Key))
                 {
+                    if (!ShouldProcessSheet(context, pair.Value))
+                        continue;
+
+                    string sheetName = GetImportSheetName(pair.Value);
+
+                    if (string.IsNullOrEmpty(sheetName))
+                        throw new InvalidOperationException("Import sheet name must not be empty.");
+
                     bool transpose = pair.Value.GetCustomAttribute<TransposeAttribute>() != null;
-                    var pages = GetPages(pair.Key).OrderBy(x => x.SubName).ToList();
+                    var pages = GetPages(sheetName).OrderBy(x => x.SubName).ToList();
                     var sheet = pair.Value.GetValue(context.Container) as ISheet;
 
                     if (sheet == null)
@@ -102,7 +127,7 @@ namespace Cathei.BakingSheet.Raw
                     {
                         ImportPage(
                             transpose ? new TransposedRawSheetImporterPage(page) : page,
-                            context, sheet, propertyMap);
+                            context, pair.Value, sheet, propertyMap);
                     }
                 }
             }
@@ -111,13 +136,33 @@ namespace Cathei.BakingSheet.Raw
         }
 
         private void ImportPage(IRawSheetImporterPage page, SheetConvertingContext context,
-            ISheet sheet, PropertyMap propertyMap)
+            PropertyInfo sheetProperty, ISheet sheet, PropertyMap propertyMap)
         {
             var idColumnName = page.GetCell(0, 0);
 
-            if (idColumnName != nameof(ISheetRow.Id))
+            if (string.IsNullOrEmpty(idColumnName))
             {
-                context.Logger.LogError("First column \"{ColumnName}\" must be named \"Id\"", idColumnName);
+                context.Logger.LogError(
+                    "First column \"{ColumnName}\" must be named \"" +
+                    SheetTokens.Header.Id + "\"", idColumnName);
+                return;
+            }
+
+            Func<string, string> memberNameMapper =
+                name => ToPropertyName(sheetProperty, sheet, name);
+            string resolvedIdColumnName = memberNameMapper(idColumnName);
+
+            if (!RawSheetHeader.IsValidName(resolvedIdColumnName))
+            {
+                LogInvalidHeader(context, page, 0, 0);
+                return;
+            }
+
+            if (resolvedIdColumnName != SheetTokens.Header.Id)
+            {
+                context.Logger.LogError(
+                    "First column \"{ColumnName}\" must be named \"" +
+                    SheetTokens.Header.Id + "\"", idColumnName);
                 return;
             }
 
@@ -143,7 +188,9 @@ namespace Cathei.BakingSheet.Raw
                 }
 
                 if (!propertyMap.TryResolveBinding(
-                        path, this, out var binding, out int invalidComponent, out bool ignored))
+                        path, this, memberNameMapper,
+                        out var binding, out var resolvedComponents,
+                        out int invalidComponent, out bool ignored))
                 {
                     var component = path.Components[Math.Max(0, invalidComponent)];
                     LogInvalidHeader(context, page, component.Column, component.Row);
@@ -157,6 +204,7 @@ namespace Cathei.BakingSheet.Raw
                 }
 
                 if (!path.TryValidateGeometry(
+                        resolvedComponents,
                         binding.HeaderComponents,
                         out invalidHeaderColumn, out invalidHeaderRow))
                 {
@@ -200,7 +248,8 @@ namespace Cathei.BakingSheet.Raw
                 string idCellValue = page.GetCell(0, pageRow);
                 bool blankId = string.IsNullOrWhiteSpace(idCellValue);
 
-                if (!blankId && Config.StartsWithComment(idCellValue, Config.Comment))
+                if (!blankId &&
+                    SheetTokens.StartsWithComment(idCellValue, SheetTokens.Comment.Primary))
                     continue;
 
                 if (!blankId)
@@ -220,7 +269,8 @@ namespace Cathei.BakingSheet.Raw
                 }
 
                 var markerResult = ScanMarkerRow(
-                    page, pageRow, columnCount, header, layout,
+                    page, pageRow, columnCount, header, propertyMap, layout,
+                    memberNameMapper,
                     out var marker, out int markerColumn, out int invalidMarkerColumn);
 
                 if (markerResult != MarkerScanResult.None)
@@ -285,7 +335,8 @@ namespace Cathei.BakingSheet.Raw
                 string cellValue = page.GetCell(pageColumn, pageRow);
 
                 if (string.IsNullOrEmpty(cellValue) ||
-                    pageColumn > 0 && Config.StartsWithComment(cellValue, Config.DataCellComment))
+                    pageColumn > 0 &&
+                    SheetTokens.StartsWithComment(cellValue, SheetTokens.Comment.Cell))
                     continue;
 
                 var binding = bindings[pageColumn];
@@ -355,7 +406,8 @@ namespace Cathei.BakingSheet.Raw
 
         private MarkerScanResult ScanMarkerRow(
             IRawSheetImporterPage page, int row, int columnCount,
-            RawSheetHeader header, VerticalCollectionLayout layout,
+            RawSheetHeader header, PropertyMap propertyMap,
+            VerticalCollectionLayout layout, Func<string, string> memberNameMapper,
             out VerticalCollectionTarget marker,
             out int markerColumn, out int invalidColumn)
         {
@@ -378,7 +430,7 @@ namespace Cathei.BakingSheet.Raw
                                          header.Paths[column].IsSeparator;
 
                 if (column > 0 && hasHeaderPath && !isCommentColumn && !isSeparatorColumn &&
-                    Config.StartsWithComment(value, Config.DataCellComment))
+                    SheetTokens.StartsWithComment(value, SheetTokens.Comment.Cell))
                     continue;
 
                 bool isCandidate = !isCommentColumn && RawSheetMarker.IsCandidate(value);
@@ -407,7 +459,9 @@ namespace Cathei.BakingSheet.Raw
                 markerColumn = column;
 
                 if (!RawSheetMarker.TryParse(value, out string markerPath) ||
-                    !layout.TryGetTarget(markerPath, out marker))
+                    !propertyMap.TryResolveMarkerPath(
+                        markerPath, this, memberNameMapper, out string resolvedMarkerPath) ||
+                    !layout.TryGetTarget(resolvedMarkerPath, out marker))
                 {
                     invalidColumn = column;
                     return MarkerScanResult.Invalid;

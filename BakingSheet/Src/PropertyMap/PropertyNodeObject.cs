@@ -34,7 +34,7 @@ namespace Cathei.BakingSheet.Internal
             if (FullPath == null)
                 return subpath;
 
-            return $"{FullPath}{Config.IndexDelimiter}{subpath}";
+            return $"{FullPath}{SheetTokens.Separator.Path}{subpath}";
         }
 
         public override void UpdateIndex(object obj)
@@ -81,7 +81,7 @@ namespace Cathei.BakingSheet.Internal
             }
 
             // Id column should come first
-            if (_children.TryGetValue(nameof(ISheetRow.Id), out var idChild))
+            if (_children.TryGetValue(SheetTokens.Header.Id, out var idChild))
             {
                 foreach (var node in idChild.TraverseChildren(indexes))
                     yield return node;
@@ -123,7 +123,7 @@ namespace Cathei.BakingSheet.Internal
 
             bool isRoot = Parent == null;
 
-            foreach (PropertyInfo propertyInfo in Config.GetEligibleProperties(ValueType))
+            foreach (PropertyInfo propertyInfo in SheetTokens.GetEligibleProperties(ValueType))
             {
                 // "Arr" is reserved for SheetRowArray
                 if (isRoot && propertyInfo.Name == nameof(ISheetRowArray.Arr))

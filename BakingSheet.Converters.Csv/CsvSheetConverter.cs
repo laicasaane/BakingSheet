@@ -129,7 +129,7 @@ namespace Cathei.BakingSheet
                     }
 
                     var fileName = Path.GetFileNameWithoutExtension(file);
-                    var (sheetName, subName) = Config.ParseSheetName(fileName);
+                    var (sheetName, subName) = SheetTokens.ParseSheetName(fileName);
 
                     if (!_pages.TryGetValue(sheetName, out var sheetList))
                     {

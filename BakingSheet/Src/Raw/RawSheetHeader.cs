@@ -32,9 +32,9 @@ namespace Cathei.BakingSheet.Raw
                     case RawSheetHeaderComponentKind.Named:
                         return Text;
                     case RawSheetHeaderComponentKind.AnonymousList:
-                        return "[]";
+                        return SheetTokens.List.Selector.Anonymous;
                     case RawSheetHeaderComponentKind.AnonymousDictionary:
-                        return "{}";
+                        return SheetTokens.Dictionary.Selector.Anonymous;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -54,6 +54,11 @@ namespace Cathei.BakingSheet.Raw
         public RawSheetHeaderComponent WithNode(PropertyNode node)
         {
             return new RawSheetHeaderComponent(Kind, Text, Column, Row, node);
+        }
+
+        public RawSheetHeaderComponent WithText(string text)
+        {
+            return new RawSheetHeaderComponent(Kind, text, Column, Row, Node);
         }
     }
 
@@ -97,20 +102,22 @@ namespace Cathei.BakingSheet.Raw
             Groups = groups;
         }
 
-        public bool TryValidateGeometry(IReadOnlyList<RawSheetHeaderComponent> canonical,
+        public bool TryValidateGeometry(
+            IReadOnlyList<RawSheetHeaderComponent> resolved,
+            IReadOnlyList<RawSheetHeaderComponent> canonical,
             out int invalidColumn, out int invalidRow)
         {
             invalidColumn = PhysicalColumn;
             invalidRow = LastComponentRow;
 
-            if (canonical.Count != Components.Count)
+            if (canonical.Count != resolved.Count)
                 return false;
 
             for (int i = 0; i < canonical.Count; ++i)
             {
-                if (canonical[i].Kind != Components[i].Kind ||
+                if (canonical[i].Kind != resolved[i].Kind ||
                     canonical[i].Kind == RawSheetHeaderComponentKind.Named &&
-                    !StringComparer.Ordinal.Equals(canonical[i].Text, Components[i].Text))
+                    !StringComparer.Ordinal.Equals(canonical[i].Text, resolved[i].Text))
                 {
                     invalidColumn = Components[i].Column;
                     invalidRow = Components[i].Row;
@@ -220,8 +227,9 @@ namespace Cathei.BakingSheet.Raw
                 }
 
                 string completePath = string.Join(
-                    Config.IndexDelimiter, cells.Select(x => x.Value));
-                bool isComment = Config.StartsWithComment(completePath, Config.Comment);
+                    SheetTokens.Separator.Path, cells.Select(x => x.Value));
+                bool isComment = SheetTokens.StartsWithComment(
+                    completePath, SheetTokens.Comment.Primary);
 
                 if (isComment)
                 {
@@ -264,7 +272,7 @@ namespace Cathei.BakingSheet.Raw
 
         public static string FormatFlat(IReadOnlyList<RawSheetHeaderComponent> components)
         {
-            return string.Join(Config.IndexDelimiter, CompressAnonymousLists(components));
+            return string.Join(SheetTokens.Separator.Path, CompressAnonymousLists(components));
         }
 
         public static IReadOnlyList<string> FormatSplit(
@@ -304,18 +312,23 @@ namespace Cathei.BakingSheet.Raw
                     {
                         if (listCount > 0)
                         {
-                            value += $":[{listCount}]";
+                            value += $"{SheetTokens.Separator.Path}" +
+                                     $"{SheetTokens.List.Selector.Start}{listCount}" +
+                                     $"{SheetTokens.List.Selector.End}";
                             listCount = 0;
                         }
 
-                        value += ":{}";
+                        value += SheetTokens.Separator.Path +
+                                 SheetTokens.Dictionary.Selector.Anonymous;
                     }
 
                     i++;
                 }
 
                 if (listCount > 0)
-                    value += $":[{listCount}]";
+                    value += $"{SheetTokens.Separator.Path}" +
+                             $"{SheetTokens.List.Selector.Start}{listCount}" +
+                             $"{SheetTokens.List.Selector.End}";
 
                 result.Add(value);
             }
@@ -327,8 +340,15 @@ namespace Cathei.BakingSheet.Raw
             IReadOnlyList<RawSheetHeaderComponent> components, int componentCount)
         {
             return string.Join(
-                Config.IndexDelimiter,
+                SheetTokens.Separator.Path,
                 CompressAnonymousLists(components.Take(componentCount).ToList()));
+        }
+
+        public static bool IsValidName(string name)
+        {
+            return !string.IsNullOrEmpty(name) &&
+                   !SheetTokens.ContainsReservedPathNameCharacter(name) &&
+                   !name.Any(char.IsWhiteSpace);
         }
 
         private static IEnumerable<string> CompressAnonymousLists(
@@ -352,14 +372,15 @@ namespace Cathei.BakingSheet.Raw
                     i++;
                 }
 
-                yield return $"[{count}]";
+                yield return $"{SheetTokens.List.Selector.Start}{count}" +
+                             $"{SheetTokens.List.Selector.End}";
             }
         }
 
         private static bool TryParseCell(string value, bool flat, int column, int row,
             List<RawSheetHeaderComponent> components)
         {
-            string[] parts = value.Split(Config.IndexDelimiterArray, StringSplitOptions.None);
+            string[] parts = SheetTokens.SplitPath(value);
 
             if (!flat && parts.Length > 1)
             {
@@ -379,7 +400,7 @@ namespace Cathei.BakingSheet.Raw
 
             foreach (string part in parts)
             {
-                if (part == "[]")
+                if (part == SheetTokens.List.Selector.Anonymous)
                 {
                     if (flat)
                         return false;
@@ -389,7 +410,7 @@ namespace Cathei.BakingSheet.Raw
                     continue;
                 }
 
-                if (part == "{}")
+                if (part == SheetTokens.Dictionary.Selector.Anonymous)
                 {
                     components.Add(new RawSheetHeaderComponent(
                         RawSheetHeaderComponentKind.AnonymousDictionary, null, column, row));
@@ -422,7 +443,7 @@ namespace Cathei.BakingSheet.Raw
         private static bool TryParseCompressedAnonymous(string part, int column, int row,
             List<RawSheetHeaderComponent> components)
         {
-            if (part == "{}")
+            if (part == SheetTokens.Dictionary.Selector.Anonymous)
             {
                 components.Add(new RawSheetHeaderComponent(
                     RawSheetHeaderComponentKind.AnonymousDictionary, null, column, row));
@@ -445,7 +466,7 @@ namespace Cathei.BakingSheet.Raw
             out RawSheetHeaderComponent component)
         {
             if (string.IsNullOrEmpty(part) ||
-                part.IndexOfAny(new[] { '[', ']', '{', '}' }) >= 0)
+                SheetTokens.ContainsReservedPathNameCharacter(part))
             {
                 component = default;
                 return false;
@@ -460,8 +481,10 @@ namespace Cathei.BakingSheet.Raw
         {
             count = 0;
 
-            if (part == null || part.Length < 3 || part[0] != '[' ||
-                part[part.Length - 1] != ']' || part[1] < '1' || part[1] > '9')
+            if (part == null || part.Length < 3 ||
+                part[0] != SheetTokens.List.Selector.Start[0] ||
+                part[part.Length - 1] != SheetTokens.List.Selector.End[0] ||
+                part[1] < '1' || part[1] > '9')
             {
                 return false;
             }
@@ -473,7 +496,10 @@ namespace Cathei.BakingSheet.Raw
             }
 
             return int.TryParse(
-                part.Substring(1, part.Length - 2),
+                part.Substring(
+                    SheetTokens.List.Selector.Start.Length,
+                    part.Length - SheetTokens.List.Selector.Start.Length -
+                    SheetTokens.List.Selector.End.Length),
                 NumberStyles.None,
                 CultureInfo.InvariantCulture,
                 out count);
@@ -485,8 +511,10 @@ namespace Cathei.BakingSheet.Raw
         public static bool IsCandidate(string value)
         {
             return !string.IsNullOrEmpty(value) &&
-                   (value.IndexOf("<#", StringComparison.Ordinal) >= 0 ||
-                    value.IndexOf("#>", StringComparison.Ordinal) >= 0);
+                   (value.IndexOf(
+                        SheetTokens.Collection.Marker.Start, StringComparison.Ordinal) >= 0 ||
+                    value.IndexOf(
+                        SheetTokens.Collection.Marker.End, StringComparison.Ordinal) >= 0);
         }
 
         public static bool TryParse(string value, out string canonicalPath)
@@ -501,19 +529,24 @@ namespace Cathei.BakingSheet.Raw
             while (start < value.Length && IsHorizontalSpace(value[start]))
                 start++;
 
-            if (start + 4 > value.Length ||
-                string.CompareOrdinal(value, start, "<#", 0, 2) != 0)
+            if (start + SheetTokens.Collection.Marker.Start.Length +
+                SheetTokens.Collection.Marker.End.Length > value.Length ||
+                string.CompareOrdinal(
+                    value, start, SheetTokens.Collection.Marker.Start, 0,
+                    SheetTokens.Collection.Marker.Start.Length) != 0)
             {
                 return false;
             }
 
-            int close = value.IndexOf("#>", start + 2, StringComparison.Ordinal);
+            int markerPathStart = start + SheetTokens.Collection.Marker.Start.Length;
+            int close = value.IndexOf(
+                SheetTokens.Collection.Marker.End, markerPathStart, StringComparison.Ordinal);
 
             if (close < 0)
                 return false;
 
-            string markerPath = value.Substring(start + 2, close - start - 2);
-            string suffix = value.Substring(close + 2);
+            string markerPath = value.Substring(markerPathStart, close - markerPathStart);
+            string suffix = value.Substring(close + SheetTokens.Collection.Marker.End.Length);
 
             if (!TryParseSuffix(suffix) || !TryParsePath(markerPath, out canonicalPath))
                 return false;
@@ -545,14 +578,17 @@ namespace Cathei.BakingSheet.Raw
             while (position < suffix.Length && IsHorizontalSpace(suffix[position]))
                 position++;
 
-            return position > 0 && position + 2 <= suffix.Length &&
-                   string.CompareOrdinal(suffix, position, "$$", 0, 2) == 0;
+            return position > 0 &&
+                   position + SheetTokens.Comment.Cell.Length <= suffix.Length &&
+                   string.CompareOrdinal(
+                       suffix, position, SheetTokens.Comment.Cell, 0,
+                       SheetTokens.Comment.Cell.Length) == 0;
         }
 
         private static bool TryParsePath(string path, out string canonicalPath)
         {
             canonicalPath = null;
-            string[] parts = path.Split(Config.IndexDelimiterArray, StringSplitOptions.None);
+            string[] parts = SheetTokens.SplitPath(path);
 
             if (parts.Length == 0)
                 return false;
@@ -563,7 +599,7 @@ namespace Cathei.BakingSheet.Raw
             {
                 string part = parts[i];
 
-                if (part == "{}")
+                if (part == SheetTokens.Dictionary.Selector.Anonymous)
                 {
                     normalized[i] = part;
                     continue;
@@ -571,12 +607,14 @@ namespace Cathei.BakingSheet.Raw
 
                 if (TryParseSelector(part, out int selector))
                 {
-                    normalized[i] = $"[{selector}]";
+                    normalized[i] = $"{SheetTokens.List.Selector.Start}{selector}" +
+                                    $"{SheetTokens.List.Selector.End}";
                     continue;
                 }
 
-                if (string.IsNullOrEmpty(part) || part == "[]" ||
-                    part.IndexOfAny(new[] { '[', ']', '{', '}' }) >= 0 ||
+                if (string.IsNullOrEmpty(part) ||
+                    part == SheetTokens.List.Selector.Anonymous ||
+                    SheetTokens.ContainsReservedPathNameCharacter(part) ||
                     part.Any(char.IsWhiteSpace))
                 {
                     return false;
@@ -587,19 +625,21 @@ namespace Cathei.BakingSheet.Raw
 
             string last = normalized[normalized.Length - 1];
 
-            if (last != "{}" && last[0] != '[')
+            if (last != SheetTokens.Dictionary.Selector.Anonymous &&
+                last[0] != SheetTokens.List.Selector.Start[0])
                 return false;
 
-            canonicalPath = string.Join(Config.IndexDelimiter, normalized);
+            canonicalPath = string.Join(SheetTokens.Separator.Path, normalized);
             return true;
         }
 
-        private static bool TryParseSelector(string value, out int selector)
+        internal static bool TryParseSelector(string value, out int selector)
         {
             selector = 0;
 
-            if (value == null || value.Length < 3 || value[0] != '[' ||
-                value[value.Length - 1] != ']')
+            if (value == null || value.Length < 3 ||
+                value[0] != SheetTokens.List.Selector.Start[0] ||
+                value[value.Length - 1] != SheetTokens.List.Selector.End[0])
             {
                 return false;
             }

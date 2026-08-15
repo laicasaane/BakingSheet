@@ -69,10 +69,10 @@ namespace Cathei.BakingSheet
 
             foreach (var gSheet in _spreadsheet.Sheets)
             {
-                if (gSheet.Properties.Title.StartsWith(Config.Comment))
+                if (gSheet.Properties.Title.StartsWith(SheetTokens.Comment.Primary))
                     continue;
 
-                var (sheetName, subName) = Config.ParseSheetName(gSheet.Properties.Title);
+                var (sheetName, subName) = SheetTokens.ParseSheetName(gSheet.Properties.Title);
 
                 if (!_pages.TryGetValue(sheetName, out var sheetList))
                 {

@@ -44,6 +44,18 @@ namespace Cathei.BakingSheet.Raw
         protected abstract Task<bool> SaveData();
         protected abstract IRawSheetExporterPage CreatePage(string sheetName);
 
+        protected virtual string GetExportSheetName(
+            PropertyInfo sheetProperty, ISheet sheet)
+        {
+            return sheet.Name;
+        }
+
+        protected virtual string ToExternalName(
+            PropertyInfo sheetProperty, ISheet sheet, string propertyName)
+        {
+            return propertyName;
+        }
+
         protected RawSheetConverter(TimeZoneInfo timeZoneInfo, IFormatProvider formatProvider)
             : base(timeZoneInfo, formatProvider)
         {
@@ -55,16 +67,24 @@ namespace Cathei.BakingSheet.Raw
             {
                 using (context.Logger.BeginScope(pair.Key))
                 {
+                    if (!ShouldProcessSheet(context, pair.Value))
+                        continue;
+
                     var sheet = pair.Value.GetValue(context.Container) as ISheet;
                     if (sheet == null)
                         continue;
 
-                    var page = CreatePage(sheet.Name);
+                    string sheetName = GetExportSheetName(pair.Value, sheet);
+
+                    if (string.IsNullOrEmpty(sheetName))
+                        throw new InvalidOperationException("Export sheet name must not be empty.");
+
+                    var page = CreatePage(sheetName);
                     ExportPage(
                         pair.Value.GetCustomAttribute<TransposeAttribute>() == null
                             ? page
                             : new TransposedRawSheetExporterPage(page),
-                        context, sheet);
+                        context, pair.Value, sheet);
                 }
             }
 
@@ -80,7 +100,8 @@ namespace Cathei.BakingSheet.Raw
         }
 
 
-        private void ExportPage(IRawSheetExporterPage page, SheetConvertingContext context, ISheet sheet)
+        private void ExportPage(IRawSheetExporterPage page, SheetConvertingContext context,
+            PropertyInfo sheetProperty, ISheet sheet)
         {
             var propertyMap = sheet.GetPropertyMap(context);
             var resolver = context.Container.ContractResolver;
@@ -89,7 +110,19 @@ namespace Cathei.BakingSheet.Raw
 
             propertyMap.UpdateIndex(sheet);
 
-            var bindings = propertyMap.GetCurrentBindings();
+            var bindings = propertyMap.GetCurrentBindings(
+                name => ToExternalName(sheetProperty, sheet, name));
+            var semanticPaths = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var binding in bindings)
+            {
+                if (!semanticPaths.Add(binding.SemanticPath))
+                {
+                    throw new InvalidOperationException(
+                        $"Mapped semantic path \"{binding.SemanticPath}\" is duplicated.");
+                }
+            }
+
             var layout = propertyMap.CreateLayout(bindings);
 
             var valueContext = new SheetValueConvertingContext(this, resolver);
@@ -145,7 +178,8 @@ namespace Cathei.BakingSheet.Raw
                         page.SetCell(
                             exportRow.MarkerColumn,
                             pageRow,
-                            $"<#{exportRow.MarkerPath}#>");
+                            $"{SheetTokens.Collection.Marker.Start}" +
+                            $"{exportRow.MarkerPath}{SheetTokens.Collection.Marker.End}");
                         pageRow++;
                         continue;
                     }
