@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Cathei.BakingSheet.Internal;
 using Cathei.BakingSheet.Raw;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
