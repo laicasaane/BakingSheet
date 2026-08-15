@@ -4,18 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using Cathei.BakingSheet.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Cathei.BakingSheet.Raw
 {
-    public enum HeaderMode
-    {
-        Hybrid = 0,
-        Split = 1,
-        Flat = 2,
-    }
-
     /// <summary>
     /// Generic sheet converter for cell-based Spreadsheet sources.
     /// </summary>
