@@ -4,6 +4,7 @@ set -eu
 
 script_root="$(cd "$(dirname "$0")" && pwd -P)"
 sync_script="$script_root/.vscode/scripts/Sync-UnityFiles.sh"
+rewrite_document_links_script="$script_root/.vscode/scripts/Rewrite-PackageDocumentLinks.sh"
 package_root="$script_root/UnityProject/Packages/com.laicasaane.bakingsheet"
 
 bash "$sync_script" \
@@ -35,3 +36,5 @@ bash "$sync_script" \
     --source "$script_root" \
     --destination "$package_root" \
     --include 'CHANGELOG.md|LICENSE.md|LICENSE.Original.md|README.md|Third Party Notices.md'
+
+bash "$rewrite_document_links_script" --package-root "$package_root"

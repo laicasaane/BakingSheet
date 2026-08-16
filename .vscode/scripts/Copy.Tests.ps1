@@ -46,6 +46,7 @@ try {
     New-Item -ItemType Directory -Path (Join-Path $testRoot ".vscode/scripts") -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $repositoryRoot "copy.ps1") -Destination (Join-Path $testRoot "copy.ps1")
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot "Sync-UnityFiles.ps1") -Destination (Join-Path $testRoot ".vscode/scripts/Sync-UnityFiles.ps1")
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot "Rewrite-PackageDocumentLinks.ps1") -Destination (Join-Path $testRoot ".vscode/scripts/Rewrite-PackageDocumentLinks.ps1")
 
     Write-FixtureFile "BakingSheet/Src/Current.cs" "new-core"
     Write-FixtureFile "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Core/Current.cs" "old-core"
@@ -64,8 +65,11 @@ try {
     Write-FixtureFile "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs" "stale-excel"
     Write-FixtureFile "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs.meta" "stale-excel-guid"
     Write-FixtureFile "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google/link.xml" "unity-linker"
-    Write-FixtureFile "README.md" "new-readme"
+    $versionUrl = "https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.3+build.7"
+    Write-FixtureFile "README.md" "[docs](docs/guide.md)`n![image](.github/images/sample.png)"
+    Write-FixtureFile "CHANGELOG.md" "[image]: ./.github/images/change.png"
     Write-FixtureFile "Plan.md" "do-not-copy"
+    Write-FixtureFile "UnityProject/Packages/com.laicasaane.bakingsheet/package.json" '{ "version": "6.3.1-pre.3+build.7" }'
     Write-FixtureFile "UnityProject/Packages/com.laicasaane.bakingsheet/README.md" "old-readme"
     Write-FixtureFile "UnityProject/Packages/com.laicasaane.bakingsheet/PackageOnly.md" "package-only"
 
@@ -89,7 +93,8 @@ try {
     Assert-Missing "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs"
     Assert-Missing "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs.meta"
     Assert-Content "UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google/link.xml" "unity-linker"
-    Assert-Content "UnityProject/Packages/com.laicasaane.bakingsheet/README.md" "new-readme"
+    Assert-Content "UnityProject/Packages/com.laicasaane.bakingsheet/README.md" "[docs]($versionUrl/docs/guide.md)`n![image]($versionUrl/.github/images/sample.png)"
+    Assert-Content "UnityProject/Packages/com.laicasaane.bakingsheet/CHANGELOG.md" "[image]: $versionUrl/.github/images/change.png"
     Assert-Missing "UnityProject/Packages/com.laicasaane.bakingsheet/Plan.md"
     Assert-Content "UnityProject/Packages/com.laicasaane.bakingsheet/PackageOnly.md" "package-only"
 

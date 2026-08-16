@@ -40,6 +40,7 @@ trap cleanup EXIT
 mkdir -p "$test_root/.vscode/scripts"
 cp "$repository_root/copy.sh" "$test_root/copy.sh"
 cp "$repository_root/.vscode/scripts/Sync-UnityFiles.sh" "$test_root/.vscode/scripts/Sync-UnityFiles.sh"
+cp "$repository_root/.vscode/scripts/Rewrite-PackageDocumentLinks.sh" "$test_root/.vscode/scripts/Rewrite-PackageDocumentLinks.sh"
 
 write_fixture_file 'BakingSheet/Src/Current.cs' 'new-core'
 write_fixture_file 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Core/Current.cs' 'old-core'
@@ -57,8 +58,12 @@ done
 write_fixture_file 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs' 'stale-excel'
 write_fixture_file 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs.meta' 'stale-excel-guid'
 write_fixture_file 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google/link.xml' 'unity-linker'
-write_fixture_file 'README.md' 'new-readme'
+version_url='https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.3+build.7'
+write_fixture_file 'README.md' '[docs](docs/guide.md)
+![image](.github/images/sample.png)'
+write_fixture_file 'CHANGELOG.md' '[image]: ./.github/images/change.png'
 write_fixture_file 'Plan.md' 'do-not-copy'
+write_fixture_file 'UnityProject/Packages/com.laicasaane.bakingsheet/package.json' '{ "version": "6.3.1-pre.3+build.7" }'
 write_fixture_file 'UnityProject/Packages/com.laicasaane.bakingsheet/README.md' 'old-readme'
 write_fixture_file 'UnityProject/Packages/com.laicasaane.bakingsheet/PackageOnly.md' 'package-only'
 
@@ -78,7 +83,9 @@ done
 assert_missing 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs'
 assert_missing 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs.meta'
 assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google/link.xml' 'unity-linker'
-assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/README.md' 'new-readme'
+assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/README.md' "[docs]($version_url/docs/guide.md)
+![image]($version_url/.github/images/sample.png)"
+assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/CHANGELOG.md' "[image]: $version_url/.github/images/change.png"
 assert_missing 'UnityProject/Packages/com.laicasaane.bakingsheet/Plan.md'
 assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/PackageOnly.md' 'package-only'
 

@@ -1,6 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $syncScript = Join-Path $PSScriptRoot ".vscode/scripts/Sync-UnityFiles.ps1"
+$rewriteDocumentLinksScript = Join-Path $PSScriptRoot ".vscode/scripts/Rewrite-PackageDocumentLinks.ps1"
 $packageRoot = Join-Path $PSScriptRoot "UnityProject/Packages/com.laicasaane.bakingsheet"
 
 & $syncScript `
@@ -32,3 +33,5 @@ $packageRoot = Join-Path $PSScriptRoot "UnityProject/Packages/com.laicasaane.bak
     -Source $PSScriptRoot `
     -Destination $packageRoot `
     -Include "CHANGELOG.md|LICENSE.md|LICENSE.Original.md|README.md|Third Party Notices.md"
+
+& $rewriteDocumentLinksScript -PackageRoot $packageRoot
