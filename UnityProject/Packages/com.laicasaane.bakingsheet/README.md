@@ -1,5 +1,6 @@
 # BakingSheet 🍞
-Easy datasheet management for C# and Unity. Supports Excel, Google Sheet, JSON and CSV format. It has been used for several mobile games that released on Google Play and AppStore.
+Easy datasheet management for C# and Unity. Supports Excel, Google Sheet, JSON and CSV format.
+It has been used for several mobile games that released on Google Play and AppStore.
 
 ## Table of Contents
 * [Concept](#concept)
@@ -16,10 +17,14 @@ Easy datasheet management for C# and Unity. Supports Excel, Google Sheet, JSON a
     * [Accessing Row](#accessing-row)
     * [Using List Column](#using-list-column)
     * [Using Dictionary Column](#using-dictionary-column)
+    * [Using Vertical Dictionary](#using-vertical-dictionary)
+    * [Using Nested Vertical List](#using-nested-vertical-list)
     * [Using Nested Type Column](#using-nested-type-column)
     * [Using Row Array](#using-row-array)
     * [Using Cross-Sheet Reference](#using-cross-sheet-reference)
     * [Using Non-String Column as Id](#using-non-string-column-as-id)
+    * [Using Sheet Transposition](#using-sheet-transposition)
+    * [Ignoring Comments During Import](#ignoring-comments-during-import)
     * [Using Post Load Hook](#using-post-load-hook)
     * [Using AssetPostProcessor to Automate Converting](#using-assetpostprocessor-to-automate-converting)
     * [About AOT Code Stripping (Unity)](#about-aot-code-stripping--unity-)
@@ -36,9 +41,9 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 * Supports exporting to CSV and JSON.
 * Supports .NET platforms and all Unity platforms.
 * Powerful Cross-sheet reference feature.
-* Referencing Asset data with [AssetPath](docs/asset-path.md).
-* [Customizable value converter](docs/value-converter.md).
-* [Customizable data verification](docs/data-verification.md).
+* Referencing Asset data with [AssetPath](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/asset-path.md).
+* [Customizable value converter](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/value-converter.md).
+* [Customizable data verification](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/data-verification.md).
 * [Partial sheet import](https://github.com/cathei/BakingSheet/issues/22).
 
 ## About this fork
@@ -58,7 +63,7 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 
 For Unity projects, add git package from Package Manager.
 ```
-https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.0-pre.1
+https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.1-pre.4
 ```
 
 Or install it via [OpenUPM](https://openupm.com/packages/com.laicasaane.bakingsheet/).
@@ -66,7 +71,8 @@ Or install it via [OpenUPM](https://openupm.com/packages/com.laicasaane.bakingsh
 openupm add com.laicasaane.bakingsheet
 ```
 
-If you are planning to use StreamingAssets folder on Android, install [BetterStreamingAssets](docs/streaming-assets.md) as well.
+If you are planning to use StreamingAssets folder on Android, install
+[BetterStreamingAssets](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/streaming-assets.md) as well.
 
 ### Need help?
 
@@ -76,24 +82,32 @@ Please create an [issue](https://github.com/laicasaane/BakingSheet/issues).
 > Keep in mind that I'm not the original author of BakingSheet, so I might not be able to answer all questions.
 
 ## Contribution
-Any contribution is appreciated. Please create [issue](https://github.com/laicasaane/BakingSheet/issues) for bugs or feature requests. Any contribution to feature, test case, or documentation through [pull requests](https://github.com/laicasaane/BakingSheet/pulls) are welcome! Any blog posts, articles, shares about this project will be greatful!
+Any contribution is appreciated. Please create [issue](https://github.com/laicasaane/BakingSheet/issues) for bugs or
+feature requests. Any contribution to feature, test case, or documentation through
+[pull requests](https://github.com/laicasaane/BakingSheet/pulls) are welcome! Any blog posts, articles, shares about
+this project will be greatful!
 
 ## First Step
-BakingSheet manages datasheet schema as C# code. `Sheet` class represents a table and `SheetRow` class represents a record. Below is example content of file `Consumables` page in `MySheets.xlsx`. Also, any column starts with `$` will be considered as comment and ignored.
+BakingSheet manages datasheet schema as C# code. `Sheet` class represents a table and `SheetRow` class represents a
+record. Below is example content of file `Consumables` page in `MySheets.xlsx`.
 
-![Plain Sample](.github/images/sample_plain.png)
+![Plain Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/.github/images/sample_plain.png)
 
 <details>
 <summary>Markdown version</summary>
 
-| Id         | Name              | Price | $Comment   |
-|------------|-------------------|-------|------------|
-| LVUP_001   | Warrior's Shield  | 10000 | Warrior Lv up material |
-| LVUP_002   | Mage's Staff      | 10000 | Mage Lv up material |
+| Id         | Name              | Price | $Comment                |
+|------------|-------------------|-------|-------------------------|
+| LVUP_001   | Warrior's Shield  | 10000 | Warrior Lv up material  |
+| LVUP_002   | Mage's Staff      | 10000 | Mage Lv up material     |
 | LVUP_003   | Assassin's Dagger | 10000 | Assassin Lv up material |
-| POTION_001 | Health Potion     | 30    | Heal 20 Hp |
-| POTION_002 | Mana Potion       | 50    | Heal 20 Mp |
+| POTION_001 | Health Potion     | 30    | Heal 20 Hp              |
+| POTION_002 | Mana Potion       | 50    | Heal 20 Mp              |
 </details>
+
+The `$Comment` header starts with `$`, so BakingSheet ignores the whole column during import. Use it for notes that
+should not become sheet data.
+See [Ignoring Comments During Import](#ignoring-comments-during-import) for the complete rules.
 
 Code below is corresponding BakingSheet class.
 ```csharp
@@ -107,9 +121,12 @@ public class ConsumableSheet : Sheet<ConsumableSheet.Row>
     }
 }
 ```
-You can see there are two classes, `ConsumableSheet` and `ConsumableSheet.Row`. Each represents a page of sheet and a single row. `ConsumableSheet` is surrounding `Row` class (It is not forced but recommended convention). Important part is they will inherit from `Sheet<TRow>` and `SheetRow`.
+You can see there are two classes, `ConsumableSheet` and `ConsumableSheet.Row`. Each represents a page of sheet and a
+single row. `ConsumableSheet` is surrounding `Row` class (It is not forced but recommended convention). Important part
+is they will inherit from `Sheet<TRow>` and `SheetRow`.
 
-`Id` column is mandatory, so it is already defined in base `SheetRow` class. `Id` is `string` by default, but you can change type. See [this section](#using-non-string-column-as-id) to use non-string type for `Id`.
+`Id` column is mandatory, so it is already defined in base `SheetRow` class. `Id` is `string` by default, but you can
+change type. See [this section](#using-non-string-column-as-id) to use non-string type for `Id`.
 
 To represent collection of sheets, a document, let's create `SheetContainer` class inherits from `SheetContainerBase`.
 ```csharp
@@ -126,7 +143,10 @@ public class SheetContainer : SheetContainerBase
     public CharacterSheet Characters { get; private set; }
 }
 ```
-You can add as many sheets you want as properties of your `SheetContainer`. This class is designed to be "fat", means single `SheetContainer` should contain all your sheets unless there is specific reason to partition your sheets. For example when you want to deploy some `Sheet` only exclusive to server program, you might want to partition `ServerSheetContainer` and `ClientSheetContainer`.
+You can add as many sheets you want as properties of your `SheetContainer`. This class is designed to be "fat", means
+single `SheetContainer` should contain all your sheets unless there is specific reason to partition your sheets. For
+example when you want to deploy some `Sheet` only exclusive to server program, you might want to partition
+`ServerSheetContainer` and `ClientSheetContainer`.
 
 ## Supported Column Type
 * `string`
@@ -138,24 +158,88 @@ You can add as many sheets you want as properties of your `SheetContainer`. This
 * Nullable for any other supported value type (for example `int?`)
 * `List<>` and `Dictionary<,>`
 * Custom `struct` and `class` as [nested column](#using-nested-type-column)
-* Custom type converted with [ValueConverter](docs/value-converter.md)
+* Custom type converted with [ValueConverter](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/value-converter.md)
 
 > **Note**
 > When using `JsonConverter`, `enum` is serialized as `string` by default so you won't have issue when reordering them.
 
 ## Converters
-Converters are simple implementation import/export records from datasheet sources. These come as separated library, as it's user's decision to select datasheet source.
-User can have converting process, to convert datasheet to other format ahead of time and not include heavy converters in production applications.
+Converters are simple implementation import/export records from datasheet sources. These come as separated library,
+as it's user's decision to select datasheet source.
+User can have converting process, to convert datasheet to other format ahead of time and not include heavy converters
+in production applications.
 
 BakingSheet supports four basic converters. They're included in Unity package as well.
 
-| Package Name                                                                                   | Format                       | Supports Import | Supports Export |
-|------------------------------------------------------------------------------------------------|------------------------------|-----------------|-----------------|
-| [BakingSheet.Converters.Excel](https://www.nuget.org/packages/BakingSheet.Converters.Excel/)   | Microsoft Excel              | O               | X               |
-| [BakingSheet.Converters.Google](https://www.nuget.org/packages/BakingSheet.Converters.Google/) | Google Sheet                 | O               | X               |
-| [BakingSheet.Converters.Csv](https://www.nuget.org/packages/BakingSheet.Converters.Csv/)       | Comma-Separated Values (CSV) | O               | O               |
-| [BakingSheet.Converters.Json](https://www.nuget.org/packages/BakingSheet.Converters.Json/)     | JSON                         | O               | O               |
-| [ScriptableObject Converter](docs/scriptable-object.md) (Unity only)                           | ScriptableObject             | O               | O (Read-only)   |
+| Package Name                                          | Format                       | Import | Export        |
+|-------------------------------------------------------|------------------------------|--------|---------------|
+| [BakingSheet.Converters.Excel][excel]                 | Microsoft Excel              | O      | X             |
+| [BakingSheet.Converters.Google][google]               | Google Sheet                 | O      | X             |
+| [BakingSheet.Converters.Csv][csv]                     | Comma-Separated Values (CSV) | O      | O             |
+| [BakingSheet.Converters.Json][json]                   | JSON                         | O      | O             |
+| [ScriptableObject Converter][scriptable] (Unity only) | ScriptableObject             | O      | O (Read-only) |
+
+[excel]: https://www.nuget.org/packages/BakingSheet.Converters.Excel/
+[google]: https://www.nuget.org/packages/BakingSheet.Converters.Google/
+[csv]: https://www.nuget.org/packages/BakingSheet.Converters.Csv/
+[json]: https://www.nuget.org/packages/BakingSheet.Converters.Json/
+[scriptable]: https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/scriptable-object.md
+
+### Raw Converter Options
+
+Raw converters expose settings for exported header layout and imported page-ending behavior.
+
+`HeaderMode` controls how CSV export arranges structured raw headers. `HeaderMode.Hybrid` is the default and combines
+each named path component with its following anonymous components. `HeaderMode.Split` writes every path component on
+its own physical header row, while `HeaderMode.Flat` writes complete colon-delimited paths on one row. This setting
+affects export only; import accepts any valid equivalent header geometry.
+
+`EmptyRowAllowance` controls how many consecutive empty or whitespace-only physical rows may occur before the page
+ends and defaults to `0`.
+
+Custom raw converters can select sheet properties and map external sheet and member names without replacing the raw
+page parser:
+
+```csharp
+public sealed class GameCsvConverter : CsvSheetConverter
+{
+    public GameCsvConverter(string path) : base(path) { }
+
+    protected override bool ShouldProcessSheet(
+        SheetConvertingContext context, PropertyInfo sheetProperty)
+    {
+        return sheetProperty.Name != "EditorNotes";
+    }
+
+    protected override string GetImportSheetName(PropertyInfo sheetProperty)
+    {
+        return sheetProperty.Name == "Items" ? "game_items" : sheetProperty.Name;
+    }
+
+    protected override string GetExportSheetName(PropertyInfo sheetProperty, ISheet sheet)
+    {
+        return sheet.Name == "Items" ? "game_items" : sheet.Name;
+    }
+
+    protected override string ToPropertyName(
+        PropertyInfo sheetProperty, ISheet sheet, string externalName)
+    {
+        return externalName == "display_name" ? "DisplayName" : externalName;
+    }
+
+    protected override string ToExternalName(
+        PropertyInfo sheetProperty, ISheet sheet, string propertyName)
+    {
+        return propertyName == "DisplayName" ? "display_name" : propertyName;
+    }
+}
+```
+
+`ToPropertyName` defines import aliases. `ToExternalName` defines the canonical names written during export. Both
+hooks receive semantic object-member names only. Horizontal list indexes, horizontal dictionary keys, `[]`, `[n]`,
+`{}`, comments, and values are preserved. Vertical dictionaries pass the canonical names `Key` and `Value` to these
+hooks. Sheet names must be non-empty. Mapped member names must be one non-empty path part without whitespace or
+`:`, `[`, `]`, `{`, or `}`.
 
 Below code shows how to convert `.xlsx` files from `Excel/Files/Path` directory.
 ```csharp
@@ -172,7 +256,10 @@ var excelConverter = new ExcelSheetConverter("Excel/Files/Path");
 await sheetContainer.Bake(excelConverter);
 ```
 
-For Google Sheet, first create your service account through Google API Console. Then add it to your sheet with `Viewer` permission. Use Google credential for that service account to create converter. For detailed information about how to create service account and link to your sheet, see [How to import from Google Sheet](./docs/google-sheet-import.md).
+For Google Sheet, first create your service account through Google API Console. Then add it to your sheet with
+`Viewer` permission. Use Google credential for that service account to create converter. For detailed information
+about how to create service account and link to your sheet, see
+[How to import from Google Sheet](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/google-sheet-import.md).
 
 ```csharp
 // replace with your Google sheet identifier
@@ -190,7 +277,8 @@ await sheetContainer.Bake(googleConverter);
 ```
 
 ## Save and Load Converted Datasheet
-Below code shows how to load sheet from Excel and save as JSON. This typically happens through Unity Editor script or any pre-build time script.
+Below code shows how to load sheet from Excel and save as JSON. This typically happens through Unity Editor script or
+any pre-build time script.
 
 ```csharp
 // create excel converter from path
@@ -222,10 +310,11 @@ You can extend `JsonSheetConverter` to customize serialization process. For exam
 > For AOT platforms (iOS, Android), read about [AOT Code Stripping](#about-aot-code-stripping-unity).
 
 > **Note**
-> If you are using `StreamingAssets` on Android, also see [Reading From StreamingAssets](docs/streaming-assets.md).
+> If you are using `StreamingAssets` on Android, also see [Reading From StreamingAssets](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/streaming-assets.md).
 
 ## Accessing Row
-Now you have `SheetContainer` loaded from your data, accessing to the row is fairly simple. Below code shows how to access specific `ConsumableSheet.Row`.
+Now you have `SheetContainer` loaded from your data, accessing to the row is fairly simple. Below code shows how to
+access specific `ConsumableSheet.Row`.
 ```csharp
 // same as sheetContainer.Consumables.Find("LVUP_003");
 // returns null if no row found
@@ -235,7 +324,8 @@ var row = sheetContainer.Consumables["LVUP_003"];
 logger.LogInformation(row.Name);
 ```
 
-`Sheet<T>` is `KeyedCollection`, you can loop through it and order is guaranteed to be as same as your spreadsheet. Plus of course you can use all benefits of `IEnumerable<T>`.
+`Sheet<T>` is `KeyedCollection`, you can loop through it and order is guaranteed to be as same as your spreadsheet.
+Plus of course you can use all benefits of `IEnumerable<T>`.
 ```csharp
 // loop through all rows and print their names
 foreach (var row in sheetContainer.Consumables)
@@ -249,7 +339,7 @@ foreach (var consumableId in sheetContainer.Consumables.Where(row => row.Price >
 ## Using List Column
 List columns are used for simple array.
 
-![List Sample](.github/images/sample_list.png)
+![List Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/.github/images/sample_list.png)
 
 <details>
 <summary>Flat header</summary>
@@ -286,14 +376,19 @@ public class DungeonSheet : Sheet<DungeonSheet.Row>
     }
 }
 ```
-Use it as simple as just including a column has type implmenting `IList<T>`. Since spreadsheet is designer's area, index on sheet is 1-based. So be aware when you access it from code.
+Use it as simple as just including a column has type implmenting `IList<T>`. Since spreadsheet is designer's area,
+index on sheet is 1-based. So be aware when you access it from code.
 
-Also you can pick between flat-header style(`Monsters:1`) and split-header style(`Monsters`, `1`) as the example shows. There is no problem to mix-and-match or nest them.
+Also you can pick between flat-header style(`Monsters:1`) and split-header style(`Monsters`, `1`) as the example
+shows. There is no problem to mix-and-match or nest them.
+
+Use `VerticalList<T>` when list items should extend down rows. See
+[Using Nested Vertical List](#using-nested-vertical-list) for nested vertical collections.
 
 ## Using Dictionary Column
 Dictionary columns are used when key-based access of value is needed.
 
-![Dictionary Sample](.github/images/sample_dict.png)
+![Dictionary Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/.github/images/sample_dict.png)
 
 <details>
 <summary>Flat header</summary>
@@ -336,10 +431,92 @@ public class NpcSheet : Sheet<NpcSheet.Row>
 ```
 Use it as simple as just including a column has type implmenting `IDictionary<TKey, TValue>`.
 
+## Using Vertical Dictionary
+Vertical dictionary columns are used when key-based entries should extend down rows.
+
+![Vertical Dictionary Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/.github/images/sample_vertical_dict.png)
+
+<details>
+<summary>Flat header</summary>
+
+| Id       | Rewards:Key | Rewards:Value |
+|----------|-------------|---------------|
+| QUEST001 | Gold        | 100           |
+|          | Gem         | 5             |
+| QUEST002 | Gold        | 120           |
+|          | Key         | 1             |
+|          | Gem         | 6             |
+</details>
+
+<details>
+<summary>Split header</summary>
+
+| Id       | Rewards |       |
+|----------|---------|-------|
+|          | Key     | Value |
+| QUEST001 | Gold    | 100   |
+|          | Gem     | 5     |
+| QUEST002 | Gold    | 120   |
+|          | Key     | 1     |
+|          | Gem     | 6     |
+</details>
+
+```csharp
+public class RewardSheet : Sheet<RewardSheet.Row>
+{
+    public class Row : SheetRow
+    {
+        public VerticalDictionary<string, int> Rewards { get; private set; }
+    }
+}
+```
+
+Use it as simple as just including a column of type `VerticalDictionary<TKey, TValue>`. Each entry uses `Key` and
+`Value` property. `Value` can contain nested vertical collections through objects, lists, and dictionaries.
+
+> [!IMPORTANT]
+> Every entry requires a non-empty `Key`.
+> `Key` cannot contain vertical collections nor cross-sheet references.
+
+Blank collections become empty collections, while blank scalar or composite values keep
+their default value. Duplicate keys preserve the first entry. Export order is unspecified.
+
+See [Nested Collections](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/nested-collections.md) for multi-level dictionaries and mixed vertical collections.
+
+## Using Nested Vertical List
+When a vertical list contains other vertical lists, their data can span several rows under the same `Id`.
+Anonymous collection levels are declared in raw headers and every instance begins with an explicit marker.
+
+```text
+Header: Stages:[2]:RewardPools:[1]:Item
+Marker: <#Stages:[2]:RewardPools:[1]#>
+```
+
+- `[n]` is the number of consecutive anonymous vertical-list components after a named property.
+- Marker index range is `1..n`, so that
+    - `<#Stages:[1]#>` begins the first anonymous level.
+    - `<#Stages:[2]#>` begins the second.
+- `{}` declares and selects an anonymous vertical-dictionary instance.
+- Dictionary keys create entries inside the selected instance.
+
+Markers may include a human note after `$$`:
+
+```text
+<#Stages:[1]#> $$ Act A
+```
+
+Notes are ignored on import and omitted on export. This marker-note form does not use the ordinary data-cell `$$`
+rule. A marker row contains exactly one marker and otherwise blank cells.
+
+Invalid markers or missing ancestor markers discard the active logical row; import resumes at the next nonblank `Id`.
+
+See [Nested Collections](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/nested-collections.md) for exact Flat, Hybrid, and Split geometry, dictionary
+restrictions, marker whitespace and comment rules, recovery behavior, and equivalent CSV examples.
+
 ## Using Nested Type Column
 Nested type columns are used for complex structure.
 
-![Nested Type Sample](.github/images/sample_dict.png)
+![Nested Type Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/.github/images/sample_dict.png)
 
 <details>
 <summary>Flat header</summary>
@@ -380,12 +557,13 @@ public class NpcSheet : Sheet<NpcSheet.Row>
     }
 }
 ```
-As you see, content of the datasheet is just same as when using Dictionary column. The data type of column determines how BakingSheet reads the column.
+As you see, content of the datasheet is just same as when using Dictionary column. The data type of column determines
+how BakingSheet reads the column.
 
 ## Using Row Array
 Row arrays are used for 2-dimentional structure. Below is example content of file `Heroes.xlsx`.
 
-![Row Array Sample](.github/images/sample_rowarray.png)
+![Row Array Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/.github/images/sample_rowarray.png)
 
 <details>
 <summary>Markdown version</summary>
@@ -409,7 +587,8 @@ Row arrays are used for 2-dimentional structure. Below is example content of fil
 |         |          |          |             |          | 2              | 100         | LVUP_003         |
 </details>
 
-Rows without `Id` is considered as part of previous row. You can merge the non-array cells to make it visually intuitive. Below corresponding code shows how to define row arrays.
+Rows without `Id` is considered as part of previous row. You can merge the non-array cells to make it visually
+intuitive. Below corresponding code shows how to define row arrays.
 
 ```csharp
 public class HeroSheet : Sheet<HeroSheet.Row>
@@ -443,10 +622,13 @@ public class HeroSheet : Sheet<HeroSheet.Row>
 `SheetRowArray<TElem>` implements `IEnumerable<TElem>`, indexer `this[int]` and `Count` property.
 
 > **Note**
-> It is worth mention you can use `VerticalList<T>` to cover the case you want to vertically extend your `List<T>` without pairing them as `Elem`. Though we recommend to split the sheet in that case if possible.
+> It is worth mention you can use `VerticalList<T>` to cover the case you want to vertically extend your `List<T>`
+> without pairing them as `Elem`. Though we recommend to split the sheet in that case if possible.
 
 ## Using Cross-Sheet Reference
-Below code shows how to replace `string RequiredMaterial` to `ConsumableSheet.Reference RequiredMaterial` to add extra reliablity. `Sheet<TKey, TRow>.Reference` type is serialized as `TKey`, and verifies that row with same id exists in the sheet.
+Below code shows how to replace `string RequiredMaterial` to `ConsumableSheet.Reference RequiredMaterial` to add
+extra reliablity. `Sheet<TKey, TRow>.Reference` type is serialized as `TKey`, and verifies that row with same id exists
+in the sheet.
 
 ```csharp
 public class HeroSheet : Sheet<HeroSheet.Row>
@@ -475,9 +657,11 @@ public class SheetContainer : SheetContainerBase
     public ConsumableSheet Consumables { get; private set; }
 }
 ```
-Both `ConsumableSheet` and `HeroSheet` must be the properties on same `SheetContainer` class to reference each other's row.
+Both `ConsumableSheet` and `HeroSheet` must be the properties on same `SheetContainer` class to reference each other's
+row.
 
-Now, not only error message will pop up when `RequiredMaterial` doesn't exist in `SheetContainer.Consumables`, you can access `ConsumableSheet.Row` directly through it.
+Now, not only error message will pop up when `RequiredMaterial` doesn't exist in `SheetContainer.Consumables`, you can
+access `ConsumableSheet.Row` directly through it.
 
 ```csharp
 var heroRow = sheetContainer.Heroes["HERO001"];
@@ -490,18 +674,19 @@ logger.LogInformation(consumableRow.Name);
 ```
 
 ## Using Non-String Column as Id
-Any type can be used value can be also used as `Id`. This is possible as passing type argument to generic class `SheetRow<TKey>` and `Sheet<TKey, TRow>`. Below is example content of file `Contstants.xlsx`.
+Any type can be used value can be also used as `Id`. This is possible as passing type argument to generic class
+`SheetRow<TKey>` and `Sheet<TKey, TRow>`. Below is example content of file `Contstants.xlsx`.
 
-![Const Sample](.github/images/sample_const.png)
+![Sample Non-String Id](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/.github/images/sample_non_string_id.png)
 
 <details>
 <summary>Markdown version</summary>
 
-| Id             | Value                                 |
-|----------------|---------------------------------------|
+| Id             | Value                                     |
+|----------------|-------------------------------------------|
 | ServerAddress  | https://github.com/laicasaane/BakingSheet |
-| InitialGold    | 1000                                  |
-| CriticalChance | 0.1                                   |
+| InitialGold    | 1000                                      |
+| CriticalChance | 0.1                                       |
 </details>
 
 Below code shows how to use enumeration type as Id.
@@ -521,6 +706,123 @@ public class ConstantSheet : Sheet<GameConstant, ConstantSheet.Row>
     }
 }
 ```
+
+This approach stores each setting as a separate row. The `GameConstant` value becomes its `Id`, and every row uses the
+same `Value` property.
+
+## Using Sheet Transposition
+
+Transposition provides another way to model the same settings. Instead of using enum values as row identifiers, each
+setting can be a property with its own value type. One column then holds the complete configuration.
+
+![Sample Transposition](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/.github/images/sample_transposition.png)
+
+<details>
+<summary>Markdown version</summary>
+
+| Id             | GAME                                      |
+|----------------|-------------------------------------------|
+| ServerAddress  | https://github.com/laicasaane/BakingSheet |
+| InitialGold    | 1000                                      |
+| CriticalChance | 0.1                                       |
+</details>
+
+```csharp
+public class ConstantSheet : Sheet<ConstantSheet.Row>
+{
+    public class Row : SheetRow
+    {
+        public string ServerAddress { get; private set; }
+        public int InitialGold { get; private set; }
+        public float CriticalChance { get; private set; }
+    }
+}
+
+public class SheetContainer : SheetContainerBase
+{
+    public SheetContainer(Microsoft.Extensions.Logging.ILogger logger) : base(logger) {}
+
+    [Transpose]
+    public ConstantSheet Constants { get; private set; }
+}
+```
+
+After import, `Constants` contains one row whose identifier is `GAME` while `ServerAddress`, `InitialGold`,
+and `CriticalChance` are properties of that row.
+
+For multiple records and detailed rules, see [Advanced Sheet Transposition](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/sheet-transposition.md).
+
+## Ignoring Comments During Import
+
+BakingSheet detects a leading `$` or `$$` as a comment marker during import. The marker must be the first content in
+the column header or cell.
+
+| Cell location       | Starts with                    | What BakingSheet does                                        |
+|---------------------|--------------------------------|--------------------------------------------------------------|
+| Column header       | `$` and `$$`                   | Skips the whole column.                                      |
+| `Id` cell           | `$` and `$$`                   | Skips the whole row.                                         |
+| Any other data cell | `$$`                           | Does not import that cell. Other cells stay in place.        |
+| Any other data cell | A single `$`, such as `$sale`  | Imports the cell normally. A text property receives `$sale`. |
+
+The following input table shows all four rules.
+
+![Sample Ignoring Comments](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/.github/images/sample_ignoring_comments.png)
+
+(Green cells are skipped during import.)
+
+<details>
+<summary>Markdown version</summary>
+
+| Id          | Name        | Price            | Tag     | $Note                      |
+|-------------|-------------|------------------|---------|----------------------------|
+| $ Draft row | Hidden item | 999              | hidden  | This whole row is skipped. |
+| ITEM_001    | Potion      | 30               | $sale   | This column is skipped.    |
+| ITEM_002    | Elixir      | $$ Price pending | premium | This column is skipped.    |
+
+</details>
+
+Code below is the corresponding BakingSheet class.
+
+```csharp
+public class ItemSheet : Sheet<ItemSheet.Row>
+{
+    public class Row : SheetRow
+    {
+        public string Name { get; private set; }
+        public int Price { get; private set; }
+        public string Tag { get; private set; }
+    }
+}
+```
+
+The imported sheet contains:
+
+| Id       | Name   | Price | Tag     |
+|----------|--------|------:|---------|
+| ITEM_001 | Potion |    30 | $sale   |
+| ITEM_002 | Elixir |     0 | premium |
+
+- The `$Note` header skips the whole column.
+- The `$ Draft row` value is in the `Id` cell, so it skips the whole row.
+- `$$ Price pending` is not imported. `Price` keeps its default value of `0`.
+- `$sale` is in another data cell, so it is imported as normal text.
+
+Comments are only used during import. BakingSheet does not store them. When you export, BakingSheet writes the current
+sheet values and does not restore the comments.
+
+### Whitespace Around Comment Markers
+
+Whitespace is optional around a comment marker. A marker may have spaces or tabs before it, and text may follow it
+immediately.
+
+When looking for a marker, BakingSheet skips leading spaces and tabs. The cell location rules above still apply:
+
+- `  $note` follows the same column header and `Id` rules as `$note`.
+- `  $$note` in another data cell follows the same rule as `$$note`.
+- `$note` and `$$note` show that no space is required after a marker.
+
+> [!NOTE]
+> BakingSheet does not remove leading spaces or tabs from ordinary values that do not match a comment rule.
 
 ## Using Post Load Hook
 You can override `PostLoad` method of `Sheet`, `SheetRow` or `SheetRowElem` to execute post load process.
@@ -569,9 +871,14 @@ public class ConstantSheet : Sheet<GameConstant, ConstantSheet.Row>
 > Properties without setter are not serialized. Alternatively you can use `[NonSerialized]` attribute.
 
 ## Using AssetPostProcessor to Automate Converting
-For Excel and CSV, you could set up `AssetPostProcessor` to automate converting process. Recommended practice is keeping both source `.xlsx` and `.csv` files alongside with destination `.json` files in your version control system. For Google Sheet, it is instead recommended to use custom `MenuItem` to convert into destination `.json` files that keeped in your version control.
+For Excel and CSV, you could set up `AssetPostProcessor` to automate converting process. Recommended practice is
+keeping both source `.xlsx` and `.csv` files alongside with destination `.json` files in your version control system.
+For Google Sheet, it is instead recommended to use custom `MenuItem` to convert into destination `.json` files that
+keeped in your version control.
 
-The below is example source code that triggers when any `.xlsx` is changed, convert Excel sheet under `Assets/Excel` into `.json` under `Assets/StreamingAssets/Json`. You can customize this logic with your desired source and destination folder.
+The below is example source code that triggers when any `.xlsx` is changed, convert Excel sheet under `Assets/Excel`
+into `.json` under `Assets/StreamingAssets/Json`. You can customize this logic with your desired source and destination
+folder.
 ```csharp
 public class ExcelPostprocessor : AssetPostprocessor
 {
@@ -612,9 +919,13 @@ public class ExcelPostprocessor : AssetPostprocessor
 ```
 
 ## About AOT Code Stripping (Unity)
-If you are working on AOT (IL2CPP) environment, you would have option called `Managed Stripping Level` in your Player Settings. Since BakingSheet uses reflection, if you set stripping level `Medium` or `High`, the stripper might remove the code piece that required. Especially some property setters.
+If you are working on AOT (IL2CPP) environment, you would have option called `Managed Stripping Level` in your Player
+Settings. Since BakingSheet uses reflection, if you set stripping level `Medium` or `High`, the stripper might remove
+the code piece that required. Especially some property setters.
 
-You can prevent this by either using `Low` stripping level, or adding own `link.xml` to preserve your sheet classes. The below is simplest example of `link.xml`. If you want to know more about it, see [Unity's Documentation](https://docs.unity3d.com/Manual/ManagedCodeStripping.html#LinkXMLAnnotation).
+You can prevent this by either using `Low` stripping level, or adding own `link.xml` to preserve your sheet classes.
+The below is simplest example of `link.xml`. If you want to know more about it, see
+[Unity's Documentation](https://docs.unity3d.com/Manual/ManagedCodeStripping.html#LinkXMLAnnotation).
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
 <linker>
@@ -626,10 +937,11 @@ You can prevent this by either using `Low` stripping level, or adding own `link.
 ```
 
 ## Optional Script Defining Symbols (Unity)
-There is few optional symbols that can be defined for runtime usage. By default only JSON and ScriptableObject converters will be included to the build.
+There is few optional symbols that can be defined for runtime usage. By default only JSON and ScriptableObject
+converters will be included to the build.
 
 | Symbol                              | Effect                                                                                                                                                   |
 |-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| BAKINGSHEET_RUNTIME_GOOGLECONVERTER | Include Google Converter to your build.<br/>See also: [Google Sheet Converter](docs/google-sheet-import.md#how-to-use-google-sheet-converter-on-runtime) |
+| BAKINGSHEET_RUNTIME_GOOGLECONVERTER | Include Google Converter to your build.<br/>See also: [Google Sheet Converter](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.4/docs/google-sheet-import.md#how-to-use-google-sheet-converter-on-runtime) |
 | BAKINGSHEET_RUNTIME_CSVCONVERTER    | Include CSV Converter to your build.                                                                                                                     |
 | BAKINGSHEET_EXTERNAL_LOGGING_DLL    | Use external `Microsoft.Extensions.Logging.Abstractions.dll`. Useful if you already have same dll in your project for different dependency.              |
