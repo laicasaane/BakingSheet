@@ -383,7 +383,7 @@ contain exactly one marker, with every other cell left blank.
 <details>
 <summary>Flat/Hybrid header</summary>
 
-| Id       | EnemyWaves:[1]                       | Notes      |
+| Id       | EnemyWaves:[1]                       | $Notes     |
 | -------- | ------------------------------------ | ---------- |
 | STAGE001 | `$$ marker must stay on its own row` |            |
 |          | `<#EnemyWaves:[1]#>`                 | unexpected |
@@ -397,7 +397,7 @@ contain exactly one marker, with every other cell left blank.
 <details>
 <summary>Split header</summary>
 
-| Id       | EnemyWaves                           | Notes      |
+| Id       | EnemyWaves                           | $Notes     |
 | -------- | ------------------------------------ | ---------- |
 |          | `[]`                                 |            |
 | STAGE001 | `$$ marker must stay on its own row` |            |

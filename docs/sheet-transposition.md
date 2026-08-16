@@ -64,9 +64,45 @@ public class SheetContainer : SheetContainerBase
 A transposed record can contain lists, objects, and dictionaries.
 
 > [!NOTE]
-> This layout is difficult to understand, use it only when an ordinary sheet layout cannot represent the data better.
+> This layout is difficult to understand, use it only when an [ordinary sheet layout](nested-collections.md) cannot
+> represent the data better.
 
 ![Sample Transposition Complex Records](../.github/images/sample_transposition_complex_records.png)
+
+```csharp
+public class DungeonSheet : Sheet<DungeonSheet.Row>
+{
+    public class Room
+    {
+        public string Boss { get; private set; }
+        public VerticalList<VerticalDictionary<string, int>> Loots { get; private set; }
+    }
+
+    public class Row : SheetRow
+    {
+        public VerticalList<VerticalList<Room>> Floors { get; private set; }
+    }
+}
+
+public class SheetContainer : SheetContainerBase
+{
+    public SheetContainer(Microsoft.Extensions.Logging.ILogger logger) : base(logger) {}
+
+    [Transpose]
+    public DungeonSheet Dungeons { get; private set; }
+}
+```
+
+Transposition swaps the rows and columns. Each source column becomes one logical row.
+
+Blank `Id` cells continue the `FOREST_KEEP` record.
+
+- `<#Floors:[1]#>` begins the first floor.
+- `Goblin King` creates the boss room on that floor.
+- `<#Floors:[1]:Loots:{}#>` begins a loot dictionary for the room.
+- `Gold` and `Health Potion` become entries in that dictionary.
+
+### Markdown Representation
 
 <details>
 <summary>Flat version</summary>
@@ -145,38 +181,3 @@ After transposition:
 |             |                  | Health Potion             | 2               |
 
 </details>
-
-```csharp
-public class DungeonSheet : Sheet<DungeonSheet.Row>
-{
-    public class Room
-    {
-        public string Boss { get; private set; }
-        public VerticalList<VerticalDictionary<string, int>> Loots { get; private set; }
-    }
-
-    public class Row : SheetRow
-    {
-        public VerticalList<VerticalList<Room>> Floors { get; private set; }
-    }
-}
-
-public class SheetContainer : SheetContainerBase
-{
-    public SheetContainer(Microsoft.Extensions.Logging.ILogger logger) : base(logger) {}
-
-    [Transpose]
-    public DungeonSheet Dungeons { get; private set; }
-}
-```
-
-Transposition swaps the rows and columns. Each source column becomes one logical row.
-
-Blank `Id` cells continue the `FOREST_KEEP` record.
-
-- `<#Floors:[1]#>` begins the first floor.
-- `Goblin King` creates the boss room on that floor.
-- `<#Floors:[1]:Loots:{}#>` begins a loot dictionary for the room.
-- `Gold` and `Health Potion` become entries in that dictionary.
-
-See [Nested Collections](nested-collections.md) for other ways to combine lists and dictionaries.
