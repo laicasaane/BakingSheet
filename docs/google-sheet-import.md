@@ -1,11 +1,13 @@
 # BakingSheet.Converters.Google
-This document will explain about how to connect to Google Sheet. For general information, see the [Repository's README](../README.md).
+This document will explain about how to connect to Google Sheet. For general information, see the
+[Repository's README](../README.md).
 
 ## How to Use Google Sheet Converter
 To use `GoogleSheetConverter`, BakingSheet requires a service account credential and your sheet's identifier.
 
 ### Create Google Service Account
-First, visit [Google API Console](https://console.cloud.google.com/). Pick `API & Services` > `Credentials` from sidebar menu.
+First, visit [Google API Console](https://console.cloud.google.com/). Pick `API & Services` > `Credentials` from
+sidebar menu.
 
 ![Google API Menu](../.github/images/gsheet_menu.png)
 
@@ -18,7 +20,8 @@ Now fill your preferred service account name for BakingSheet to use. Click `Done
 ![Create Service Account](../.github/images/gsheet_sa_create.png)
 
 ### Get Service Account Credential
-You've create service account, now click your new service account and select `Keys` tab. Pick `Add Key` > `Create New Key`.
+You've create service account, now click your new service account and select `Keys` tab.
+Pick `Add Key` > `Create New Key`.
 
 ![Service Account Keys](../.github/images/gsheet_sa_keys.png)
 
@@ -55,7 +58,8 @@ await sheetContainer.Bake(googleConverter);
 Nicely done! 🎉
 
 ## How to Load from Multiple Documents
-`SheetContainer.Bake` can accept multiple importers. If you want to divide your datasheets into multiple Google Sheet documents, create `GoogleSheetImporter` per your document. Code below is the example.
+`SheetContainer.Bake` can accept multiple importers. If you want to divide your datasheets into multiple Google Sheet
+documents, create `GoogleSheetImporter` per your document. Code below is the example.
 ```csharp
 var credential = File.ReadAllText(CredentialPath);
 var importers = new List<ISheetImporter>();
@@ -70,10 +74,12 @@ await sheetContainer.Bake(importers.ToArray());
 ```
 
 ## How to Use Google Sheet Converter on Runtime
-> **Warning**  
-> This is an advanced topic. I recommend you to use this approach Develop environment only, for live-reload without exporting sheet.
+> **Warning**
+> This is an advanced topic. I recommend you to use this approach in the Develop environment only, for live-reload
+> without exporting sheet.
 
 By adding `BAKINGSHEET_RUNTIME_GOOGLECONVERTER` defining symbol, Google sheet converter will be included on your build.
 
-Additionally for AOT platforms, copy `Runtime/Converters/Google/link.xml` under BakingSheet's package into your `Assets` directory.
+Additionally for AOT platforms, copy `Runtime/Converters/Google/link.xml` under BakingSheet's package into your
+`Assets` directory.
 

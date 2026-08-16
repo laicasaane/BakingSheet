@@ -3,8 +3,9 @@ BakingSheet supports vertical lists and vertical dictionaries nested inside othe
 expands on [Using Vertical Dictionary](../README.md#using-vertical-dictionary) and
 [Using Nested Vertical List](../README.md#using-nested-vertical-list).
 
-Each screenshot uses Hybrid headers. The Markdown versions are ordered Flat, Split, then Hybrid. When Flat and Hybrid
-produce the same physical header geometry, one `Flat/Hybrid header` version represents both modes.
+> [!NOTE]
+> Each screenshot uses Hybrid headers. The Markdown versions are ordered Flat, Split, then Hybrid.
+> When Flat and Hybrid produce the same physical header geometry, one `Flat/Hybrid header` version represents both modes.
 
 ## List in List
 
@@ -439,6 +440,41 @@ public sealed class RaidEnemy
 - `<#Acts:[3]:RewardPools:{}#>` begins a reward dictionary for the current enemy.
 - A non-blank reward `Key` begins an entry inside that dictionary.
 
+### Object Structure
+
+```text
+Acts
+├─ Act I                                      // <#Acts:[1]#>
+│  ├─ Chapter 1                               // <#Acts:[2]#>
+│  │  ├─ Wave 1                               // <#Acts:[3]#>
+│  │  │  └─ Slime
+│  │  │     ├─ Reward dictionary 1            // <#Acts:[3]:RewardPools:{}#>
+│  │  │     │  ├─ Gold: 10
+│  │  │     │  └─ Gel: 2
+│  │  │     └─ Reward dictionary 2            // <#Acts:[3]:RewardPools:{}#>
+│  │  │        └─ Gem: 1
+│  │  └─ Wave 2                               // <#Acts:[3]#>
+│  │     └─ Archer
+│  │        └─ Reward dictionary
+│  │           ├─ Gold: 15
+│  │           └─ Bow String: 1
+│  └─ Chapter 2                               // <#Acts:[2]#>
+│     └─ Wave 1                               // <#Acts:[3]#>
+│        └─ Golem
+│           └─ Reward dictionary
+│              ├─ Gold: 25
+│              └─ Stone Core: 1
+└─ Act II                                     // <#Acts:[1]#>
+   └─ Chapter 1                               // <#Acts:[2]#>
+      └─ Wave 1                               // <#Acts:[3]#>
+         └─ Dragon
+            └─ Reward dictionary
+               ├─ Gold: 100
+               └─ Dragon Scale: 1
+```
+
+### Markdown Representation
+
 <details>
 <summary>Flat header</summary>
 
@@ -550,39 +586,4 @@ public sealed class RaidEnemy
 |          |                                      | `<#Acts:[3]:RewardPools:{}#> $$ Dragon rewards` |       |
 |          |                                      | Gold                                            | 100   |
 |          |                                      | Dragon Scale                                    | 1     |
-</details>
-
-<details>
-<summary>Object structure</summary>
-
-```text
-Acts
-├─ Act I                                      // <#Acts:[1]#>
-│  ├─ Chapter 1                               // <#Acts:[2]#>
-│  │  ├─ Wave 1                               // <#Acts:[3]#>
-│  │  │  └─ Slime
-│  │  │     ├─ Reward dictionary 1            // <#Acts:[3]:RewardPools:{}#>
-│  │  │     │  ├─ Gold: 10
-│  │  │     │  └─ Gel: 2
-│  │  │     └─ Reward dictionary 2            // <#Acts:[3]:RewardPools:{}#>
-│  │  │        └─ Gem: 1
-│  │  └─ Wave 2                               // <#Acts:[3]#>
-│  │     └─ Archer
-│  │        └─ Reward dictionary
-│  │           ├─ Gold: 15
-│  │           └─ Bow String: 1
-│  └─ Chapter 2                               // <#Acts:[2]#>
-│     └─ Wave 1                               // <#Acts:[3]#>
-│        └─ Golem
-│           └─ Reward dictionary
-│              ├─ Gold: 25
-│              └─ Stone Core: 1
-└─ Act II                                     // <#Acts:[1]#>
-   └─ Chapter 1                               // <#Acts:[2]#>
-      └─ Wave 1                               // <#Acts:[3]#>
-         └─ Dragon
-            └─ Reward dictionary
-               ├─ Gold: 100
-               └─ Dragon Scale: 1
-```
 </details>

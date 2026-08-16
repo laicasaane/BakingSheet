@@ -11,11 +11,11 @@ public class StatSheet : Sheet<StatSheet.Row>
     {
         public int MinValue { get; private set; }
         public int MaxValue { get; private set; }
-        
+
         public override void VerifyAssets(SheetConvertingContext context)
         {
             base.VerifyAssets(context);
-            
+
             if (MinValue > MaxValue)
                 context.Logger.LogError("MinValue must be less or equal than MaxValue!");
         }
@@ -55,7 +55,8 @@ public class ResourcePathVerifier : SheetVerifier<ResourcePath>
 }
 ```
 
-`ResourcePathVerifier` can verify any `ResourcePath` column. Additionally you can specify more metadata with attributes and query from `PropertyInfo`.
+`ResourcePathVerifier` can verify any `ResourcePath` column.
+Additionally you can specify more metadata with attributes and query from `PropertyInfo`.
 ```csharp
 public class PrefabSheet : Sheet<PrefabSheet.Row>
 {

@@ -1,9 +1,11 @@
 # BakingSheet Value Converter
 BakingSheet supports `ValueConverter` to support custom data type.
 
-Note that `ValueConverter` will be only used when you importing or exporting with cell-based converters (Excel, Google Sheet, CSV).
+Note that `ValueConverter` will be only used when you importing or exporting with cell-based converters
+(Excel, Google Sheet, CSV).
 
-You can extend `JsonSheetConverter` instead, if you want to specify converting logic and configuration when you converting to JSON.
+You can extend `JsonSheetConverter` instead, if you want to specify converting logic and configuration
+when you converting to JSON.
 
 ## Defining Sheet Value Converter
 To support custom data type, user can implement own `SheetValueConverter` for the type.
@@ -59,13 +61,13 @@ public class MySheetContainer : SheetContainerBase
     // sheet definitions
     public ItemSheet Items { get; set; }
     public CharacterSheet Characters { get; set; }
-    
+
     // constructor
     public MySheetContainer(ILogger logger) : base(logger) { }
-    
+
     // overrides
     public readonly static SheetContractResolver ContractResolverInstace = new SheetContractResolver(new MyValueConverter());
-    
+
     public override SheetContractResolver ContractResolver => ContractResolverInstace;
 }
 ```
