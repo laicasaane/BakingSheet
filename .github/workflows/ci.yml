@@ -45,6 +45,8 @@ jobs:
 
       - name: Copy CHANGELOG, LICENSE, README into package
         run: |
+          repository_version_url="https://github.com/laicasaane/BakingSheet/blob/$PACKAGE_VERSION"
+
           if [ -f CHANGELOG.md ]; then
             cp CHANGELOG.md "$PACKAGE_PATH/CHANGELOG.md"
           fi
@@ -57,6 +59,12 @@ jobs:
           if [ -f README.md ]; then
             cp README.md "$PACKAGE_PATH/README.md"
           fi
+
+          for package_document in "$PACKAGE_PATH/CHANGELOG.md" "$PACKAGE_PATH/README.md"; do
+            if [ -f "$package_document" ]; then
+              sed -E -i "s#(\]\(|\]:[[:space:]]*)(\./)?(docs/|\.github/images/)#\1$repository_version_url/\3#g" "$package_document"
+            fi
+          done
 
       - name: Extract release notes
         shell: bash
