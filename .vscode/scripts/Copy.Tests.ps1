@@ -4,6 +4,12 @@ $repositoryRoot = Resolve-Path (Join-Path $PSScriptRoot "../..")
 $testRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("BakingSheet.Copy." + [System.Guid]::NewGuid().ToString("N"))
 $locationPushed = $false
 
+$tasks = Get-Content -LiteralPath (Join-Path $repositoryRoot ".vscode/tasks.json") -Raw | ConvertFrom-Json
+$unityCopyTask = $tasks.tasks | Where-Object { $_.label -eq "unity: copy" }
+if (-not $unityCopyTask -or "unity: copy md" -notin $unityCopyTask.dependsOn) {
+    throw "The 'unity: copy' task must include the 'unity: copy md' task."
+}
+
 function Write-FixtureFile {
     param(
         [string] $RelativePath,
