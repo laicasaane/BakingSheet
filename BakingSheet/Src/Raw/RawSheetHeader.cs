@@ -23,6 +23,27 @@ namespace Cathei.BakingSheet.Raw
         public int Row { get; }
         public PropertyNode Node { get; }
 
+        public string LabelSelector
+        {
+            get
+            {
+                if (Text == null)
+                    return null;
+
+                switch (Kind)
+                {
+                    case RawSheetHeaderComponentKind.AnonymousList:
+                        return $"{SheetTokens.List.Selector.Start}{Text}" +
+                               $"{SheetTokens.List.Selector.End}";
+                    case RawSheetHeaderComponentKind.AnonymousDictionary:
+                        return $"{SheetTokens.Dictionary.Selector.Start}{Text}" +
+                               $"{SheetTokens.Dictionary.Selector.End}";
+                    default:
+                        return null;
+                }
+            }
+        }
+
         public string SplitText
         {
             get
@@ -391,7 +412,7 @@ namespace Cathei.BakingSheet.Raw
 
                 for (int i = 1; i < parts.Length; ++i)
                 {
-                    if (!TryParseCompressedAnonymous(parts[i], column, row, components))
+                    if (!TryParseNestedSelector(parts[i], column, row, components))
                         return false;
                 }
 
@@ -431,6 +452,22 @@ namespace Cathei.BakingSheet.Raw
                     continue;
                 }
 
+                if (TryParseListLabel(part, out string listLabel))
+                {
+                    components.Add(new RawSheetHeaderComponent(
+                        RawSheetHeaderComponentKind.AnonymousList,
+                        listLabel, column, row));
+                    continue;
+                }
+
+                if (TryParseDictionaryLabel(part, out string dictionaryLabel))
+                {
+                    components.Add(new RawSheetHeaderComponent(
+                        RawSheetHeaderComponentKind.AnonymousDictionary,
+                        dictionaryLabel, column, row));
+                    continue;
+                }
+
                 if (!TryParseNamed(part, column, row, out var named))
                     return false;
 
@@ -440,7 +477,7 @@ namespace Cathei.BakingSheet.Raw
             return components.Count > 0;
         }
 
-        private static bool TryParseCompressedAnonymous(string part, int column, int row,
+        private static bool TryParseNestedSelector(string part, int column, int row,
             List<RawSheetHeaderComponent> components)
         {
             if (part == SheetTokens.Dictionary.Selector.Anonymous)
@@ -450,16 +487,34 @@ namespace Cathei.BakingSheet.Raw
                 return true;
             }
 
-            if (!TryParseListCount(part, out int count))
-                return false;
-
-            for (int i = 0; i < count; ++i)
+            if (TryParseListCount(part, out int count))
             {
-                components.Add(new RawSheetHeaderComponent(
-                    RawSheetHeaderComponentKind.AnonymousList, null, column, row));
+                for (int i = 0; i < count; ++i)
+                {
+                    components.Add(new RawSheetHeaderComponent(
+                        RawSheetHeaderComponentKind.AnonymousList, null, column, row));
+                }
+
+                return true;
             }
 
-            return true;
+            if (TryParseListLabel(part, out string listLabel))
+            {
+                components.Add(new RawSheetHeaderComponent(
+                    RawSheetHeaderComponentKind.AnonymousList,
+                    listLabel, column, row));
+                return true;
+            }
+
+            if (TryParseDictionaryLabel(part, out string dictionaryLabel))
+            {
+                components.Add(new RawSheetHeaderComponent(
+                    RawSheetHeaderComponentKind.AnonymousDictionary,
+                    dictionaryLabel, column, row));
+                return true;
+            }
+
+            return false;
         }
 
         private static bool TryParseNamed(string part, int column, int row,
@@ -477,7 +532,7 @@ namespace Cathei.BakingSheet.Raw
             return true;
         }
 
-        private static bool TryParseListCount(string part, out int count)
+        internal static bool TryParseListCount(string part, out int count)
         {
             count = 0;
 
@@ -504,6 +559,62 @@ namespace Cathei.BakingSheet.Raw
                 CultureInfo.InvariantCulture,
                 out count);
         }
+
+        internal static bool TryParseListLabel(string part, out string label)
+        {
+            return TryParseLabel(
+                part,
+                SheetTokens.List.Selector.Start[0],
+                SheetTokens.List.Selector.End[0],
+                out label);
+        }
+
+        internal static bool TryParseDictionaryLabel(string part, out string label)
+        {
+            return TryParseLabel(
+                part,
+                SheetTokens.Dictionary.Selector.Start[0],
+                SheetTokens.Dictionary.Selector.End[0],
+                out label);
+        }
+
+        private static bool TryParseLabel(
+            string part, char startCharacter, char endCharacter, out string label)
+        {
+            label = null;
+
+            if (part == null || part.Length < 3 ||
+                part[0] != startCharacter || part[part.Length - 1] != endCharacter)
+            {
+                return false;
+            }
+
+            char first = part[1];
+
+            if (!IsAsciiLetter(first) && first != '_')
+                return false;
+
+            for (int i = 2; i < part.Length - 1; ++i)
+            {
+                char character = part[i];
+
+                if (!IsAsciiLetter(character) &&
+                    (character < '0' || character > '9') &&
+                    character != '_')
+                {
+                    return false;
+                }
+            }
+
+            label = part.Substring(1, part.Length - 2);
+            return true;
+        }
+
+        private static bool IsAsciiLetter(char character)
+        {
+            return character >= 'A' && character <= 'Z' ||
+                   character >= 'a' && character <= 'z';
+        }
     }
 
     internal static class RawSheetMarker
@@ -517,9 +628,11 @@ namespace Cathei.BakingSheet.Raw
                         SheetTokens.Collection.Marker.End, StringComparison.Ordinal) >= 0);
         }
 
-        public static bool TryParse(string value, out string canonicalPath)
+        public static bool TryParse(
+            string value, out string markerPath, out bool isLabelSelector)
         {
-            canonicalPath = null;
+            markerPath = null;
+            isLabelSelector = false;
 
             if (value == null)
                 return false;
@@ -545,13 +658,21 @@ namespace Cathei.BakingSheet.Raw
             if (close < 0)
                 return false;
 
-            string markerPath = value.Substring(markerPathStart, close - markerPathStart);
+            string parsedPath = value.Substring(markerPathStart, close - markerPathStart);
             string suffix = value.Substring(close + SheetTokens.Collection.Marker.End.Length);
 
-            if (!TryParseSuffix(suffix) || !TryParsePath(markerPath, out canonicalPath))
+            if (!TryParseSuffix(suffix))
                 return false;
 
-            return true;
+            if (RawSheetHeader.TryParseListLabel(parsedPath, out _) ||
+                RawSheetHeader.TryParseDictionaryLabel(parsedPath, out _))
+            {
+                markerPath = parsedPath;
+                isLabelSelector = true;
+                return true;
+            }
+
+            return TryParsePath(parsedPath, out markerPath);
         }
 
         public static bool IsHorizontalSpace(string value)
@@ -635,38 +756,7 @@ namespace Cathei.BakingSheet.Raw
 
         internal static bool TryParseSelector(string value, out int selector)
         {
-            selector = 0;
-
-            if (value == null || value.Length < 3 ||
-                value[0] != SheetTokens.List.Selector.Start[0] ||
-                value[value.Length - 1] != SheetTokens.List.Selector.End[0])
-            {
-                return false;
-            }
-
-            int start = 1;
-            int end = value.Length - 1;
-
-            while (start < end && IsHorizontalSpace(value[start]))
-                start++;
-
-            while (end > start && IsHorizontalSpace(value[end - 1]))
-                end--;
-
-            if (start >= end || value[start] < '1' || value[start] > '9')
-                return false;
-
-            for (int i = start + 1; i < end; ++i)
-            {
-                if (value[i] < '0' || value[i] > '9')
-                    return false;
-            }
-
-            return int.TryParse(
-                value.Substring(start, end - start),
-                NumberStyles.None,
-                CultureInfo.InvariantCulture,
-                out selector);
+            return RawSheetHeader.TryParseListCount(value, out selector);
         }
 
         private static bool IsHorizontalSpace(char character)

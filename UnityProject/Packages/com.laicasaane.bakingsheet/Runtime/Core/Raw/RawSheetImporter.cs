@@ -178,6 +178,8 @@ namespace Cathei.BakingSheet.Raw
 
             var bindings = new List<PropertyColumnBinding>(header.ColumnCount);
             var semanticPaths = new HashSet<string>(StringComparer.Ordinal);
+            var pathsByLabel = new Dictionary<string, string>(StringComparer.Ordinal);
+            var labelsByPath = new Dictionary<string, string>(StringComparer.Ordinal);
 
             foreach (var path in header.Paths)
             {
@@ -209,6 +211,16 @@ namespace Cathei.BakingSheet.Raw
                         out invalidHeaderColumn, out invalidHeaderRow))
                 {
                     LogInvalidHeader(context, page, invalidHeaderColumn, invalidHeaderRow);
+                    return;
+                }
+
+                if (!TryRegisterLabels(
+                        path, binding, pathsByLabel, labelsByPath,
+                        out var invalidLabelComponent))
+                {
+                    LogInvalidHeader(
+                        context, page,
+                        invalidLabelComponent.Column, invalidLabelComponent.Row);
                     return;
                 }
 
@@ -270,7 +282,7 @@ namespace Cathei.BakingSheet.Raw
 
                 var markerResult = ScanMarkerRow(
                     page, pageRow, columnCount, header, propertyMap, layout,
-                    memberNameMapper,
+                    memberNameMapper, pathsByLabel,
                     out var marker, out int markerColumn, out int invalidMarkerColumn);
 
                 if (markerResult != MarkerScanResult.None)
@@ -408,6 +420,7 @@ namespace Cathei.BakingSheet.Raw
             IRawSheetImporterPage page, int row, int columnCount,
             RawSheetHeader header, PropertyMap propertyMap,
             VerticalCollectionLayout layout, Func<string, string> memberNameMapper,
+            IReadOnlyDictionary<string, string> pathsByLabel,
             out VerticalCollectionTarget marker,
             out int markerColumn, out int invalidColumn)
         {
@@ -458,10 +471,31 @@ namespace Cathei.BakingSheet.Raw
 
                 markerColumn = column;
 
-                if (!RawSheetMarker.TryParse(value, out string markerPath) ||
-                    !propertyMap.TryResolveMarkerPath(
-                        markerPath, this, memberNameMapper, out string resolvedMarkerPath) ||
-                    !layout.TryGetTarget(resolvedMarkerPath, out marker))
+                if (!RawSheetMarker.TryParse(
+                        value, out string markerPath, out bool isLabelSelector))
+                {
+                    invalidColumn = column;
+                    return MarkerScanResult.Invalid;
+                }
+
+                string resolvedMarkerPath;
+
+                if (isLabelSelector)
+                {
+                    if (!pathsByLabel.TryGetValue(markerPath, out resolvedMarkerPath))
+                    {
+                        invalidColumn = column;
+                        return MarkerScanResult.Invalid;
+                    }
+                }
+                else if (!propertyMap.TryResolveMarkerPath(
+                             markerPath, this, memberNameMapper, out resolvedMarkerPath))
+                {
+                    invalidColumn = column;
+                    return MarkerScanResult.Invalid;
+                }
+
+                if (!layout.TryGetTarget(resolvedMarkerPath, out marker))
                 {
                     invalidColumn = column;
                     return MarkerScanResult.Invalid;
@@ -469,6 +503,43 @@ namespace Cathei.BakingSheet.Raw
             }
 
             return markerColumn >= 0 ? MarkerScanResult.Valid : MarkerScanResult.None;
+        }
+
+        private static bool TryRegisterLabels(
+            RawSheetHeaderPath path, PropertyColumnBinding binding,
+            IDictionary<string, string> pathsByLabel,
+            IDictionary<string, string> labelsByPath,
+            out RawSheetHeaderComponent invalidComponent)
+        {
+            for (int i = 0; i < path.Components.Count; ++i)
+            {
+                var component = path.Components[i];
+                string labelSelector = component.LabelSelector;
+
+                if (labelSelector == null)
+                    continue;
+
+                string markerPath = RawSheetHeader.FormatMarker(
+                    binding.HeaderComponents, i + 1);
+                bool labelCollision =
+                    pathsByLabel.TryGetValue(labelSelector, out string existingPath) &&
+                    !StringComparer.Ordinal.Equals(existingPath, markerPath);
+                bool pathCollision =
+                    labelsByPath.TryGetValue(markerPath, out string existingLabel) &&
+                    !StringComparer.Ordinal.Equals(existingLabel, labelSelector);
+
+                if (labelCollision || pathCollision)
+                {
+                    invalidComponent = component;
+                    return false;
+                }
+
+                pathsByLabel[labelSelector] = markerPath;
+                labelsByPath[markerPath] = labelSelector;
+            }
+
+            invalidComponent = default;
+            return true;
         }
 
         private void ReadHeaderDimensions(
