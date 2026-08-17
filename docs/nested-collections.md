@@ -120,31 +120,31 @@ public VerticalList<VerticalList<VerticalList<string>>> Stages { get; private se
 |         | Dragon                               |
 </details>
 
-`Stages` is the named outermost list which contains stage lists. Each stage list contains wave lists, and each wave
-list contains enemy entries. The header `Stages:[2]` declares the two anonymous list components after the named outer
-list.
+`Stages` is the name of the outermost list which contains multiple stages. Each stage contains multiple waves,
+and each wave contains multiple enemies. The header `Stages:[2]` declares the two anonymous list components
+after the named outer list.
 
-`<#Stages:[1]#>` begins a stage list, while `<#Stages:[2]#>` begins a wave list within the current stage list. Every
-stage and wave list begins with its marker, including the first. Each marker occupies the `Stages:[2]` column by itself;
-every other cell in its row is blank. The markers are not entries; the enemy names are the entries stored by the
-innermost lists.
+`<#Stages:[1]#>` begins a stage, while `<#Stages:[2]#>` begins a wave within the current stage.
+Every stage and wave begins with its marker, including the first.
+Each marker occupies the `Stages:[2]` column by itself; every other cell in its row is blank.
+The markers are not data entries while the enemy names are, which are stored inside the innermost lists.
 
 <details>
 <summary><code>RAID001</code> list structure</summary>
 
 ```text
 Stages
-├─ Stage list 1  // <#Stages:[1]#>
-│  ├─ Wave list 1  // <#Stages:[2]#>
+├─ Stage 1          // <#Stages:[1]#>
+│  ├─ Wave 1        // <#Stages:[2]#>
 │  │  ├─ Slime
 │  │  └─ Archer
-│  └─ Wave list 2  // <#Stages:[2]#>
+│  └─ Wave 2        // <#Stages:[2]#>
 │     └─ Golem
-└─ Stage list 2  // <#Stages:[1]#>
-   ├─ Wave list 1  // <#Stages:[2]#>
+└─ Stage 2          // <#Stages:[1]#>
+   ├─ Wave 1        // <#Stages:[2]#>
    │  ├─ Goblin
    │  └─ Shaman
-   └─ Wave list 2  // <#Stages:[2]#>
+   └─ Wave 2        // <#Stages:[2]#>
       └─ Dragon
 ```
 </details>
@@ -157,6 +157,57 @@ The tables above show one raid containing two stage lists. Each stage list conta
     - The second stage list contains 2 wave lists:
         - The first wave list contains `Goblin` and `Shaman`.
         - The second wave list contains `Dragon`.
+
+## List Labelling
+
+During import, each nested list level can have a label. Its marker can use that label instead of repeating the full
+property path.
+
+![Sample List Labelling](../.github/images/sample_list_labelling.png)
+
+```csharp
+public VerticalList<VerticalList<VerticalList<string>>> Stages { get; private set; }
+```
+
+<details>
+<summary>Flat/Hybrid header</summary>
+
+| Id      | Stages:[stage]:[wave]                |
+| ------- | ------------------------------------ |
+| RAID001 | `$$ marker must stay on its own row` |
+|         | `<#[stage]#>`                        |
+|         | `<#[wave]#>`                         |
+|         | Slime                                |
+|         | `<#[wave]#>`                         |
+|         | Dragon                               |
+</details>
+
+<details>
+<summary>Split header</summary>
+
+| Id      | Stages                               |
+| ------- | ------------------------------------ |
+|         | `[stage]`                            |
+|         | `[wave]`                             |
+| RAID001 | `$$ marker must stay on its own row` |
+|         | `<#[stage]#>`                        |
+|         | `<#[wave]#>`                         |
+|         | Slime                                |
+|         | `<#[wave]#>`                         |
+|         | Dragon                               |
+</details>
+
+- `[label]` labels one nested list level. `<#[label]#>` starts that list.
+- A label starts with `A`–`Z`, `a`–`z`, or `_`. After that, it may also use `0`–`9`. Words such as `class` are valid
+  labels.
+- Labels are used exactly as written. Uppercase and lowercase are different. Import and export naming rules do not
+  change labels.
+- A label marker contains only one bracketed label. `<#Stages:[label]#>` is invalid. `<#Stages#>` remains a property
+  marker, not a label marker.
+- The same label can repeat across columns for the same level. Import fails if one label targets different levels or
+  one level has different labels.
+- Anonymous `[]`, numbered forms such as `[2]`, and full property markers remain supported.
+- Labels exist only while one page is imported. Export always writes anonymous selectors and full property markers.
 
 ## Dictionary in Dictionary
 
@@ -302,6 +353,63 @@ The tables above show two battles, each containing two reward dictionaries:
     - The first dictionary contains `250 Gold` and `1 Elixir`.
     - The second dictionary contains `3 Crystals`.
 
+## Dictionary Labelling
+
+During import, each nested dictionary level can have a label. Its marker can use that label instead of repeating the
+full property path.
+
+![Sample Dictionary Labelling](../.github/images/sample_dict_labelling.png)
+
+```csharp
+public VerticalList<VerticalDictionary<string, int>> WaveRewards { get; private set; }
+```
+
+<details>
+<summary>Flat header</summary>
+
+| Id        | WaveRewards:{rewards}:Key            | WaveRewards:{rewards}:Value |
+| --------- | ------------------------------------ | --------------------------- |
+| BATTLE001 | `$$ marker must stay on its own row` |                             |
+|           | `<#{rewards}#>`                      |                             |
+|           | Gold                                 | 100                         |
+|           | Gem                                  | 5                           |
+</details>
+
+<details>
+<summary>Split header</summary>
+
+| Id        | WaveRewards                          |       |
+| --------- | ------------------------------------ | ----- |
+|           | `{rewards}`                          |       |
+|           | Key                                  | Value |
+| BATTLE001 | `$$ marker must stay on its own row` |       |
+|           | `<#{rewards}#>`                      |       |
+|           | Gold                                 | 100   |
+|           | Gem                                  | 5     |
+</details>
+
+<details>
+<summary>Hybrid header</summary>
+
+| Id        | WaveRewards:{rewards}                |       |
+| --------- | ------------------------------------ | ----- |
+|           | Key                                  | Value |
+| BATTLE001 | `$$ marker must stay on its own row` |       |
+|           | `<#{rewards}#>`                      |       |
+|           | Gold                                 | 100   |
+|           | Gem                                  | 5     |
+</details>
+
+- `{label}` labels one nested dictionary level. `<#{label}#>` starts that dictionary.
+- Dictionary labels follow the same naming and case rules as list labels.
+- A label marker contains only one braced label. `<#WaveRewards:{label}#>` is invalid. `<#WaveRewards#>` remains a
+  property marker, not a label marker.
+- The same label can repeat across columns for the same level. Import fails if one label targets different levels or
+  one level has different labels.
+- List and dictionary labels are separate. `[items]` and `{items}` can target different levels.
+- Anonymous `{}` and full property markers remain supported.
+- Labels exist only while one page is imported. Export always writes anonymous selectors and full property markers.
+
 ## List in Dictionary
 
 A vertical dictionary can contain vertical lists, giving each key its own ordered sequence of values.
@@ -383,7 +491,7 @@ contain exactly one marker, with every other cell left blank.
 <details>
 <summary>Flat/Hybrid header</summary>
 
-| Id       | EnemyWaves:[1]                       | $Notes     |
+| Id       | EnemyWaves:[1]                       | Notes      |
 | -------- | ------------------------------------ | ---------- |
 | STAGE001 | `$$ marker must stay on its own row` |            |
 |          | `<#EnemyWaves:[1]#>`                 | unexpected |
@@ -397,7 +505,7 @@ contain exactly one marker, with every other cell left blank.
 <details>
 <summary>Split header</summary>
 
-| Id       | EnemyWaves                           | $Notes     |
+| Id       | EnemyWaves                           | Notes      |
 | -------- | ------------------------------------ | ---------- |
 |          | `[]`                                 |            |
 | STAGE001 | `$$ marker must stay on its own row` |            |
@@ -415,12 +523,12 @@ The table above shows how BakingSheet handles an invalid marker row:
 - Import resumes at the next nonblank `Id`, which is `STAGE002`.
 - The valid marker then begins `STAGE002`'s first nested list, which contains `Goblin`.
 
-## Complete Example
+## Complete Example 1
 
 This example models `RAID0001` as Acts → Chapters → Waves → Enemies. Each enemy also owns a vertical list of reward
 dictionaries, allowing separate common and rare reward pools.
 
-![Complete Nested Collections Sample](../.github/images/sample_complete_nested_collections.png)
+![Complete Nested Collections Sample 1](../.github/images/sample_complete_nested_collections_1.png)
 
 ```csharp
 public VerticalList<VerticalList<VerticalList<VerticalList<RaidEnemy>>>> Acts { get; private set; }
@@ -586,4 +694,177 @@ Acts
 |          |                                      | `<#Acts:[3]:RewardPools:{}#> $$ Dragon rewards` |       |
 |          |                                      | Gold                                            | 100   |
 |          |                                      | Dragon Scale                                    | 1     |
+</details>
+
+## Complete Example 2
+
+This example models the same `RAID0001` structure as Complete Example 1, but labels each nested collection level so
+its markers do not need to repeat the full property path.
+
+![Complete Nested Collections Sample 2](../.github/images/sample_complete_nested_collections_2.png)
+
+```csharp
+public VerticalList<VerticalList<VerticalList<VerticalList<RaidEnemy>>>> Acts { get; private set; }
+
+public sealed class RaidEnemy
+{
+    public string Name { get; private set; }
+    public VerticalList<VerticalDictionary<string, int>> RewardPools { get; private set; }
+}
+```
+
+- The list named `Acts` contains three labelled anonymous list levels:
+    - Label `[act]` begins an Act
+    - Label `[chapter]` begins a Chapter
+    - Label `[wave]` begins a Wave
+- A non-blank enemy `Name` begins an enemy entry inside the active Wave.
+- `<#{rewards}#>` begins a reward dictionary for the current enemy.
+- A non-blank reward `Key` begins an entry inside that dictionary.
+
+### Object Structure
+
+```text
+Acts
+├─ Act I                                      // <#[act]#>
+│  ├─ Chapter 1                               // <#[chapter]#>
+│  │  ├─ Wave 1                               // <#[wave]#>
+│  │  │  └─ Slime
+│  │  │     ├─ Reward dictionary 1            // <#{rewards}#>
+│  │  │     │  ├─ Gold: 10
+│  │  │     │  └─ Gel: 2
+│  │  │     └─ Reward dictionary 2            // <#{rewards}#>
+│  │  │        └─ Gem: 1
+│  │  └─ Wave 2                               // <#[wave]#>
+│  │     └─ Archer
+│  │        └─ Reward dictionary
+│  │           ├─ Gold: 15
+│  │           └─ Bow String: 1
+│  └─ Chapter 2                               // <#[chapter]#>
+│     └─ Wave 1                               // <#[wave]#>
+│        └─ Golem
+│           └─ Reward dictionary
+│              ├─ Gold: 25
+│              └─ Stone Core: 1
+└─ Act II                                     // <#[act]#>
+   └─ Chapter 1                               // <#[chapter]#>
+      └─ Wave 1                               // <#[wave]#>
+         └─ Dragon
+            └─ Reward dictionary
+               ├─ Gold: 100
+               └─ Dragon Scale: 1
+```
+
+### Markdown Representation
+
+<details>
+<summary>Flat header</summary>
+
+| Id       | Acts:[act]:[chapter]:[wave]:Name     | Acts:[act]:[chapter]:[wave]:RewardPools:{rewards}:Key | Acts:[act]:[chapter]:[wave]:RewardPools:{rewards}:Value |
+| -------- | ------------------------------------ | ----------------------------------------------------- | ------------------------------------------------------- |
+| RAID0001 | `$$ marker must stay on its own row` |                                                       |                                                         |
+|          | `<#[act]#> $$ Act I`                 |                                                       |                                                         |
+|          | `<#[chapter]#> $$ Chapter 1`         |                                                       |                                                         |
+|          | `<#[wave]#> $$ Wave 1`               |                                                       |                                                         |
+|          | Slime                                | `$$ marker must stay on its own row`                  |                                                         |
+|          |                                      | `<#{rewards}#> $$ Slime common`                       |                                                         |
+|          |                                      | Gold                                                  | 10                                                      |
+|          |                                      | Gel                                                   | 2                                                       |
+|          |                                      | `<#{rewards}#> $$ Slime rare`                         |                                                         |
+|          |                                      | Gem                                                   | 1                                                       |
+|          | `<#[wave]#> $$ Wave 2`               |                                                       |                                                         |
+|          | Archer                               | `$$ marker must stay on its own row`                  |                                                         |
+|          |                                      | `<#{rewards}#> $$ Archer rewards`                     |                                                         |
+|          |                                      | Gold                                                  | 15                                                      |
+|          |                                      | Bow String                                            | 1                                                       |
+|          | `<#[chapter]#> $$ Chapter 2`         |                                                       |                                                         |
+|          | `<#[wave]#> $$ Wave 1`               |                                                       |                                                         |
+|          | Golem                                | `$$ marker must stay on its own row`                  |                                                         |
+|          |                                      | `<#{rewards}#> $$ Golem rewards`                      |                                                         |
+|          |                                      | Gold                                                  | 25                                                      |
+|          |                                      | Stone Core                                            | 1                                                       |
+|          | `<#[act]#> $$ Act II`                |                                                       |                                                         |
+|          | `<#[chapter]#> $$ Chapter 1`         |                                                       |                                                         |
+|          | `<#[wave]#> $$ Wave 1`               |                                                       |                                                         |
+|          | Dragon                               | `$$ marker must stay on its own row`                  |                                                         |
+|          |                                      | `<#{rewards}#> $$ Dragon rewards`                     |                                                         |
+|          |                                      | Gold                                                  | 100                                                     |
+|          |                                      | Dragon Scale                                          | 1                                                       |
+</details>
+
+<details>
+<summary>Split header</summary>
+
+| Id       | Acts                                 |                                      |       |
+| -------- | ------------------------------------ | ------------------------------------ | ----- |
+|          | `[act]`                              |                                      |       |
+|          | `[chapter]`                          |                                      |       |
+|          | `[wave]`                             |                                      |       |
+|          | Name                                 | RewardPools                          |       |
+|          |                                      | `{rewards}`                          |       |
+|          |                                      | Key                                  | Value |
+| RAID0001 | `$$ marker must stay on its own row` |                                      |       |
+|          | `<#[act]#> $$ Act I`                 |                                      |       |
+|          | `<#[chapter]#> $$ Chapter 1`         |                                      |       |
+|          | `<#[wave]#> $$ Wave 1`               |                                      |       |
+|          | Slime                                | `$$ marker must stay on its own row` |       |
+|          |                                      | `<#{rewards}#> $$ Slime common`      |       |
+|          |                                      | Gold                                 | 10    |
+|          |                                      | Gel                                  | 2     |
+|          |                                      | `<#{rewards}#> $$ Slime rare`        |       |
+|          |                                      | Gem                                  | 1     |
+|          | `<#[wave]#> $$ Wave 2`               |                                      |       |
+|          | Archer                               | `$$ marker must stay on its own row` |       |
+|          |                                      | `<#{rewards}#> $$ Archer rewards`    |       |
+|          |                                      | Gold                                 | 15    |
+|          |                                      | Bow String                           | 1     |
+|          | `<#[chapter]#> $$ Chapter 2`         |                                      |       |
+|          | `<#[wave]#> $$ Wave 1`               |                                      |       |
+|          | Golem                                | `$$ marker must stay on its own row` |       |
+|          |                                      | `<#{rewards}#> $$ Golem rewards`     |       |
+|          |                                      | Gold                                 | 25    |
+|          |                                      | Stone Core                           | 1     |
+|          | `<#[act]#> $$ Act II`                |                                      |       |
+|          | `<#[chapter]#> $$ Chapter 1`         |                                      |       |
+|          | `<#[wave]#> $$ Wave 1`               |                                      |       |
+|          | Dragon                               | `$$ marker must stay on its own row` |       |
+|          |                                      | `<#{rewards}#> $$ Dragon rewards`    |       |
+|          |                                      | Gold                                 | 100   |
+|          |                                      | Dragon Scale                         | 1     |
+</details>
+
+<details>
+<summary>Hybrid header</summary>
+
+| Id       | Acts:[act]:[chapter]:[wave]          |                                      |       |
+| -------- | ------------------------------------ | ------------------------------------ | ----- |
+|          | Name                                 | RewardPools:{rewards}                |       |
+|          |                                      | Key                                  | Value |
+| RAID0001 | `$$ marker must stay on its own row` |                                      |       |
+|          | `<#[act]#> $$ Act I`                 |                                      |       |
+|          | `<#[chapter]#> $$ Chapter 1`         |                                      |       |
+|          | `<#[wave]#> $$ Wave 1`               |                                      |       |
+|          | Slime                                | `$$ marker must stay on its own row` |       |
+|          |                                      | `<#{rewards}#> $$ Slime common`      |       |
+|          |                                      | Gold                                 | 10    |
+|          |                                      | Gel                                  | 2     |
+|          |                                      | `<#{rewards}#> $$ Slime rare`        |       |
+|          |                                      | Gem                                  | 1     |
+|          | `<#[wave]#> $$ Wave 2`               |                                      |       |
+|          | Archer                               | `$$ marker must stay on its own row` |       |
+|          |                                      | `<#{rewards}#> $$ Archer rewards`    |       |
+|          |                                      | Gold                                 | 15    |
+|          |                                      | Bow String                           | 1     |
+|          | `<#[chapter]#> $$ Chapter 2`         |                                      |       |
+|          | `<#[wave]#> $$ Wave 1`               |                                      |       |
+|          | Golem                                | `$$ marker must stay on its own row` |       |
+|          |                                      | `<#{rewards}#> $$ Golem rewards`     |       |
+|          |                                      | Gold                                 | 25    |
+|          |                                      | Stone Core                           | 1     |
+|          | `<#[act]#> $$ Act II`                |                                      |       |
+|          | `<#[chapter]#> $$ Chapter 1`         |                                      |       |
+|          | `<#[wave]#> $$ Wave 1`               |                                      |       |
+|          | Dragon                               | `$$ marker must stay on its own row` |       |
+|          |                                      | `<#{rewards}#> $$ Dragon rewards`    |       |
+|          |                                      | Gold                                 | 100   |
+|          |                                      | Dragon Scale                         | 1     |
 </details>
