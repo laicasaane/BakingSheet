@@ -63,7 +63,7 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 
 For Unity projects, add git package from Package Manager.
 ```
-https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.1-pre.4
+https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.1-pre.5
 ```
 
 Or install it via [OpenUPM](https://openupm.com/packages/com.laicasaane.bakingsheet/).
@@ -235,11 +235,14 @@ public sealed class GameCsvConverter : CsvSheetConverter
 }
 ```
 
-`ToPropertyName` defines import aliases. `ToExternalName` defines the canonical names written during export. Both
-hooks receive semantic object-member names only. Horizontal list indexes, horizontal dictionary keys, `[]`, `[n]`,
-`{}`, comments, and values are preserved. Vertical dictionaries pass the canonical names `Key` and `Value` to these
-hooks. Sheet names must be non-empty. Mapped member names must be one non-empty path part without whitespace or
-`:`, `[`, `]`, `{`, or `}`.
+- `ToPropertyName` defines import aliases.
+- `ToExternalName` defines the canonical names written during export.
+
+Both hooks receive object-member names only. They do not receive horizontal list indexes, horizontal dictionary keys,
+nested collection forms such as `[]`, `[2]`, `[stage]`, `{}`, or `{rewards}`, comments, or values.
+
+Vertical dictionaries pass the canonical names `Key` and `Value` to these hooks. Sheet names must be non-empty.
+Mapped member names must be one non-empty path part without whitespace or `:`, `[`, `]`, `{`, or `}`.
 
 Below code shows how to convert `.xlsx` files from `Excel/Files/Path` directory.
 ```csharp
@@ -485,17 +488,26 @@ See [Nested Collections](docs/nested-collections.md) for multi-level dictionarie
 
 ## Using Nested Vertical List
 When a vertical list contains other vertical lists, their data can span several rows under the same `Id`.
-Anonymous collection levels are declared in raw headers and every instance begins with an explicit marker.
+Nested collection levels are declared in raw headers, and every instance begins with an explicit marker.
 
 ```text
-Header: Stages:[2]:RewardPools:[1]:Item
-Marker: <#Stages:[2]:RewardPools:[1]#>
+Anonymous header: Stages:[2]:RewardPools:[1]:Item
+Anonymous marker: <#Stages:[2]:RewardPools:[1]#>
+
+Labeled list header: Stages:[stage]:[wave]:Name
+Labeled list marker: <#[wave]#>
+
+Labeled dictionary header: WaveRewards:{rewards}:Value
+Labeled dictionary marker: <#{rewards}#>
 ```
 
-- `[n]` is the number of consecutive anonymous vertical-list components after a named property.
-- Marker index range is `1..n`, so that
+- A number in brackets, such as `[2]`, declares that many consecutive anonymous vertical-list levels after a named
+  property.
+- Numbered markers select those levels, so that
     - `<#Stages:[1]#>` begins the first anonymous level.
     - `<#Stages:[2]#>` begins the second.
+- `[label]` labels one nested list level. `{label}` labels one nested dictionary level. A marker containing only that
+  label starts the matching level.
 - `{}` declares and selects an anonymous vertical-dictionary instance.
 - Dictionary keys create entries inside the selected instance.
 
@@ -510,8 +522,9 @@ rule. A marker row contains exactly one marker and otherwise blank cells.
 
 Invalid markers or missing ancestor markers discard the active logical row; import resumes at the next nonblank `Id`.
 
-See [Nested Collections](docs/nested-collections.md) for exact Flat, Hybrid, and Split geometry, dictionary
-restrictions, marker whitespace and comment rules, recovery behavior, and equivalent CSV examples.
+See [Nested Collections](docs/nested-collections.md) for label rules and examples, exact Flat, Hybrid, and Split
+geometry, dictionary restrictions, marker whitespace and comment rules, recovery behavior, and equivalent CSV
+examples.
 
 ## Using Nested Type Column
 Nested type columns are used for complex structure.
