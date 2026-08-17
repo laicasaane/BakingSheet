@@ -175,6 +175,48 @@ namespace Cathei.BakingSheet.Tests
             Assert.DoesNotContain("[2]", converter.PropertyNameInputs);
         }
 
+        [Fact]
+        public async Task CollectionLabelsBypassImportAndExportNameHooks()
+        {
+            var logger = new TestLogger();
+            var container = new HookContainer(logger);
+            var converter = new RecordingRawSheetConverter
+            {
+                HeaderMode = HeaderMode.Flat,
+                ProcessSheet = name => name == nameof(HookContainer.Complex),
+                PropertyName = (_, __, name) => ToCanonicalName(name),
+                ExternalName = (_, __, name) => ToExternalName(name),
+            };
+            converter.AddImportPage(
+                nameof(HookContainer.Complex),
+                new[] { "id", "stages:[stage_label]:[class]:name" },
+                new[] { "RAID001", null },
+                new[] { null, "<#[stage_label]#>" },
+                new[] { null, "<#[class]#>" },
+                new[] { null, "Forest" });
+
+            var importResult = await converter.Import(CreateContext(container, logger));
+            container.Complex.Name = "Complex";
+            var exportResult = await converter.Export(CreateContext(container, logger));
+
+            Assert.True(importResult);
+            Assert.True(exportResult);
+            logger.VerifyNoError();
+            Assert.Equal("Forest", container.Complex["RAID001"].Stages[0][0][0].Name);
+            Assert.Contains("stages", converter.PropertyNameInputs);
+            Assert.Contains("name", converter.PropertyNameInputs);
+            Assert.DoesNotContain("stage_label", converter.PropertyNameInputs);
+            Assert.DoesNotContain("class", converter.PropertyNameInputs);
+            Assert.Contains("Stages", converter.ExternalNameInputs);
+            Assert.Contains("Name", converter.ExternalNameInputs);
+            Assert.DoesNotContain("stage_label", converter.ExternalNameInputs);
+            Assert.DoesNotContain("class", converter.ExternalNameInputs);
+            Assert.DoesNotContain(
+                converter.ExportPages["Complex"].Values,
+                value => value.Contains("stage_label", StringComparison.Ordinal) ||
+                         value.Contains("class", StringComparison.Ordinal));
+        }
+
         [Theory]
         [InlineData(HeaderMode.Hybrid)]
         [InlineData(HeaderMode.Split)]

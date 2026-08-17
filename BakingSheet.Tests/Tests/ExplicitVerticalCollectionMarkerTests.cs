@@ -143,6 +143,23 @@ namespace Cathei.BakingSheet.Tests
             };
         }
 
+        public static IEnumerable<object[]> LabeledListHeaders()
+        {
+            yield return new object[] { "Id,Stages:[stage]:[wave]:Name\n" };
+            yield return new object[] { "Id,Stages:[stage]:[wave]\n,Name\n" };
+            yield return new object[] { "Id,Stages\n,[stage]\n,[wave]\n,Name\n" };
+        }
+
+        public static IEnumerable<object[]> LabeledDictionaryHeaders()
+        {
+            yield return new object[]
+            {
+                "Id,WaveRewards:{rewards}:Key,WaveRewards:{rewards}:Value\n",
+            };
+            yield return new object[] { "Id,WaveRewards:{rewards},\n,Key,Value\n" };
+            yield return new object[] { "Id,WaveRewards,\n,{rewards},\n,Key,Value\n" };
+        }
+
         [Theory]
         [MemberData(nameof(EquivalentHeaders))]
         public async Task ImportEquivalentHeadersBuildsSameGraph(string csv)
@@ -160,6 +177,124 @@ namespace Cathei.BakingSheet.Tests
             Assert.True(result);
             Assert.Empty(logger.Errors);
             AssertRaidGraph(container.ExplicitVerticalCollection["RAID001"]);
+        }
+
+        [Theory]
+        [MemberData(nameof(LabeledListHeaders))]
+        public async Task LabeledListMarkersBuildSameGraphInEveryHeaderMode(string header)
+        {
+            using var fileSystem = new TestFileSystem();
+            var logger = new RecordingLogger();
+            var container = new TestSheetContainer(logger);
+            var converter = new CsvSheetConverter(
+                "testdata", TimeZoneInfo.Utc, fileSystem: fileSystem);
+            fileSystem.SetTestData(
+                Path.Combine("testdata", "ExplicitVerticalCollection.csv"),
+                header +
+                "Row,\n" +
+                ",<#[stage]#>\n" +
+                ",<#[wave]#>\n" +
+                ",Forest\n");
+
+            var result = await container.Bake(converter);
+
+            Assert.True(result);
+            Assert.Empty(logger.Errors);
+            Assert.Equal(
+                "Forest",
+                container.ExplicitVerticalCollection["Row"].Stages[0][0][0].Name);
+        }
+
+        [Theory]
+        [MemberData(nameof(LabeledDictionaryHeaders))]
+        public async Task LabeledDictionaryMarkersBuildSameGraphInEveryHeaderMode(string header)
+        {
+            using var fileSystem = new TestFileSystem();
+            var logger = new RecordingLogger();
+            var container = new TestSheetContainer(logger);
+            var converter = new CsvSheetConverter(
+                "testdata", TimeZoneInfo.Utc, fileSystem: fileSystem);
+            fileSystem.SetTestData(
+                Path.Combine("testdata", "ExplicitVerticalCollection.csv"),
+                header +
+                "Row,,\n" +
+                ",<#{rewards}#>,\n" +
+                ",Gold,100\n");
+
+            var result = await container.Bake(converter);
+
+            Assert.True(result);
+            Assert.Empty(logger.Errors);
+            Assert.Equal(100, container.ExplicitVerticalCollection["Row"].WaveRewards[0]["Gold"]);
+        }
+
+        [Fact]
+        public async Task KeywordAndUnderscoreLabelsRemainExactSheetText()
+        {
+            using var fileSystem = new TestFileSystem();
+            var logger = new RecordingLogger();
+            var container = new TestSheetContainer(logger);
+            var converter = new CsvSheetConverter(
+                "testdata", TimeZoneInfo.Utc, fileSystem: fileSystem);
+            fileSystem.SetTestData(
+                Path.Combine("testdata", "ExplicitVerticalCollection.csv"),
+                "Id,Stages:[class]:[_wave]:Name\n" +
+                "Row,\n" +
+                ",<#[class]#>\n" +
+                ",<#[_wave]#>\n" +
+                ",Forest\n");
+
+            var result = await container.Bake(converter);
+
+            Assert.True(result);
+            Assert.Empty(logger.Errors);
+            Assert.Equal(
+                "Forest",
+                container.ExplicitVerticalCollection["Row"].Stages[0][0][0].Name);
+        }
+
+        [Fact]
+        public async Task LabelCannotPointToDifferentCollectionBoundaries()
+        {
+            using var fileSystem = new TestFileSystem();
+            var logger = new RecordingLogger();
+            var container = new TestSheetContainer(logger);
+            var converter = new CsvSheetConverter(
+                "testdata", TimeZoneInfo.Utc, fileSystem: fileSystem);
+            fileSystem.SetTestData(
+                Path.Combine("testdata", "ExplicitVerticalCollection.csv"),
+                "Id,Stages:[stage]:[group]:RewardPools:[group]:Item\nRow,Gold\n");
+
+            var result = await container.Bake(converter);
+
+            Assert.True(result);
+            Assert.Null(container.ExplicitVerticalCollection?["Row"]);
+            Assert.Equal(
+                new[] { "Invalid sheet header at cell \"B1\"." },
+                logger.Errors);
+        }
+
+        [Fact]
+        public async Task CollectionBoundaryCannotUseDifferentLabels()
+        {
+            using var fileSystem = new TestFileSystem();
+            var logger = new RecordingLogger();
+            var container = new TestSheetContainer(logger);
+            var converter = new CsvSheetConverter(
+                "testdata", TimeZoneInfo.Utc, fileSystem: fileSystem);
+            fileSystem.SetTestData(
+                Path.Combine("testdata", "ExplicitVerticalCollection.csv"),
+                "Id,Stages:[stage]:[wave]:Name," +
+                "Stages:[stage]:[other]:RewardPools:[rewards]:Item\n" +
+                "Row,Forest,Gold\n");
+
+            var result = await container.Bake(converter);
+
+            Assert.True(result);
+            Assert.Null(container.ExplicitVerticalCollection?["Row"]);
+            Assert.Equal(
+                new[] { "Invalid sheet header at cell \"C1\"." },
+                logger.Errors);
         }
 
         [Fact]
@@ -192,12 +327,57 @@ namespace Cathei.BakingSheet.Tests
         }
 
         [Theory]
+        [InlineData("[1]", "<#Values:Value:[1]#>")]
+        [InlineData("[group]", "<#[group]#>")]
+        public async Task NestedListsInDictionaryImportWithAnonymousAndLabeledMarkers(
+            string selector, string marker)
+        {
+            using var fileSystem = new TestFileSystem();
+            var logger = new RecordingLogger();
+            var container = new NestedListsOnlyContainer(logger);
+            var converter = new CsvSheetConverter(
+                "testdata", TimeZoneInfo.Utc, fileSystem: fileSystem);
+            fileSystem.SetTestData(
+                Path.Combine("testdata", "NestedLists.csv"),
+                $"Id,Values:Key,Values:Value:{selector}\n" +
+                "Row,10,\n" +
+                $",,{marker}\n" +
+                ",,Alpha\n" +
+                ",,Beta\n" +
+                $",,{marker}\n" +
+                ",,Gamma\n" +
+                ",20,\n" +
+                $",,{marker}\n" +
+                ",,Delta\n");
+
+            var result = await container.Bake(converter);
+
+            Assert.True(result);
+            Assert.Empty(logger.Errors);
+            var values = container.NestedLists["Row"].Values;
+            Assert.Equal(2, values.Count);
+            Assert.Equal(2, values[10].Count);
+            Assert.Equal(new[] { "Alpha", "Beta" }, values[10][0]);
+            Assert.Equal(new[] { "Gamma" }, values[10][1]);
+            Assert.Single(values[20]);
+            Assert.Equal(new[] { "Delta" }, values[20][0]);
+        }
+
+        [Theory]
         [InlineData("Stages:[0]:Name")]
         [InlineData("Stages:[01]:Name")]
         [InlineData("Stages:[3]:Name")]
         [InlineData("Stages:[]:Name")]
         [InlineData("Stages:{}:Name")]
         [InlineData("Stages:[999999999999999999999999]:Name")]
+        [InlineData("Stages:[1label]:Name")]
+        [InlineData("Stages:[bad-name]:Name")]
+        [InlineData("Stages:[bad name]:Name")]
+        [InlineData("Stages:[é]:Name")]
+        [InlineData("Stages:[+2]:Name")]
+        [InlineData("Stages:[1_0]:Name")]
+        [InlineData("Stages:[ 2 ]:Name")]
+        [InlineData("Stages:[2147483648]:Name")]
         public async Task InvalidFlatHeadersRejectPageAtExactCell(string header)
         {
             using var fileSystem = new TestFileSystem();
@@ -309,7 +489,7 @@ namespace Cathei.BakingSheet.Tests
         }
 
         [Fact]
-        public async Task MarkerAllowsHorizontalSpaceAndNotesButCommentsRemainPositional()
+        public async Task MarkerAllowsOuterHorizontalSpaceAndNotesButCommentsRemainPositional()
         {
             using var fileSystem = new TestFileSystem();
             var logger = new RecordingLogger();
@@ -321,8 +501,8 @@ namespace Cathei.BakingSheet.Tests
                 "Id,Stages:[2]:Name,$Comment\n" +
                 "$Skipped,<#Stages:[0]#>,ignored\n" +
                 "Row,,\n" +
-                ", \t<#Stages:[ 1 ]#> \t$$ Act <#label#> \t,\n" +
-                ",\u00A0<#Stages:[\u00A02\u00A0]#>\u00A0,\n" +
+                ", \t<#Stages:[1]#> \t$$ Act <#label#> \t,\n" +
+                ",\u00A0<#Stages:[2]#>\u00A0,\n" +
                 ",Forest,<#Stages:[0]#>\n");
 
             var result = await container.Bake(converter);
@@ -403,6 +583,10 @@ namespace Cathei.BakingSheet.Tests
         [InlineData(",<#WaveRewards:{}:Key#>,", "B5")]
         [InlineData(",<#Stages :[2]#>,", "B5")]
         [InlineData(",<#Stages:[\v2]#>,", "B5")]
+        [InlineData(",<#Stages:[ 2 ]#>,", "B5")]
+        [InlineData(",<#Stages:[\u00A02\u00A0]#>,", "B5")]
+        [InlineData(",<#Stages:[1_0]#>,", "B5")]
+        [InlineData(",<#Stages:[2147483648]#>,", "B5")]
         [InlineData(",<#Stages:[2]#> suffix,", "B5")]
         [InlineData(",<#Unknown:[1]#>,", "B5")]
         public async Task InvalidMarkerReportsFirstOffendingCellAndRecovers(
@@ -434,6 +618,41 @@ namespace Cathei.BakingSheet.Tests
                 container.ExplicitVerticalCollection["Keep"].Stages[0][0][0].Name);
             Assert.Equal(
                 new[] { $"Invalid vertical collection marker at cell \"{expectedCell}\"." },
+                logger.Errors);
+        }
+
+        [Theory]
+        [InlineData("<#[Wave]#>")]
+        [InlineData("<#{wave}#>")]
+        [InlineData("<#Stages#>")]
+        [InlineData("<#Stages:[wave]#>")]
+        public async Task LabelMarkersAreCaseSensitiveKindSpecificAndDirect(string invalidMarker)
+        {
+            using var fileSystem = new TestFileSystem();
+            var logger = new RecordingLogger();
+            var container = new TestSheetContainer(logger);
+            var converter = new CsvSheetConverter(
+                "testdata", TimeZoneInfo.Utc, fileSystem: fileSystem);
+            fileSystem.SetTestData(
+                Path.Combine("testdata", "ExplicitVerticalCollection.csv"),
+                "Id,Stages:[stage]:[wave]:Name\n" +
+                "Discard,\n" +
+                ",<#[stage]#>\n" +
+                $",{invalidMarker}\n" +
+                "Keep,\n" +
+                ",<#[stage]#>\n" +
+                ",<#[wave]#>\n" +
+                ",Forest\n");
+
+            var result = await container.Bake(converter);
+
+            Assert.True(result);
+            Assert.Null(container.ExplicitVerticalCollection["Discard"]);
+            Assert.Equal(
+                "Forest",
+                container.ExplicitVerticalCollection["Keep"].Stages[0][0][0].Name);
+            Assert.Equal(
+                new[] { "Invalid vertical collection marker at cell \"B4\"." },
                 logger.Errors);
         }
 
@@ -654,6 +873,23 @@ namespace Cathei.BakingSheet.Tests
             public TestExplicitVerticalCollectionSheet ExplicitVerticalCollection { get; set; }
 
             public ExplicitOnlyContainer(ILogger logger) : base(logger)
+            {
+            }
+        }
+
+        private sealed class NestedListsSheet : Sheet<NestedListsSheet.Row>
+        {
+            public sealed class Row : SheetRow
+            {
+                public VerticalDictionary<int, VerticalList<VerticalList<string>>> Values { get; set; }
+            }
+        }
+
+        private sealed class NestedListsOnlyContainer : SheetContainerBase
+        {
+            public NestedListsSheet NestedLists { get; set; }
+
+            public NestedListsOnlyContainer(ILogger logger) : base(logger)
             {
             }
         }
