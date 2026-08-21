@@ -49,13 +49,16 @@ printf '%s\n' "$package_version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z
     fail "Package version is not semantic: '$package_version'."
 
 repository_version_url="https://github.com/laicasaane/BakingSheet/blob/$package_version"
+raw_repository_version_url="https://raw.githubusercontent.com/laicasaane/BakingSheet/$package_version"
 
 for document_name in CHANGELOG.md README.md; do
     document_path="$package_root/$document_name"
     [ -f "$document_path" ] || continue
 
     temporary_path=$(mktemp "$document_path.XXXXXX")
-    if sed -E "s#(\]\(|\]:[[:space:]]*)(\./)?(docs/|\.github/images/)#\1$repository_version_url/\3#g" \
+    if sed -E \
+        -e "s#(\]\(|\]:[[:space:]]*)(\./)?docs/#\1$repository_version_url/docs/#g" \
+        -e "s#(\]\(|\]:[[:space:]]*)(\./)?\.github/images/#\1$raw_repository_version_url/.github/images/#g" \
         "$document_path" > "$temporary_path"; then
         if cmp -s "$document_path" "$temporary_path"; then
             rm -f "$temporary_path"

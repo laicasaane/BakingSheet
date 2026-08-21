@@ -20,6 +20,7 @@ if ($packageVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[
 }
 
 $repositoryVersionUrl = "https://github.com/laicasaane/BakingSheet/blob/$packageVersion"
+$rawRepositoryVersionUrl = "https://raw.githubusercontent.com/laicasaane/BakingSheet/$packageVersion"
 $relativeLinkPattern = '(\]\(|\]:[ \t]*)(?:\./)?(docs/|\.github/images/)'
 $utf8WithoutBom = [System.Text.UTF8Encoding]::new($false)
 
@@ -36,7 +37,14 @@ foreach ($documentName in @("CHANGELOG.md", "README.md")) {
         {
             param($match)
 
-            return $match.Groups[1].Value + $repositoryVersionUrl + "/" + $match.Groups[2].Value
+            $baseUrl = if ($match.Groups[2].Value -eq "docs/") {
+                $repositoryVersionUrl
+            }
+            else {
+                $rawRepositoryVersionUrl
+            }
+
+            return $match.Groups[1].Value + $baseUrl + "/" + $match.Groups[2].Value
         }
     )
 
