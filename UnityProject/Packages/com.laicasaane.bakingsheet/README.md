@@ -49,15 +49,21 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 ## About this fork
 
 > [!IMPORTANT]
-> Please read this section before using this fork.
+> Changes made to this fork are intended to support the maintainer's specific use cases,
+> and may not be compatible with the [original BakingSheet](https://github.com/cathei/BakingSheet).
+>
+> **AI Disclosure:** Most of the new features are implemented with the help of AI.
 
-* Compatible with Unity 6000.3+.
+* Minimal Unity version raised to `6000.3`.
 * Package name changed to `com.laicasaane.bakingsheet` to avoid conflict with the upstream.
 * README has been rewritten, where necessary, to reflect the accountability of this fork.
-* Most prebuilt .dlls are removed and replaced with NuGet packages distributed via OpenUPM.
-* Changes made to this fork are intended to support the maintainer's specific use cases,
-  and may not be backward compatible with the [original BakingSheet](https://github.com/cathei/BakingSheet).
-* NuGet and `.unitypackage` installations are not supported.
+* Prebuilt `.dll` files have been removed and replaced with OpenUPM distribution of NuGet packages.
+* NuGet and `.unitypackage` installation formats are not supported.
+* Supports [UPM package signing](https://docs.unity3d.com/6000.3/Documentation/Manual/upm-signature.html).
+* Supports [vertical dictionary](#using-vertical-dictionary).
+* Supports [nested vertical collections](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/docs/nested-collections.md).
+* Supports [sheet transposition](#using-sheet-transposition).
+* Expands [comment rules](#ignoring-comments-during-import) to support comment on non-header cells.
 
 ## Install
 
@@ -78,8 +84,8 @@ If you are planning to use StreamingAssets folder on Android, install
 
 Please create an [issue](https://github.com/laicasaane/BakingSheet/issues).
 
-> [!IMPORTANT]
-> Keep in mind that I'm not the original author of BakingSheet, so I might not be able to answer all questions.
+Please keep in mind that, as the maintainer of this fork, I can only try my best to answer questions on the original
+features.
 
 ## Contribution
 Any contribution is appreciated. Please create [issue](https://github.com/laicasaane/BakingSheet/issues) for bugs or
@@ -91,7 +97,7 @@ this project will be greatful!
 BakingSheet manages datasheet schema as C# code. `Sheet` class represents a table and `SheetRow` class represents a
 record. Below is example content of file `Consumables` page in `MySheets.xlsx`.
 
-![Plain Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/.github/images/sample_plain.png)
+![Plain Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.5/.github/images/sample_plain.png)
 
 <details>
 <summary>Markdown version</summary>
@@ -342,7 +348,7 @@ foreach (var consumableId in sheetContainer.Consumables.Where(row => row.Price >
 ## Using List Column
 List columns are used for simple array.
 
-![List Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/.github/images/sample_list.png)
+![List Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.5/.github/images/sample_list.png)
 
 <details>
 <summary>Flat header</summary>
@@ -391,7 +397,7 @@ Use `VerticalList<T>` when list items should extend down rows. See
 ## Using Dictionary Column
 Dictionary columns are used when key-based access of value is needed.
 
-![Dictionary Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/.github/images/sample_dict.png)
+![Dictionary Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.5/.github/images/sample_dict.png)
 
 <details>
 <summary>Flat header</summary>
@@ -437,7 +443,7 @@ Use it as simple as just including a column has type implmenting `IDictionary<TK
 ## Using Vertical Dictionary
 Vertical dictionary columns are used when key-based entries should extend down rows.
 
-![Vertical Dictionary Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/.github/images/sample_vertical_dict.png)
+![Vertical Dictionary Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.5/.github/images/sample_vertical_dict.png)
 
 <details>
 <summary>Flat header</summary>
@@ -529,7 +535,7 @@ examples.
 ## Using Nested Type Column
 Nested type columns are used for complex structure.
 
-![Nested Type Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/.github/images/sample_dict.png)
+![Nested Type Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.5/.github/images/sample_dict.png)
 
 <details>
 <summary>Flat header</summary>
@@ -576,7 +582,7 @@ how BakingSheet reads the column.
 ## Using Row Array
 Row arrays are used for 2-dimentional structure. Below is example content of file `Heroes.xlsx`.
 
-![Row Array Sample](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/.github/images/sample_rowarray.png)
+![Row Array Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.5/.github/images/sample_rowarray.png)
 
 <details>
 <summary>Markdown version</summary>
@@ -690,7 +696,7 @@ logger.LogInformation(consumableRow.Name);
 Any type can be used value can be also used as `Id`. This is possible as passing type argument to generic class
 `SheetRow<TKey>` and `Sheet<TKey, TRow>`. Below is example content of file `Contstants.xlsx`.
 
-![Sample Non-String Id](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/.github/images/sample_non_string_id.png)
+![Sample Non-String Id](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.5/.github/images/sample_non_string_id.png)
 
 <details>
 <summary>Markdown version</summary>
@@ -728,7 +734,7 @@ same `Value` property.
 Transposition provides another way to model the same settings. Instead of using enum values as row identifiers, each
 setting can be a property with its own value type. One column then holds the complete configuration.
 
-![Sample Transposition](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/.github/images/sample_transposition.png)
+![Sample Transposition](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.5/.github/images/sample_transposition.png)
 
 <details>
 <summary>Markdown version</summary>
@@ -779,7 +785,7 @@ the column header or cell.
 
 The following input table shows all four rules.
 
-![Sample Ignoring Comments](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/.github/images/sample_ignoring_comments.png)
+![Sample Ignoring Comments](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.5/.github/images/sample_ignoring_comments.png)
 
 (Green cells are skipped during import.)
 
