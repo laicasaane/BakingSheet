@@ -58,7 +58,8 @@ done
 write_fixture_file 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs' 'stale-excel'
 write_fixture_file 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs.meta' 'stale-excel-guid'
 write_fixture_file 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google/link.xml' 'unity-linker'
-version_url='https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.3+build.7'
+repository_version_url='https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.3+build.7'
+raw_repository_version_url='https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.3+build.7'
 write_fixture_file 'README.md' '[docs](docs/guide.md)
 ![image](.github/images/sample.png)'
 write_fixture_file 'CHANGELOG.md' '[image]: ./.github/images/change.png'
@@ -83,9 +84,9 @@ done
 assert_missing 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs'
 assert_missing 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Excel/Stale.cs.meta'
 assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/Runtime/Converters/Google/link.xml' 'unity-linker'
-assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/README.md' "[docs]($version_url/docs/guide.md)
-![image]($version_url/.github/images/sample.png)"
-assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/CHANGELOG.md' "[image]: $version_url/.github/images/change.png"
+assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/README.md' "[docs]($repository_version_url/docs/guide.md)
+![image]($raw_repository_version_url/.github/images/sample.png)"
+assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/CHANGELOG.md' "[image]: $raw_repository_version_url/.github/images/change.png"
 assert_missing 'UnityProject/Packages/com.laicasaane.bakingsheet/Plan.md'
 assert_content 'UnityProject/Packages/com.laicasaane.bakingsheet/PackageOnly.md' 'package-only'
 
