@@ -46,6 +46,7 @@ jobs:
       - name: Copy CHANGELOG, LICENSE, README into package
         run: |
           repository_version_url="https://github.com/laicasaane/BakingSheet/blob/$PACKAGE_VERSION"
+          raw_repository_version_url="https://raw.githubusercontent.com/laicasaane/BakingSheet/$PACKAGE_VERSION"
 
           if [ -f CHANGELOG.md ]; then
             cp CHANGELOG.md "$PACKAGE_PATH/CHANGELOG.md"
@@ -62,7 +63,10 @@ jobs:
 
           for package_document in "$PACKAGE_PATH/CHANGELOG.md" "$PACKAGE_PATH/README.md"; do
             if [ -f "$package_document" ]; then
-              sed -E -i "s#(\]\(|\]:[[:space:]]*)(\./)?(docs/|\.github/images/)#\1$repository_version_url/\3#g" "$package_document"
+              sed -E -i \
+                -e "s#(\]\(|\]:[[:space:]]*)(\./)?docs/#\1$repository_version_url/docs/#g" \
+                -e "s#(\]\(|\]:[[:space:]]*)(\./)?\.github/images/#\1$raw_repository_version_url/.github/images/#g" \
+                "$package_document"
             fi
           done
 
