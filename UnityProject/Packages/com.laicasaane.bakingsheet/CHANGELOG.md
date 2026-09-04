@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 6.3.1-pre.6
+
+- Added multi-column complex Id import for Flat, Hybrid, and Split headers.
+- Added complex Id documentation, tests, and Unity sample and ScriptableObject support.
+- Fixed embedded Unity package images to render through version-pinned raw GitHub URLs.
+
 ## 6.3.1-pre.5
 
 - Added import-only labels for nested vertical list and dictionary levels, with direct markers such as `<#[stage]#>` and `<#{rewards}#>`.
@@ -12,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 6.3.1-pre.4
 
-- Added [Advanced Sheet Transposition](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.5/docs/advanced-sheet-transposition.md).
+- Added [Advanced Sheet Transposition](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.6/docs/advanced-sheet-transposition.md).
 - Updated [README.md](README.md).
 - Updated sample screenshots.
 - Fixed GitHub release packaging to rewrite embedded README and CHANGELOG documentation and image links as version-pinned repository URLs.

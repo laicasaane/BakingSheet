@@ -4,7 +4,7 @@
   "author": {
     "name": "Maxwell Keonwoo Kang"
   },
-  "version": "6.3.1-pre.5",
+  "version": "6.3.1-pre.6",
   "unity": "6000.3",
   "description": "Easy datasheet management for C# and Unity.\nSupports Excel, Google Sheet, JSON and CSV format.",
   "license": "MIT",
@@ -12,7 +12,7 @@
   "dependencies": {
     "org.nuget.exceldatareader": "3.9.0",
     "org.nuget.exceldatareader.dataset": "3.9.0",
-    "org.nuget.google.apis.drive.v3": "1.75.0-4218",
+    "org.nuget.google.apis.drive.v3": "1.76.0-4252",
     "org.nuget.google.apis.sheets.v4": "1.75.0-4178",
     "org.nuget.nreco.csv": "1.0.3",
     "org.nuget.microsoft.extensions.logging.abstractions": "10.0.11",
