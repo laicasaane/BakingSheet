@@ -150,27 +150,31 @@ namespace Cathei.BakingSheet.Raw
 
             Func<string, string> memberNameMapper =
                 name => ToPropertyName(sheetProperty, sheet, name);
-            string resolvedIdColumnName = memberNameMapper(idColumnName);
 
-            if (!RawSheetHeader.IsValidName(resolvedIdColumnName))
+            if (!ReadHeaderDimensions(
+                    page, propertyMap, this, memberNameMapper,
+                    out int headerRowCount, out int headerColumnCount,
+                    out int invalidHeaderColumn, out int invalidHeaderRow,
+                    out bool invalidIdColumn))
             {
-                LogInvalidHeader(context, page, 0, 0);
+                if (invalidIdColumn)
+                {
+                    context.Logger.LogError(
+                        "First column \"{ColumnName}\" must be named \"" +
+                        SheetTokens.Header.Id + "\"", idColumnName);
+                }
+                else
+                {
+                    LogInvalidHeader(
+                        context, page, invalidHeaderColumn, invalidHeaderRow);
+                }
+
                 return;
             }
-
-            if (resolvedIdColumnName != SheetTokens.Header.Id)
-            {
-                context.Logger.LogError(
-                    "First column \"{ColumnName}\" must be named \"" +
-                    SheetTokens.Header.Id + "\"", idColumnName);
-                return;
-            }
-
-            ReadHeaderDimensions(page, out int headerRowCount, out int headerColumnCount);
 
             if (!RawSheetHeader.TryRead(
                     page, headerRowCount, headerColumnCount,
-                    out var header, out int invalidHeaderColumn, out int invalidHeaderRow))
+                    out var header, out invalidHeaderColumn, out invalidHeaderRow))
             {
                 LogInvalidHeader(context, page, invalidHeaderColumn, invalidHeaderRow);
                 return;
@@ -542,11 +546,75 @@ namespace Cathei.BakingSheet.Raw
             return true;
         }
 
-        private void ReadHeaderDimensions(
-            IRawSheetImporterPage page, out int rowCount, out int columnCount)
+        private bool ReadHeaderDimensions(
+            IRawSheetImporterPage page, PropertyMap propertyMap,
+            ISheetFormatter formatter, Func<string, string> memberNameMapper,
+            out int rowCount, out int columnCount,
+            out int invalidColumn, out int invalidRow, out bool invalidIdColumn)
         {
             rowCount = 1;
             columnCount = GetPhysicalColumnCount(page, 0, 1);
+            invalidColumn = -1;
+            invalidRow = -1;
+            invalidIdColumn = false;
+
+            while (true)
+            {
+                if (!RawSheetHeader.TryRead(
+                        page, rowCount, 1,
+                        out var candidate, out invalidColumn, out invalidRow))
+                {
+                    return false;
+                }
+
+                var path = candidate.Paths[0];
+                var state = propertyMap.ClassifyPath(
+                    path, formatter, memberNameMapper,
+                    out var resolvedComponents, out int invalidComponent);
+
+                if (resolvedComponents.Count > 0 &&
+                    resolvedComponents[0].Text != SheetTokens.Header.Id)
+                {
+                    invalidColumn = 0;
+                    invalidRow = 0;
+                    invalidIdColumn = true;
+                    return false;
+                }
+
+                if (state == PropertyPathState.Invalid)
+                {
+                    if (path.Components.Count > 0)
+                    {
+                        var component = path.Components[Math.Max(0, invalidComponent)];
+                        invalidColumn = component.Column;
+                        invalidRow = component.Row;
+                    }
+                    else
+                    {
+                        invalidColumn = 0;
+                        invalidRow = 0;
+                    }
+
+                    return false;
+                }
+
+                if (state == PropertyPathState.Leaf)
+                    break;
+
+                string nextFirstColumn = page.GetCell(0, rowCount);
+
+                if (string.IsNullOrEmpty(nextFirstColumn))
+                {
+                    var component = path.Components[path.Components.Count - 1];
+                    invalidColumn = component.Column;
+                    invalidRow = component.Row;
+                    return false;
+                }
+
+                int currentWidth = GetPhysicalColumnCount(page, rowCount, columnCount);
+                columnCount = Math.Max(columnCount, currentWidth);
+                rowCount++;
+            }
 
             while (true)
             {
@@ -578,6 +646,7 @@ namespace Cathei.BakingSheet.Raw
             }
 
             columnCount = lastHeaderColumn + 1;
+            return true;
         }
 
         private int GetPhysicalColumnCount(

@@ -8,6 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Cathei.BakingSheet.Internal
 {
+    internal enum PropertyPathState
+    {
+        Invalid,
+        Branch,
+        Leaf,
+    }
+
     /// <summary>
     /// Tree structure represents assignable properties in sheet rows.
     /// </summary>
@@ -231,10 +238,52 @@ namespace Cathei.BakingSheet.Internal
             out IReadOnlyList<RawSheetHeaderComponent> resolvedComponents,
             out int invalidComponent, out bool ignored)
         {
+            var state = ResolvePath(
+                path, formatter, memberNameMapper,
+                out var cursor, out var indexes, out var horizontalIndexes,
+                out resolvedComponents, out invalidComponent, out ignored);
+
+            if (ignored)
+            {
+                binding = default;
+                invalidComponent = -1;
+                return true;
+            }
+
+            if (state != PropertyPathState.Leaf)
+            {
+                binding = default;
+                return false;
+            }
+
+            string semanticPath = RawSheetHeader.FormatFlat(resolvedComponents);
+            binding = CreateBinding(cursor, indexes, semanticPath, horizontalIndexes);
+            return true;
+        }
+
+        internal PropertyPathState ClassifyPath(RawSheetHeaderPath path, ISheetFormatter formatter,
+            Func<string, string> memberNameMapper,
+            out IReadOnlyList<RawSheetHeaderComponent> resolvedComponents,
+            out int invalidComponent)
+        {
+            var state = ResolvePath(
+                path, formatter, memberNameMapper,
+                out _, out _, out _, out resolvedComponents, out invalidComponent, out bool ignored);
+
+            return ignored ? PropertyPathState.Invalid : state;
+        }
+
+        private PropertyPathState ResolvePath(RawSheetHeaderPath path, ISheetFormatter formatter,
+            Func<string, string> memberNameMapper,
+            out PropertyNode node, out List<object> indexes,
+            out Dictionary<PropertyNode, object> horizontalIndexes,
+            out IReadOnlyList<RawSheetHeaderComponent> resolvedComponents,
+            out int invalidComponent, out bool ignored)
+        {
             var resolver = _context.Container.ContractResolver;
             var valueContext = new SheetValueConvertingContext(formatter, resolver);
-            var indexes = new List<object>();
-            var horizontalIndexes = new Dictionary<PropertyNode, object>();
+            indexes = new List<object>();
+            horizontalIndexes = new Dictionary<PropertyNode, object>();
             PropertyNode cursor = null;
             bool anonymousDictionaryRequired = false;
             var components = new List<RawSheetHeaderComponent>(path.Components.Count);
@@ -244,29 +293,32 @@ namespace Cathei.BakingSheet.Internal
             {
                 var component = path.Components[i];
                 bool componentMapped = false;
+                bool componentRecorded = false;
 
                 if (cursor == null)
                 {
                     if (component.Kind != RawSheetHeaderComponentKind.Named)
                     {
-                        binding = default;
+                        node = null;
                         resolvedComponents = components;
                         invalidComponent = i;
-                        return false;
+                        return PropertyPathState.Invalid;
                     }
 
                     string rootName = memberNameMapper(component.Text);
 
                     if (!RawSheetHeader.IsValidName(rootName))
                     {
-                        binding = default;
+                        node = null;
                         resolvedComponents = components;
                         invalidComponent = i;
-                        return false;
+                        return PropertyPathState.Invalid;
                     }
 
                     component = component.WithText(rootName);
                     componentMapped = true;
+                    componentRecorded = true;
+                    components.Add(component);
 
                     if (Root.HasSubpath(rootName))
                     {
@@ -278,10 +330,10 @@ namespace Cathei.BakingSheet.Internal
                     }
                     else
                     {
-                        binding = default;
+                        node = null;
                         resolvedComponents = components;
                         invalidComponent = i;
-                        return false;
+                        return PropertyPathState.Invalid;
                     }
                 }
 
@@ -290,10 +342,10 @@ namespace Cathei.BakingSheet.Internal
                     if (anonymousDictionaryRequired ||
                         !(cursor is PropertyNodeList list) || !list.IsVerticalList)
                     {
-                        binding = default;
+                        node = null;
                         resolvedComponents = components;
                         invalidComponent = i;
-                        return false;
+                        return PropertyPathState.Invalid;
                     }
 
                     cursor = list.Child;
@@ -307,10 +359,10 @@ namespace Cathei.BakingSheet.Internal
                     if (!anonymousDictionaryRequired ||
                         !(cursor is PropertyNodeVerticalDictionary))
                     {
-                        binding = default;
+                        node = null;
                         resolvedComponents = components;
                         invalidComponent = i;
-                        return false;
+                        return PropertyPathState.Invalid;
                     }
 
                     anonymousDictionaryRequired = false;
@@ -327,10 +379,10 @@ namespace Cathei.BakingSheet.Internal
 
                     if (!RawSheetHeader.IsValidName(componentName))
                     {
-                        binding = default;
+                        node = null;
                         resolvedComponents = components;
                         invalidComponent = i;
-                        return false;
+                        return PropertyPathState.Invalid;
                     }
 
                     component = component.WithText(componentName);
@@ -341,21 +393,22 @@ namespace Cathei.BakingSheet.Internal
                         indexes, horizontalIndexes, out var child) ||
                     child == null)
                 {
-                    binding = default;
+                    node = null;
                     resolvedComponents = components;
                     invalidComponent = i;
-                    return false;
+                    return PropertyPathState.Invalid;
                 }
 
-                components.Add(component);
+                if (!componentRecorded)
+                    components.Add(component);
 
                 if (child.IsIgnored)
                 {
-                    binding = default;
+                    node = null;
                     resolvedComponents = components;
-                    invalidComponent = -1;
+                    invalidComponent = i;
                     ignored = true;
-                    return true;
+                    return PropertyPathState.Leaf;
                 }
 
                 if (child is PropertyNodeList verticalList && verticalList.IsVerticalList)
@@ -370,19 +423,20 @@ namespace Cathei.BakingSheet.Internal
                 }
             }
 
-            if (anonymousDictionaryRequired || cursor == null || !cursor.IsLeafNode)
+            node = cursor;
+            resolvedComponents = components;
+            invalidComponent = Math.Max(0, path.Components.Count - 1);
+
+            if (cursor == null)
+                return PropertyPathState.Invalid;
+
+            if (anonymousDictionaryRequired || !cursor.IsLeafNode)
             {
-                binding = default;
-                resolvedComponents = components;
-                invalidComponent = Math.Max(0, path.Components.Count - 1);
-                return false;
+                return PropertyPathState.Branch;
             }
 
-            string semanticPath = RawSheetHeader.FormatFlat(components);
-            binding = CreateBinding(cursor, indexes, semanticPath, horizontalIndexes);
-            resolvedComponents = components;
             invalidComponent = -1;
-            return true;
+            return PropertyPathState.Leaf;
         }
 
         internal bool TryResolveMarkerPath(string path, ISheetFormatter formatter,
