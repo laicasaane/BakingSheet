@@ -14,7 +14,7 @@
       "dependencies": {
         "org.nuget.exceldatareader": "3.9.0",
         "org.nuget.exceldatareader.dataset": "3.9.0",
-        "org.nuget.google.apis.drive.v3": "1.75.0-4218",
+        "org.nuget.google.apis.drive.v3": "1.76.0-4252",
         "org.nuget.google.apis.sheets.v4": "1.75.0-4178",
         "org.nuget.nreco.csv": "1.0.3",
         "org.nuget.microsoft.extensions.logging.abstractions": "10.0.11",
@@ -67,7 +67,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.27",
+      "version": "2.0.28",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -99,7 +99,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.pipeline": {
-      "version": "0.5.0-exp.1",
+      "version": "0.6.0-exp.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -177,27 +177,27 @@
       "url": "https://package.openupm.com"
     },
     "org.nuget.google.apis": {
-      "version": "1.75.0",
+      "version": "1.76.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "org.nuget.google.apis.core": "1.75.0"
+        "org.nuget.google.apis.core": "1.76.0"
       },
       "url": "https://package.openupm.com"
     },
     "org.nuget.google.apis.auth": {
-      "version": "1.75.0",
+      "version": "1.76.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "org.nuget.google.apis.core": "1.75.0",
-        "org.nuget.google.apis": "1.75.0",
+        "org.nuget.google.apis.core": "1.76.0",
+        "org.nuget.google.apis": "1.76.0",
         "org.nuget.system.management": "7.0.2"
       },
       "url": "https://package.openupm.com"
     },
     "org.nuget.google.apis.core": {
-      "version": "1.75.0",
+      "version": "1.76.0",
       "depth": 2,
       "source": "registry",
       "dependencies": {
@@ -206,12 +206,12 @@
       "url": "https://package.openupm.com"
     },
     "org.nuget.google.apis.drive.v3": {
-      "version": "1.75.0-4218",
-      "depth": 1,
+      "version": "1.76.0-4252",
+      "depth": 0,
       "source": "registry",
       "dependencies": {
-        "org.nuget.google.apis": "1.75.0",
-        "org.nuget.google.apis.auth": "1.75.0"
+        "org.nuget.google.apis": "1.76.0",
+        "org.nuget.google.apis.auth": "1.76.0"
       },
       "url": "https://package.openupm.com"
     },
