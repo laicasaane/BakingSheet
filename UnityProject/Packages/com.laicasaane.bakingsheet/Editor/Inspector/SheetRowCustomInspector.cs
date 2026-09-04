@@ -1,6 +1,7 @@
 // BakingSheet, Maxwell Keonwoo Kang <code.athei@gmail.com>, 2022
 
 using Cathei.BakingSheet.Unity;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -29,7 +30,8 @@ namespace Cathei.BakingSheet.Editor
 
             var jObject = JObject.Parse(serializedRow.stringValue);
 
-            ExpandIdField(inspector, jObject.Value<string>(nameof(ISheetRow.Id)));
+            var idToken = jObject.GetValue(nameof(ISheetRow.Id));
+            ExpandIdField(inspector, GetIdDisplayValue(idToken));
 
             foreach (var pair in jObject)
             {
@@ -40,6 +42,22 @@ namespace Cathei.BakingSheet.Editor
             }
 
             return inspector;
+        }
+
+        private static string GetIdDisplayValue(JToken token)
+        {
+            if (token == null || token.Type == JTokenType.Null)
+                return string.Empty;
+
+            switch (token.Type)
+            {
+                case JTokenType.Object:
+                case JTokenType.Array:
+                    return token.ToString(Formatting.None);
+
+                default:
+                    return token.Value<string>();
+            }
         }
 
         private void ExpandJsonToken(VisualElement parent, string label, JToken jToken)

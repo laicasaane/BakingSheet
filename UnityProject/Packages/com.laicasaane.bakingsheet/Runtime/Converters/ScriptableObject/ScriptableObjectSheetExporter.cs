@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Cathei.BakingSheet.Internal;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 
@@ -54,7 +55,8 @@ namespace Cathei.BakingSheet.Unity
                     Path.GetDirectoryName(savePath), Path.GetFileName(savePath));
             }
 
-            var valueContext = new SheetValueConvertingContext(formatter, new SheetContractResolver());
+            var resolver = context.Container.ContractResolver;
+            var valueContext = new SheetValueConvertingContext(formatter, resolver);
 
             string containerPath = Path.Combine(savePath, "_Container.asset");
 
@@ -108,7 +110,7 @@ namespace Cathei.BakingSheet.Unity
 
                     foreach (var row in sheet)
                     {
-                        string rowIdStr = valueContext.ValueToString(row.Id.GetType(), row.Id);
+                        string rowIdStr = GetRowIdString(row, valueContext, resolver);
 
                         if (!existingRowSO.TryGetValue(rowIdStr, out var rowSO))
                         {
@@ -133,6 +135,29 @@ namespace Cathei.BakingSheet.Unity
             }
 
             return containerSO;
+        }
+
+        private static string GetRowIdString(
+            ISheetRow row, SheetValueConvertingContext valueContext,
+            ISheetContractResolver resolver)
+        {
+            object rowId = row.Id;
+
+            if (rowId == null)
+                throw new InvalidOperationException("Sheet row Id must not be null.");
+
+            Type rowIdType = rowId.GetType();
+
+            if (resolver.GetValueConverter(rowIdType) != null)
+                return valueContext.ValueToString(rowIdType, rowId);
+
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = JsonSheetSOContractResolver.Instance,
+                Culture = CultureInfo.InvariantCulture,
+            };
+
+            return JsonConvert.SerializeObject(rowId, Formatting.None, settings);
         }
 
         private static void MapReferences(
