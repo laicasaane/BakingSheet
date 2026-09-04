@@ -15,5 +15,7 @@ namespace Cathei.BakingSheet.AdvancedExamples
         public EncounterRewardSheet EncounterRewards { get; private set; }
         public ClassRotationSheet ClassRotations { get; private set; }
         public RaidBlueprintSheet RaidBlueprints { get; private set; }
+        public HeroSheet Heroes { get; private set; }
+        public EnemySheet Enemies { get; private set; }
     }
 }
