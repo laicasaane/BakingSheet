@@ -108,7 +108,9 @@ namespace Cathei.BakingSheet
 
                 if (sheet == null)
                 {
-                    context.Logger.LogError("Failed to find sheet: {SheetName}", pair.Key);
+                    context.Logger.LogError(
+                        "Sheet property {SheetName} on container {ContainerType} has no loaded sheet. Check the source sheet name and imported data.",
+                        pair.Key, GetType());
                     continue;
                 }
 
@@ -117,7 +119,9 @@ namespace Cathei.BakingSheet
                 if (rowTypeToSheet.ContainsKey(sheet.RowType))
                 {
                     // row type must be unique in a sheet container
-                    context.Logger.LogError("Duplicated Row type is used for {SheetName}", pair.Key);
+                    context.Logger.LogError(
+                        "Row type {RowType} is used by both sheets {FirstSheetName} and {SecondSheetName}. Reference mapping requires each sheet to have a unique row type.",
+                        sheet.RowType, rowTypeToSheet[sheet.RowType].Name, sheet.Name);
                     continue;
                 }
 

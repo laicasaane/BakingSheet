@@ -66,15 +66,17 @@ namespace Cathei.BakingSheet
                     }
                     else if (Ref != referSheet[Id])
                     {
-                        context.Logger.LogError("Found different reference than originally set for \"{ReferenceId}\"",
-                            Id);
+                        context.Logger.LogError(
+                            "Reference {ReferenceId} to row type {RowType} in sheet {SheetName} disagrees with the row stored on the reference. Check the target Id and imported reference data.",
+                            Id, typeof(TValue), sheet.Name);
                     }
                 }
 
                 if (Id != null && Ref == null)
                 {
-                    context.Logger.LogError("Failed to find reference \"{ReferenceId}\" on {SheetName}", Id,
-                        sheet.Name);
+                    context.Logger.LogError(
+                        "Reference Id {ReferenceId} was not found in target sheet {SheetName} for row type {RowType}. Check that the target Id exists.",
+                        Id, sheet.Name, typeof(TValue));
                 }
             }
 

@@ -12,19 +12,23 @@ namespace Cathei.BakingSheet.Tests
     {
         private IExternalScopeProvider scopeProvider = new LoggerExternalScopeProvider();
 
-        private struct LogEntry
+        public sealed class LogEntry
         {
-            public LogLevel level;
-            public List<object> scopes;
-            public string message;
+            public LogLevel Level { get; set; }
+            public IReadOnlyList<object> Scopes { get; set; }
+            public string Message { get; set; }
+            public Exception Exception { get; set; }
+            public IReadOnlyList<KeyValuePair<string, object>> State { get; set; }
 
             public override string ToString()
             {
-                return $"[{level}] [{string.Join(">", scopes)}] {message}";
+                return $"[{Level}] [{string.Join(">", Scopes)}] {Message}";
             }
         }
 
         private List<LogEntry> entries = new List<LogEntry>();
+
+        public IReadOnlyList<LogEntry> Entries => entries;
 
         public IDisposable BeginScope<TState>(TState state)
         {
@@ -40,12 +44,17 @@ namespace Cathei.BakingSheet.Tests
         {
             var entry = new LogEntry
             {
-                level = logLevel,
-                scopes = new List<object>(),
-                message = formatter(state, exception)
+                Level = logLevel,
+                Scopes = new List<object>(),
+                Message = formatter(state, exception),
+                Exception = exception,
+                State = state is IEnumerable<KeyValuePair<string, object>> values
+                    ? values.ToList()
+                    : Array.Empty<KeyValuePair<string, object>>()
             };
 
-            scopeProvider.ForEachScope((scope, scopes) => scopes.Add(scope), entry.scopes);
+            scopeProvider.ForEachScope(
+                (scope, scopes) => ((List<object>)scopes).Add(scope), entry.Scopes);
 
             entries.Add(entry);
         }
@@ -53,20 +62,22 @@ namespace Cathei.BakingSheet.Tests
         public void VerifyLog(LogLevel logLevel, string message, object[] scopes = null)
         {
             Assert.Contains(entries, entry =>
-                entry.level == logLevel && entry.message == message &&
-                (scopes == null || scopes.SequenceEqual(entry.scopes))
+                entry.Level == logLevel && entry.Message == message &&
+                (scopes == null || scopes.SequenceEqual(entry.Scopes))
             );
         }
 
         public void VerifyLogCount(LogLevel logLevel, string message, int count)
         {
-            Assert.Equal(count, entries.Count(entry => entry.level == logLevel && entry.message == message));
+            Assert.Equal(count, entries.Count(entry => entry.Level == logLevel && entry.Message == message));
         }
 
         public void VerifyNoError()
         {
             Assert.DoesNotContain(entries, entry =>
-                entry.level >= LogLevel.Error && !entry.message.Contains("Failed to find sheet"));
+                entry.Level >= LogLevel.Error &&
+                !(entry.Message.StartsWith("Sheet property ", StringComparison.Ordinal) &&
+                  entry.Message.Contains(" has no loaded sheet. Check the source sheet name and imported data.")));
         }
     }
 }

@@ -79,7 +79,8 @@ namespace Cathei.BakingSheet
                         if (!rowTypeToSheet.TryGetValue(referenceRowType, out var sheet))
                         {
                             context.Logger.LogError(
-                                "Failed to find sheet for {ReferenceType} reference", referenceRowType);
+                                "Sheet {SourceSheet} row {RowId} property {PropertyPath} references row type {ReferenceType}, but no target sheet was declared or imported. Add the target sheet to the container and import it.",
+                                Name, row.Id, value.Path, referenceRowType);
                             continue;
                         }
 
@@ -137,7 +138,9 @@ namespace Cathei.BakingSheet
                                 var err = verifier.Verify(value.PropertyInfo, value.Value);
 
                                 if (err != null)
-                                    context.Logger.LogError("Verification: {Error}", err);
+                                    context.Logger.LogError(
+                                        "Asset verification failed in sheet {SheetName}, row {RowId}, property {PropertyPath}, value type {ValueType}, using verifier {VerifierType}: {Error}",
+                                        Name, row.Id, value.Path, value.ValueType, verifier.GetType(), err);
                             }
                         }
                     }

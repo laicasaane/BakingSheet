@@ -83,7 +83,9 @@ namespace Cathei.BakingSheet.Raw
 
                 if (!success)
                 {
-                    context.Logger.LogError("Failed to load data");
+                    context.Logger.LogError(
+                        "Import failed because converter {ConverterType} returned false while loading data for container {ContainerType}.",
+                        GetType(), context.Container.GetType());
                     return false;
                 }
 
@@ -114,20 +116,22 @@ namespace Cathei.BakingSheet.Raw
 
                     if (sheet == null)
                     {
-                        context.Logger.LogError("Failed to create sheet of type {SheetType}", pair.Value.PropertyType);
+                        context.Logger.LogError(
+                            "Could not create sheet property {SheetProperty} as {SheetType} on container {ContainerType}. Check that the sheet type is concrete and has an accessible parameterless constructor.",
+                            pair.Key, pair.Value.PropertyType, context.Container.GetType());
                         continue;
                     }
 
                     var propertyMap = sheet.GetPropertyMap(context);
 
                     if (pages.Count > 0)
-                        propertyMap.ReportUnsupportedProperties(context);
+                        propertyMap.ReportUnsupportedProperties(context, sheetName);
 
                     foreach (var page in pages)
                     {
                         ImportPage(
                             transpose ? new TransposedRawSheetImporterPage(page) : page,
-                            context, pair.Value, sheet, propertyMap);
+                            context, pair.Value, sheetName, sheet, propertyMap);
                     }
                 }
             }
@@ -136,8 +140,11 @@ namespace Cathei.BakingSheet.Raw
         }
 
         private void ImportPage(IRawSheetImporterPage page, SheetConvertingContext context,
-            PropertyInfo sheetProperty, ISheet sheet, PropertyMap propertyMap)
+            PropertyInfo sheetProperty, string sheetName,
+            ISheet sheet, PropertyMap propertyMap)
         {
+            var logContext = new RawSheetLogContext(
+                sheetProperty.Name, sheetName, page.SubName);
             var idColumnName = page.GetCell(0, 0);
 
             if (string.IsNullOrEmpty(idColumnName))
@@ -155,7 +162,7 @@ namespace Cathei.BakingSheet.Raw
                     page, propertyMap, this, memberNameMapper,
                     out int headerRowCount, out int headerColumnCount,
                     out int invalidHeaderColumn, out int invalidHeaderRow,
-                    out bool invalidIdColumn))
+                    out bool invalidIdColumn, out var headerError))
             {
                 if (invalidIdColumn)
                 {
@@ -166,7 +173,7 @@ namespace Cathei.BakingSheet.Raw
                 else
                 {
                     LogInvalidHeader(
-                        context, page, invalidHeaderColumn, invalidHeaderRow);
+                        context, logContext, page, invalidHeaderColumn, invalidHeaderRow, headerError);
                 }
 
                 return;
@@ -174,9 +181,9 @@ namespace Cathei.BakingSheet.Raw
 
             if (!RawSheetHeader.TryRead(
                     page, headerRowCount, headerColumnCount,
-                    out var header, out invalidHeaderColumn, out invalidHeaderRow))
+                    out var header, out invalidHeaderColumn, out invalidHeaderRow, out headerError))
             {
-                LogInvalidHeader(context, page, invalidHeaderColumn, invalidHeaderRow);
+                LogInvalidHeader(context, logContext, page, invalidHeaderColumn, invalidHeaderRow, headerError);
                 return;
             }
 
@@ -199,7 +206,8 @@ namespace Cathei.BakingSheet.Raw
                         out int invalidComponent, out bool ignored))
                 {
                     var component = path.Components[Math.Max(0, invalidComponent)];
-                    LogInvalidHeader(context, page, component.Column, component.Row);
+                    LogInvalidHeader(context, logContext, page, component.Column, component.Row,
+                        new RawSheetError("The header path does not resolve to a supported value on the row schema. Check the member name, name mapping, and collection selectors."));
                     return;
                 }
 
@@ -214,7 +222,8 @@ namespace Cathei.BakingSheet.Raw
                         binding.HeaderComponents,
                         out invalidHeaderColumn, out invalidHeaderRow))
                 {
-                    LogInvalidHeader(context, page, invalidHeaderColumn, invalidHeaderRow);
+                    LogInvalidHeader(context, logContext, page, invalidHeaderColumn, invalidHeaderRow,
+                        new RawSheetError("The header grouping does not match the resolved canonical property path. Split named levels into separate header cells."));
                     return;
                 }
 
@@ -223,15 +232,17 @@ namespace Cathei.BakingSheet.Raw
                         out var invalidLabelComponent))
                 {
                     LogInvalidHeader(
-                        context, page,
-                        invalidLabelComponent.Column, invalidLabelComponent.Row);
+                        context, logContext, page,
+                        invalidLabelComponent.Column, invalidLabelComponent.Row,
+                        new RawSheetError("The collection label conflicts with another label or resolved path. Use one unique label for each target path."));
                     return;
                 }
 
                 if (!semanticPaths.Add(binding.SemanticPath))
                 {
                     LogInvalidHeader(
-                        context, page, path.PhysicalColumn, path.LastComponentRow);
+                        context, logContext, page, path.PhysicalColumn, path.LastComponentRow,
+                        new RawSheetError($"Resolved property path \"{binding.SemanticPath}\" duplicates an earlier header. Remove or rename the duplicate column."));
                     return;
                 }
 
@@ -550,19 +561,21 @@ namespace Cathei.BakingSheet.Raw
             IRawSheetImporterPage page, PropertyMap propertyMap,
             ISheetFormatter formatter, Func<string, string> memberNameMapper,
             out int rowCount, out int columnCount,
-            out int invalidColumn, out int invalidRow, out bool invalidIdColumn)
+            out int invalidColumn, out int invalidRow, out bool invalidIdColumn,
+            out RawSheetError error)
         {
             rowCount = 1;
             columnCount = GetPhysicalColumnCount(page, 0, 1);
             invalidColumn = -1;
             invalidRow = -1;
             invalidIdColumn = false;
+            error = default;
 
             while (true)
             {
                 if (!RawSheetHeader.TryRead(
                         page, rowCount, 1,
-                        out var candidate, out invalidColumn, out invalidRow))
+                        out var candidate, out invalidColumn, out invalidRow, out error))
                 {
                     return false;
                 }
@@ -578,6 +591,8 @@ namespace Cathei.BakingSheet.Raw
                     invalidColumn = 0;
                     invalidRow = 0;
                     invalidIdColumn = true;
+                    error = new RawSheetError(
+                        $"The first path must resolve to {SheetTokens.Header.Id}. Check the first header and configured name mapping.");
                     return false;
                 }
 
@@ -608,6 +623,8 @@ namespace Cathei.BakingSheet.Raw
                     var component = path.Components[path.Components.Count - 1];
                     invalidColumn = component.Column;
                     invalidRow = component.Row;
+                    error = new RawSheetError(
+                        "The Id header path ends at an object or collection instead of a value. Add the next Id header component.");
                     return false;
                 }
 
@@ -683,11 +700,15 @@ namespace Cathei.BakingSheet.Raw
         }
 
         private static void LogInvalidHeader(SheetConvertingContext context,
-            IRawSheetImporterPage page, int column, int row)
+            RawSheetLogContext logContext, IRawSheetImporterPage page,
+            int column, int row, RawSheetError error)
         {
+            string header = page.GetCell(column, row);
             context.Logger.LogError(
-                "Invalid sheet header at cell \"{Cell}\".",
-                GetCellName(page, column, row));
+                error.Exception,
+                "Sheet {SheetName} (property {SheetProperty}), page {PageName}, cell {Cell}: invalid header {Header}. {Reason}",
+                logContext.SheetName, logContext.SheetProperty, logContext.PageName,
+                GetCellName(page, column, row), header ?? "(null)", error.Reason);
         }
 
         private static string GetCellName(int column, int row)

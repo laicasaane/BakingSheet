@@ -111,13 +111,13 @@ namespace Cathei.BakingSheet.Internal
                 Arr.CollectUnsupportedProperties(_unsupportedProperties);
         }
 
-        internal void ReportUnsupportedProperties(SheetConvertingContext context)
+        internal void ReportUnsupportedProperties(SheetConvertingContext context, string sheetName)
         {
             foreach (var node in _unsupportedProperties)
             {
                 context.Logger.LogError(
-                    "Property \"{PropertyPath}\" has unsupported vertical collection type \"{PropertyType}\".",
-                    node.FullPath, node.ValueType);
+                    "Sheet {SheetName} property {PropertyPath} has unsupported collection type {PropertyType}. Use a supported collection shape or exclude the property from sheet conversion.",
+                    sheetName, node.FullPath, node.ValueType);
             }
         }
 
@@ -140,7 +140,9 @@ namespace Cathei.BakingSheet.Internal
             {
                 if (owner is PropertyNodeVerticalDictionary)
                 {
-                    _context.Logger.LogError("Nested vertical list is not supported");
+                    _context.Logger.LogError(
+                        "SetValue cannot assign vertical dictionary path {PropertyPath} on row type {RowType}, row Id {RowId}, at vertical index {VerticalIndex}. Use the raw importer collection workflow for vertical dictionaries.",
+                        path, row.GetType(), row.Id, vindex);
                     return;
                 }
 
@@ -150,13 +152,17 @@ namespace Cathei.BakingSheet.Internal
 
             if (verticalListCount > 1)
             {
-                _context.Logger.LogError("Nested vertical list is not supported");
+                _context.Logger.LogError(
+                    "SetValue cannot assign path {PropertyPath} on row type {RowType}, row Id {RowId}, at vertical index {VerticalIndex} because it crosses more than one vertical list. Use the raw importer collection workflow.",
+                    path, row.GetType(), row.Id, vindex);
                 return;
             }
 
             if (verticalListCount == 0 && vindex != 0)
             {
-                _context.Logger.LogError("There is multiple value for a non-vertical column");
+                _context.Logger.LogError(
+                    "SetValue received vertical index {VerticalIndex} for nonvertical path {PropertyPath} on row type {RowType}, row Id {RowId}. Use index 0 for a scalar value.",
+                    vindex, path, row.GetType(), row.Id);
                 return;
             }
 
@@ -894,7 +900,9 @@ namespace Cathei.BakingSheet.Internal
             _warned = _warned ?? new HashSet<string>();
 
             if (_warned.Add(path))
-                _context.Logger.LogError("Column name is invalid");
+                _context.Logger.LogError(
+                    "Column path {PropertyPath} is invalid for row type {RowType}. Check the property name, collection selector, or configured name mapping.",
+                    path, Root.ValueType);
         }
 
         private static string FormatPath(string path, IReadOnlyList<object> indexes)

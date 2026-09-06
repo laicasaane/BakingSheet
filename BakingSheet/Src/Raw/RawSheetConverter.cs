@@ -84,7 +84,9 @@ namespace Cathei.BakingSheet.Raw
 
             if (!success)
             {
-                context.Logger.LogError("Failed to save data");
+                context.Logger.LogError(
+                    "Export failed because converter {ConverterType} returned false while saving data for container {ContainerType}.",
+                    GetType(), context.Container.GetType());
                 return false;
             }
 
@@ -98,7 +100,7 @@ namespace Cathei.BakingSheet.Raw
             var propertyMap = sheet.GetPropertyMap(context);
             var resolver = context.Container.ContractResolver;
 
-            propertyMap.ReportUnsupportedProperties(context);
+            propertyMap.ReportUnsupportedProperties(context, sheet.Name);
 
             propertyMap.UpdateIndex(sheet);
 

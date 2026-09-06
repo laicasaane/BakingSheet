@@ -198,8 +198,10 @@ namespace Cathei.BakingSheet.Raw
         }
 
         public static bool TryRead(IRawSheetImporterPage page, int rowCount, int columnCount,
-            out RawSheetHeader header, out int invalidColumn, out int invalidRow)
+            out RawSheetHeader header, out int invalidColumn, out int invalidRow,
+            out RawSheetError error)
         {
+            error = default;
             var carried = new CarriedCell[rowCount];
             var paths = new List<RawSheetHeaderPath>(columnCount);
 
@@ -241,6 +243,8 @@ namespace Cathei.BakingSheet.Raw
                         header = null;
                         invalidColumn = column;
                         invalidRow = row;
+                        error = new RawSheetError(
+                            $"Header level {row + 1} is missing at this cell. Fill the parent header above the child value.");
                         return false;
                     }
 
@@ -269,7 +273,7 @@ namespace Cathei.BakingSheet.Raw
                 {
                     int start = components.Count;
 
-                    if (!TryParseCell(cell.Value, flat, cell.Column, cell.Row, components))
+                    if (!TryParseCell(cell.Value, flat, cell.Column, cell.Row, components, out error))
                     {
                         header = null;
                         invalidColumn = cell.Column;
@@ -399,21 +403,30 @@ namespace Cathei.BakingSheet.Raw
         }
 
         private static bool TryParseCell(string value, bool flat, int column, int row,
-            List<RawSheetHeaderComponent> components)
+            List<RawSheetHeaderComponent> components, out RawSheetError error)
         {
+            error = default;
             string[] parts = SheetTokens.SplitPath(value);
 
             if (!flat && parts.Length > 1)
             {
                 if (!TryParseNamed(parts[0], column, row, out var named))
+                {
+                    error = new RawSheetError(
+                        $"Header segment \"{parts[0]}\" is empty or contains a reserved path character. Use a nonempty member name without reserved characters.");
                     return false;
+                }
 
                 components.Add(named);
 
                 for (int i = 1; i < parts.Length; ++i)
                 {
                     if (!TryParseNestedSelector(parts[i], column, row, components))
+                    {
+                        error = new RawSheetError(
+                            $"Header segment \"{parts[i]}\" is not a valid list or dictionary selector in a split or hybrid cell. Use {SheetTokens.List.Selector.Anonymous}, a positive list count, or {SheetTokens.Dictionary.Selector.Anonymous}.");
                         return false;
+                    }
                 }
 
                 return true;
@@ -424,7 +437,11 @@ namespace Cathei.BakingSheet.Raw
                 if (part == SheetTokens.List.Selector.Anonymous)
                 {
                     if (flat)
+                    {
+                        error = new RawSheetError(
+                            $"Bare selector \"{part}\" is not valid in flat mode. Use a positive count such as {SheetTokens.List.Selector.Start}1{SheetTokens.List.Selector.End}.");
                         return false;
+                    }
 
                     components.Add(new RawSheetHeaderComponent(
                         RawSheetHeaderComponentKind.AnonymousList, null, column, row));
@@ -441,7 +458,11 @@ namespace Cathei.BakingSheet.Raw
                 if (TryParseListCount(part, out int count))
                 {
                     if (!flat || count <= 0)
+                    {
+                        error = new RawSheetError(
+                            $"List count \"{part}\" is valid only as a positive count in flat mode. Use {SheetTokens.List.Selector.Start}1{SheetTokens.List.Selector.End} or a supported selector for this header mode.");
                         return false;
+                    }
 
                     for (int i = 0; i < count; ++i)
                     {
@@ -469,12 +490,20 @@ namespace Cathei.BakingSheet.Raw
                 }
 
                 if (!TryParseNamed(part, column, row, out var named))
+                {
+                    error = new RawSheetError(
+                        $"Header segment \"{part}\" is empty or contains a reserved path character. Use a nonempty member name without reserved characters.");
                     return false;
+                }
 
                 components.Add(named);
             }
 
-            return components.Count > 0;
+            if (components.Count > 0)
+                return true;
+
+            error = new RawSheetError("The header is empty. Enter a member name or a supported collection selector.");
+            return false;
         }
 
         private static bool TryParseNestedSelector(string part, int column, int row,
