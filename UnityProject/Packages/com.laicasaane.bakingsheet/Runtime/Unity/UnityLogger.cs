@@ -35,6 +35,9 @@ namespace Cathei.BakingSheet.Unity
             if (scopes.Count > 0)
                 message = $"[{string.Join(">", scopes)}] {message}";
 
+            if (exception != null)
+                message = $"{message}{Environment.NewLine}{exception}";
+
             switch (logLevel)
             {
                 case LogLevel.Trace:

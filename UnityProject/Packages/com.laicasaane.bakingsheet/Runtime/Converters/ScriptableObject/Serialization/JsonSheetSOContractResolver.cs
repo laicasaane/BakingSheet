@@ -76,11 +76,19 @@ namespace Cathei.BakingSheet.Unity
             }
 
             using (logError.BeginScope(err.ErrorContext.Path))
-                logError.LogError(err.ErrorContext.Error, err.ErrorContext.Error.Message);
+            {
+                logError.LogError(
+                    err.ErrorContext.Error,
+                    "ScriptableObject JSON conversion failed at path {JsonPath}, member {Member}, original type {OriginalType}, current type {CurrentType}: {ErrorMessage}",
+                    err.ErrorContext.Path ?? "(unknown)",
+                    err.ErrorContext.Member?.ToString() ?? "(unknown)",
+                    err.ErrorContext.OriginalObject?.GetType().FullName ?? "(unknown)",
+                    err.CurrentObject?.GetType().FullName ?? "(unknown)",
+                    err.ErrorContext.Error.Message);
+            }
 
             err.ErrorContext.Handled = true;
         }
 
     }
 }
-

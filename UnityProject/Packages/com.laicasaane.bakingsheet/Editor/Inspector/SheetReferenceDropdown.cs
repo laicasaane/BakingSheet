@@ -64,7 +64,9 @@ namespace Cathei.BakingSheet.Editor
 
                     if (_indexToEntityId.TryAdd(union.index, union.entityId) == false)
                     {
-                        Debug.LogWarning($"Duplicate EntityId index '{union.index}' for '{rowSO.name}'. Skipping from dropdown.");
+                        Debug.LogWarning(
+                            $"Duplicate EntityId index '{union.index}' for row asset '{rowSO.name}' while inspecting '{_property.serializedObject.targetObject.name}.{_property.propertyPath}' as target type '{_targetTypeInfo}'. Skipping from dropdown.",
+                            _property.serializedObject.targetObject);
                         continue;
                     }
 
@@ -99,7 +101,9 @@ namespace Cathei.BakingSheet.Editor
             }
             else
             {
-                Debug.LogWarning($"Cannot find EntityId by index '{item.id}'.");
+                Debug.LogWarning(
+                    $"Cannot find EntityId by index '{item.id}' while inspecting '{_property.serializedObject.targetObject.name}.{_property.propertyPath}' as target type '{_targetTypeInfo}'. The selection was not changed.",
+                    _property.serializedObject.targetObject);
                 return;
             }
 #else
