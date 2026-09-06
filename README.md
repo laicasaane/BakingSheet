@@ -47,6 +47,7 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 * Referencing Asset data with [AssetPath](docs/asset-path.md).
 * [Customizable value converter](docs/value-converter.md).
 * [Customizable data verification](docs/data-verification.md).
+* Actionable diagnostics and structured context with [Error logging](docs/error-logging.md).
 * [Partial sheet import](https://github.com/cathei/BakingSheet/issues/22).
 
 ## About this fork
@@ -73,7 +74,7 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 For Unity projects, add git package from Package Manager.
 
 ```
-https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.1-pre.6
+https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.1-pre.7
 ```
 
 Or install it via [OpenUPM](https://openupm.com/packages/com.laicasaane.bakingsheet/).
