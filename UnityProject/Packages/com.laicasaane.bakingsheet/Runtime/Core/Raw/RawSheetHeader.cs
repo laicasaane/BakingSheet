@@ -251,10 +251,7 @@ namespace Cathei.BakingSheet.Raw
                     cells.Add(carried[row]);
                 }
 
-                string completePath = string.Join(
-                    SheetTokens.Separator.Path, cells.Select(x => x.Value));
-                bool isComment = SheetTokens.StartsWithComment(
-                    completePath, SheetTokens.Comment.Primary);
+                bool isComment = cells.Any(x => IsCommentCell(x.Value));
 
                 if (isComment)
                 {
@@ -400,6 +397,26 @@ namespace Cathei.BakingSheet.Raw
                 yield return $"{SheetTokens.List.Selector.Start}{count}" +
                              $"{SheetTokens.List.Selector.End}";
             }
+        }
+
+        // A header cell is a comment when it starts with $. A later path segment, such as
+        // $Note$ in Prices:$Note$, is a comment only when it also ends with $, so a flat
+        // Prices:$USD header still names a dictionary key.
+        private static bool IsCommentCell(string value)
+        {
+            if (SheetTokens.StartsWithComment(value, SheetTokens.Comment.Primary))
+                return true;
+
+            foreach (string part in SheetTokens.SplitPath(value))
+            {
+                if (SheetTokens.StartsWithComment(part, SheetTokens.Comment.Primary) &&
+                    part.TrimEnd().EndsWith(SheetTokens.Comment.Primary, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool TryParseCell(string value, bool flat, int column, int row,

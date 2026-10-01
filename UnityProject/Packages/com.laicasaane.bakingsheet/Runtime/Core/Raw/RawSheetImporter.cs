@@ -581,6 +581,16 @@ namespace Cathei.BakingSheet.Raw
                 }
 
                 var path = candidate.Paths[0];
+
+                if (path.IsComment)
+                {
+                    invalidColumn = 0;
+                    invalidRow = path.LastComponentRow;
+                    error = new RawSheetError(
+                        $"The {SheetTokens.Header.Id} header path cannot contain a comment prefix. Remove {SheetTokens.Comment.Primary} from the first column header.");
+                    return false;
+                }
+
                 var state = propertyMap.ClassifyPath(
                     path, formatter, memberNameMapper,
                     out var resolvedComponents, out int invalidComponent);
