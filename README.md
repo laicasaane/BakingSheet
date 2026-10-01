@@ -67,7 +67,7 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 * Supports [vertical dictionary](#using-vertical-dictionary).
 * Supports [nested vertical collections](docs/nested-collections.md).
 * Supports [sheet transposition](#using-sheet-transposition).
-* Expands [comment rules](#ignoring-comments-during-import) to support comment on non-header cells.
+* Expands [comment rules](#ignoring-comments-during-import) to support comment on non-header cells and nested header levels.
 
 ## Install
 
@@ -814,15 +814,15 @@ For multiple records and detailed rules, see [Advanced Sheet Transposition](docs
 
 ## Ignoring Comments During Import
 
-BakingSheet detects a leading `$` or `$$` as a comment marker during import. The marker must be the first content in
-the column header or cell.
+BakingSheet detects a leading `$` or `$$` as a comment prefix during import. The prefix must be the first content in
+a cell, including a column header cell at any level.
 
-| Cell location       | Starts with                       | What BakingSheet does                                          |
-| ------------------- | --------------------------------- | -------------------------------------------------------------- |
-| Column header       | `$` and `$$`                  | Skips the whole column.                                        |
-| `Id` cell         | `$` and `$$`                  | Skips the whole row.                                           |
-| Any other data cell | `$$`                            | Does not import that cell. Other cells stay in place.          |
-| Any other data cell | A single `$`, such as `$sale` | Imports the cell normally. A text property receives `$sale`. |
+| Cell location                | Starts with                   | What BakingSheet does                                        |
+| ---------------------------- | ----------------------------- | ------------------------------------------------------------ |
+| Column header (any level)    | `$` and `$$`                  | Skips the whole column.                                      |
+| `Id` cell                    | `$` and `$$`                  | Skips the whole row.                                         |
+| Any other data cell          | `$$`                          | Does not import that cell. Other cells stay in place.        |
+| Any other data cell          | A single `$`, such as `$sale` | Imports the cell normally. A text property receives `$sale`. |
 
 The following input table shows all four rules.
 
@@ -869,6 +869,64 @@ The imported sheet contains:
 
 Comments are only used during import. BakingSheet does not store them. When you export, BakingSheet writes the current
 sheet values and does not restore the comments.
+
+### Comments in Nested Headers
+
+A header cell at any level that starts with `$` or `$$` skips its own column. Columns under the same parent keep
+importing. Inside a `:` path, a segment is a comment only when it starts and ends with `$`, such as `Lineup:$Note$`. A
+segment that only starts with `$`, such as `Prices:$USD`, stays a name, so it can still be a dictionary key. A comment
+prefix in the `Id` header path is an error.
+
+The following input tables show the same sheet with a flat header and a split header.
+
+<details>
+<summary>Flat header</summary>
+
+| Id     | Lineup:Enemy | Lineup:$Note$ | Lineup:Level |
+| ------ | ------------ | ------------- | ------------ |
+| STAGE1 | Slime        | weak one      | 1            |
+|        | Golem        | boss          | 5            |
+
+</details>
+
+<details>
+<summary>Split header</summary>
+
+| Id     | Lineup |          |       |
+| ------ | ------ | -------- | ----- |
+|        | Enemy  | $Note    | Level |
+| STAGE1 | Slime  | weak one | 1     |
+|        | Golem  | boss     | 5     |
+
+</details>
+
+Code below is the corresponding BakingSheet class.
+
+```csharp
+public struct Lineup
+{
+    public string Enemy { get; private set; }
+    public int Level { get; private set; }
+}
+
+public class StageSheet : Sheet<StageSheet.Row>
+{
+    public class Row : SheetRow
+    {
+        public VerticalList<Lineup> Lineup { get; private set; }
+    }
+}
+```
+
+The imported sheet contains:
+
+| Id     | Lineup:Enemy | Lineup:Level |
+| ------ | ------------ | ------------ |
+| STAGE1 | Slime        | 1            |
+|        | Golem        | 5            |
+
+- `$Note$` in the flat header and `$Note` in the split header skip only their own column.
+- `Level` still imports under `Lineup`.
 
 ### Whitespace Around Comment Markers
 
