@@ -872,20 +872,24 @@ sheet values and does not restore the comments.
 
 ### Comments in Nested Headers
 
-A header cell at any level that starts with `$` or `$$` skips its own column. Columns under the same parent keep
-importing. Inside a `:` path, a segment is a comment only when it starts and ends with `$`, such as `Lineup:$Note$`. A
-segment that only starts with `$`, such as `Prices:$USD`, stays a name, so it can still be a dictionary key. A comment
-prefix in the `Id` header path is an error.
+The comment prefix works in header cells at every level. When a header cell starts with `$` or `$$`, BakingSheet skips
+its column. Other columns under the same parent keep importing.
+
+Only the start of the cell counts. A `$` after a `:` separator is part of the name, so `Lineup:$Note` is not a comment,
+and `Prices:$USD` still names a dictionary key. To comment out a flat header, put the prefix before the whole path,
+such as `$Lineup:Note`.
+
+A comment prefix in the `Id` header path is an error.
 
 The following input tables show the same sheet with a flat header and a split header.
 
 <details>
 <summary>Flat header</summary>
 
-| Id     | Lineup:Enemy | Lineup:$Note$ | Lineup:Level |
-| ------ | ------------ | ------------- | ------------ |
-| STAGE1 | Slime        | weak one      | 1            |
-|        | Golem        | boss          | 5            |
+| Id     | Lineup:Enemy | $Lineup:Note | Lineup:Level |
+| ------ | ------------ | ------------ | ------------ |
+| STAGE1 | Slime        | weak one     | 1            |
+|        | Golem        | boss         | 5            |
 
 </details>
 
@@ -925,7 +929,7 @@ The imported sheet contains:
 | STAGE1 | Slime        | 1            |
 |        | Golem        | 5            |
 
-- `$Note$` in the flat header and `$Note` in the split header skip only their own column.
+- `$Lineup:Note` in the flat header and `$Note` in the split header each skip only their own column.
 - `Level` still imports under `Lineup`.
 
 ### Whitespace Around Comment Markers
