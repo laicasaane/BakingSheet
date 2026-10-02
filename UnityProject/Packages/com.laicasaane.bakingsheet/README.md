@@ -44,10 +44,10 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 * Supports exporting to CSV and JSON.
 * Supports .NET platforms and all Unity platforms.
 * Powerful Cross-sheet reference feature.
-* Referencing Asset data with [AssetPath](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/asset-path.md).
-* [Customizable value converter](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/value-converter.md).
-* [Customizable data verification](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/data-verification.md).
-* Actionable diagnostics and structured context with [Error logging](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/error-logging.md).
+* Referencing Asset data with [AssetPath](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/asset-path.md).
+* [Customizable value converter](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/value-converter.md).
+* [Customizable data verification](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/data-verification.md).
+* Actionable diagnostics and structured context with [Error logging](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/error-logging.md).
 * [Partial sheet import](https://github.com/cathei/BakingSheet/issues/22).
 
 ## About this fork
@@ -65,7 +65,7 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 * NuGet and `.unitypackage` installation formats are not supported.
 * Supports [UPM package signing](https://docs.unity3d.com/6000.3/Documentation/Manual/upm-signature.html).
 * Supports [vertical dictionary](#using-vertical-dictionary).
-* Supports [nested vertical collections](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/nested-collections.md).
+* Supports [nested vertical collections](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/nested-collections.md).
 * Supports [sheet transposition](#using-sheet-transposition).
 * Expands [comment rules](#ignoring-comments-during-import) to support comment on non-header cells and nested header levels.
 
@@ -74,7 +74,7 @@ Read the original concept at [cathei/BakingSheet](https://github.com/cathei/Baki
 For Unity projects, add git package from Package Manager.
 
 ```
-https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.1-pre.8
+https://github.com/laicasaane/BakingSheet.git?path=UnityProject/Packages/com.laicasaane.bakingsheet#6.3.1-pre.9
 ```
 
 Or install it via [OpenUPM](https://openupm.com/packages/com.laicasaane.bakingsheet/).
@@ -84,7 +84,7 @@ openupm add com.laicasaane.bakingsheet
 ```
 
 If you are planning to use StreamingAssets folder on Android, install
-[BetterStreamingAssets](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/streaming-assets.md) as well.
+[BetterStreamingAssets](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/streaming-assets.md) as well.
 
 ### Need help?
 
@@ -105,7 +105,7 @@ this project will be greatful!
 BakingSheet manages datasheet schema as C# code. `Sheet` class represents a table and `SheetRow` class represents a
 record. Below is example content of file `Consumables` page in `MySheets.xlsx`.
 
-![Plain Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.8/.github/images/sample_plain.png)
+![Plain Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.9/.github/images/sample_plain.png)
 
 <details>
 <summary>Markdown version</summary>
@@ -178,7 +178,7 @@ example when you want to deploy some `Sheet` only exclusive to server program, y
 * Nullable for any other supported value type (for example `int?`)
 * `List<>` and `Dictionary<,>`
 * Custom `struct` and `class` as [nested column](#using-nested-type-column)
-* Custom type converted with [ValueConverter](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/value-converter.md)
+* Custom type converted with [ValueConverter](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/value-converter.md)
 
 > **Note**
 > When using `JsonConverter`, `enum` is serialized as `string` by default so you won't have issue when reordering them.
@@ -278,7 +278,7 @@ await sheetContainer.Bake(excelConverter);
 For Google Sheet, first create your service account through Google API Console. Then add it to your sheet with
 `Viewer` permission. Use Google credential for that service account to create converter. For detailed information
 about how to create service account and link to your sheet, see
-[How to import from Google Sheet](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/google-sheet-import.md).
+[How to import from Google Sheet](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/google-sheet-import.md).
 
 ```csharp
 // replace with your Google sheet identifier
@@ -330,7 +330,7 @@ You can extend `JsonSheetConverter` to customize serialization process. For exam
 > For AOT platforms (iOS, Android), read about [AOT Code Stripping](#about-aot-code-stripping-unity).
 
 > **Note**
-> If you are using `StreamingAssets` on Android, also see [Reading From StreamingAssets](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/streaming-assets.md).
+> If you are using `StreamingAssets` on Android, also see [Reading From StreamingAssets](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/streaming-assets.md).
 
 ## Accessing Row
 
@@ -363,7 +363,7 @@ foreach (var consumableId in sheetContainer.Consumables.Where(row => row.Price >
 
 List columns are used for simple array.
 
-![List Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.8/.github/images/sample_list.png)
+![List Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.9/.github/images/sample_list.png)
 
 <details>
 <summary>Flat header</summary>
@@ -416,7 +416,7 @@ Use `VerticalList<T>` when list items should extend down rows. See
 
 Dictionary columns are used when key-based access of value is needed.
 
-![Dictionary Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.8/.github/images/sample_dict.png)
+![Dictionary Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.9/.github/images/sample_dict.png)
 
 <details>
 <summary>Flat header</summary>
@@ -466,7 +466,7 @@ Use it as simple as just including a column has type implmenting `IDictionary<TK
 
 Vertical dictionary columns are used when key-based entries should extend down rows.
 
-![Vertical Dictionary Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.8/.github/images/sample_vertical_dict.png)
+![Vertical Dictionary Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.9/.github/images/sample_vertical_dict.png)
 
 <details>
 <summary>Flat header</summary>
@@ -515,7 +515,7 @@ Use it as simple as just including a column of type `VerticalDictionary<TKey, TV
 Blank collections become empty collections, while blank scalar or composite values keep
 their default value. Duplicate keys preserve the first entry. Export order is unspecified.
 
-See [Nested Collections](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/nested-collections.md) for multi-level dictionaries and mixed vertical collections.
+See [Nested Collections](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/nested-collections.md) for multi-level dictionaries and mixed vertical collections.
 
 ## Using Nested Vertical List
 
@@ -554,7 +554,7 @@ rule. A marker row contains exactly one marker and otherwise blank cells.
 
 Invalid markers or missing ancestor markers discard the active logical row; import resumes at the next nonblank `Id`.
 
-See [Nested Collections](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/nested-collections.md) for label rules and examples, exact Flat, Hybrid, and Split
+See [Nested Collections](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/nested-collections.md) for label rules and examples, exact Flat, Hybrid, and Split
 geometry, dictionary restrictions, marker whitespace and comment rules, recovery behavior, and equivalent CSV
 examples.
 
@@ -562,7 +562,7 @@ examples.
 
 Nested type columns are used for complex structure.
 
-![Nested Type Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.8/.github/images/sample_dict.png)
+![Nested Type Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.9/.github/images/sample_dict.png)
 
 <details>
 <summary>Flat header</summary>
@@ -613,7 +613,7 @@ how BakingSheet reads the column.
 
 Row arrays are used for 2-dimentional structure. Below is example content of file `Heroes.xlsx`.
 
-![Row Array Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.8/.github/images/sample_rowarray.png)
+![Row Array Sample](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.9/.github/images/sample_rowarray.png)
 
 <details>
 <summary>Markdown version</summary>
@@ -732,7 +732,7 @@ logger.LogInformation(consumableRow.Name);
 Any type can be used value can be also used as `Id`. This is possible as passing type argument to generic class
 `SheetRow<TKey>` and `Sheet<TKey, TRow>`. Below is example content of file `Contstants.xlsx`.
 
-![Sample Non-String Id](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.8/.github/images/sample_non_string_id.png)
+![Sample Non-String Id](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.9/.github/images/sample_non_string_id.png)
 
 <details>
 <summary>Markdown version</summary>
@@ -767,14 +767,14 @@ public class ConstantSheet : Sheet<GameConstant, ConstantSheet.Row>
 This approach stores each setting as a separate row. The `GameConstant` value becomes its `Id`, and every row uses the
 same `Value` property.
 
-An Id can also use several columns. See [Complex Ids](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/complex-id.md) for its model and header layouts.
+An Id can also use several columns. See [Complex Ids](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/complex-id.md) for its model and header layouts.
 
 ## Using Sheet Transposition
 
 Transposition provides another way to model the same settings. Instead of using enum values as row identifiers, each
 setting can be a property with its own value type. One column then holds the complete configuration.
 
-![Sample Transposition](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.8/.github/images/sample_transposition.png)
+![Sample Transposition](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.9/.github/images/sample_transposition.png)
 
 <details>
 <summary>Markdown version</summary>
@@ -810,7 +810,7 @@ public class SheetContainer : SheetContainerBase
 After import, `Constants` contains one row whose identifier is `GAME` while `ServerAddress`, `InitialGold`,
 and `CriticalChance` are properties of that row.
 
-For multiple records and detailed rules, see [Advanced Sheet Transposition](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/sheet-transposition.md).
+For multiple records and detailed rules, see [Advanced Sheet Transposition](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/sheet-transposition.md).
 
 ## Ignoring Comments During Import
 
@@ -826,7 +826,7 @@ a cell, including a column header cell at any level.
 
 The following input table shows all four rules.
 
-![Sample Ignoring Comments](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.8/.github/images/sample_ignoring_comments.png)
+![Sample Ignoring Comments](https://raw.githubusercontent.com/laicasaane/BakingSheet/6.3.1-pre.9/.github/images/sample_ignoring_comments.png)
 
 (Green cells are skipped during import.)
 
@@ -872,20 +872,24 @@ sheet values and does not restore the comments.
 
 ### Comments in Nested Headers
 
-A header cell at any level that starts with `$` or `$$` skips its own column. Columns under the same parent keep
-importing. Inside a `:` path, a segment is a comment only when it starts and ends with `$`, such as `Lineup:$Note$`. A
-segment that only starts with `$`, such as `Prices:$USD`, stays a name, so it can still be a dictionary key. A comment
-prefix in the `Id` header path is an error.
+The comment prefix works in header cells at every level. When a header cell starts with `$` or `$$`, BakingSheet skips
+its column. Other columns under the same parent keep importing.
+
+Only the start of the cell counts. A `$` after a `:` separator is part of the name, so `Lineup:$Note` is not a comment,
+and `Prices:$USD` still names a dictionary key. To comment out a flat header, put the prefix before the whole path,
+such as `$Lineup:Note`.
+
+A comment prefix in the `Id` header path is an error.
 
 The following input tables show the same sheet with a flat header and a split header.
 
 <details>
 <summary>Flat header</summary>
 
-| Id     | Lineup:Enemy | Lineup:$Note$ | Lineup:Level |
-| ------ | ------------ | ------------- | ------------ |
-| STAGE1 | Slime        | weak one      | 1            |
-|        | Golem        | boss          | 5            |
+| Id     | Lineup:Enemy | $Lineup:Note | Lineup:Level |
+| ------ | ------------ | ------------ | ------------ |
+| STAGE1 | Slime        | weak one     | 1            |
+|        | Golem        | boss         | 5            |
 
 </details>
 
@@ -925,7 +929,7 @@ The imported sheet contains:
 | STAGE1 | Slime        | 1            |
 |        | Golem        | 5            |
 
-- `$Note$` in the flat header and `$Note` in the split header skip only their own column.
+- `$Lineup:Note` in the flat header and `$Note` in the split header each skip only their own column.
 - `Level` still imports under `Lineup`.
 
 ### Whitespace Around Comment Markers
@@ -1067,7 +1071,7 @@ converters will be included to the build.
 
 | Symbol                              | Effect                                                                                                                                                |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BAKINGSHEET_RUNTIME_GOOGLECONVERTER | Include Google Converter to your build.<br/>See also: [Google Sheet Converter](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/google-sheet-import.md#how-to-use-google-sheet-converter-on-runtime) |
+| BAKINGSHEET_RUNTIME_GOOGLECONVERTER | Include Google Converter to your build.<br/>See also: [Google Sheet Converter](https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/google-sheet-import.md#how-to-use-google-sheet-converter-on-runtime) |
 | BAKINGSHEET_RUNTIME_CSVCONVERTER    | Include CSV Converter to your build.                                                                                                                  |
 | BAKINGSHEET_EXTERNAL_LOGGING_DLL    | Use external `Microsoft.Extensions.Logging.Abstractions.dll`. Useful if you already have same dll in your project for different dependency.         |
 
@@ -1075,4 +1079,4 @@ converters will be included to the build.
 [google]: https://www.nuget.org/packages/BakingSheet.Converters.Google/
 [csv]: https://www.nuget.org/packages/BakingSheet.Converters.Csv/
 [json]: https://www.nuget.org/packages/BakingSheet.Converters.Json/
-[scriptable]: https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.8/docs/scriptable-object.md
+[scriptable]: https://github.com/laicasaane/BakingSheet/blob/6.3.1-pre.9/docs/scriptable-object.md
