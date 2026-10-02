@@ -82,7 +82,7 @@ namespace Cathei.BakingSheet.Tests
             ",,,,$Z,X,Y,\n", 3, 4, 7)]
         [InlineData(
             "Id,,$,LineupInfo,,,,\n" +
-            "Map,Stage,,Id,Position:$Z$,Position,,Enemy\n" +
+            "Map,Stage,,Id,$Position:Z,Position,,Enemy\n" +
             ",,,,,X,Y,\n", 3, 4, 7)]
         [InlineData(
             "Id,,$,LineupInfo,,,,\n" +
@@ -115,8 +115,7 @@ namespace Cathei.BakingSheet.Tests
         }
 
         [Theory]
-        [InlineData("Id,Prices:$Note$,Prices:EUR,Tail\nA,ignored,2,3\n")]
-        [InlineData("Id,Prices: $Note$ ,Prices:EUR,Tail\nA,ignored,2,3\n")]
+        [InlineData("Id,$Prices:Note,Prices:EUR,Tail\nA,ignored,2,3\n")]
         [InlineData("Id,Prices:EUR, \t$ Note,Tail\nA,2,ignored,3\n")]
         [InlineData("Id,Prices,,Tail\n,$USD,EUR,\nA,ignored,2,3\n")]
         public async Task ImportIgnoresCommentInDictionaryKeyPosition(string csv)
@@ -136,23 +135,26 @@ namespace Cathei.BakingSheet.Tests
             Assert.Equal(3, row.Tail);
         }
 
-        [Fact]
-        public async Task ImportKeepsDollarPrefixedKeyInFlatDictionaryHeader()
+        [Theory]
+        [InlineData("$USD")]
+        [InlineData("$$Note")]
+        [InlineData("$Note$")]
+        public async Task ImportKeepsDollarPrefixedKeyInFlatDictionaryHeader(string key)
         {
             using var fileSystem = new TestFileSystem();
             var logger = new TestLogger();
             var container = new PriceContainer(logger);
             fileSystem.SetTestData(
                 Path.Combine("testdata", "Prices.csv"),
-                "Id,Prices:$USD,Prices:EUR,Tail\nA,1,2,3\n");
+                $"Id,Prices:{key},Prices:EUR,Tail\nA,1,2,3\n");
 
             var result = await container.Bake(CreateConverter(fileSystem));
 
             logger.VerifyNoError();
             Assert.True(result);
             var row = Assert.Single(container.Prices);
-            Assert.Equal(new[] { "$USD", "EUR" }, row.Prices.Keys.OrderBy(x => x, StringComparer.Ordinal).ToArray());
-            Assert.Equal(1, row.Prices["$USD"]);
+            Assert.Equal(new[] { key, "EUR" }, row.Prices.Keys.OrderBy(x => x, StringComparer.Ordinal).ToArray());
+            Assert.Equal(1, row.Prices[key]);
             Assert.Equal(2, row.Prices["EUR"]);
             Assert.Equal(3, row.Tail);
         }
